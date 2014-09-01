@@ -6,17 +6,18 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
-        <link rel="stylesheet" href="{% static "css/font-awesome.min.css" %}">
+        <link rel="stylesheet" href="{% static "css/font-awesome.css" %}">
 
         <link rel="stylesheet" href="{% static "css/style.css" %}" media="all">
     </head>
     <body>
-
+        {% block content %}{% endblock %}
         <script src="http://code.jquery.com/jquery.js"></script>
         <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
         <script src="https://code.angularjs.org/1.2.23/angular.min.js"></script>
+        <script src="https://code.angularjs.org/1.2.23/angular-route.min.js"></script>
         <script src="{% static "js/app.js" %}"></script>
-        <script src="{% static "js/scripts.js" %}"></script>
+        <script src="{% static "js/controllers.js" %}"></script>
     </body> 
 </html>
 
