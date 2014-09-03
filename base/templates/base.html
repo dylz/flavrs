@@ -9,15 +9,14 @@
         <link rel="stylesheet" href="{% static "css/font-awesome.css" %}">
 
         <link rel="stylesheet" href="{% static "css/style.css" %}" media="all">
-    </head>
-    <body>
-        {% block content %}{% endblock %}
         <script src="http://code.jquery.com/jquery.js"></script>
         <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
         <script src="https://code.angularjs.org/1.2.23/angular.min.js"></script>
         <script src="https://code.angularjs.org/1.2.23/angular-route.min.js"></script>
         <script src="{% static "js/app.js" %}"></script>
         <script src="{% static "js/controllers.js" %}"></script>
+    </head>
+    <body>
+        {% block content %}{% endblock %}
     </body> 
 </html>
-
