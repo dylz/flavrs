@@ -25,11 +25,17 @@ SECRET_KEY = 'rzvw11397yut$y=!+lx$n+@)k&dd9n^(g6%w(+(#fcao^*r@!b'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+SECURE = False
 
 TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
+PROTOCAL = 'http'
+if SECURE:
+    PROTOCAL += 's'
+
+DOMAIN = 'localhost:8000'
 
 # Application definition
 
@@ -43,6 +49,7 @@ INSTALLED_APPS = (
     'base',
     'provider',
     'provider.oauth2',
+    'requests'
 )
 
 MIDDLEWARE_CLASSES = (

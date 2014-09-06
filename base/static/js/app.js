@@ -1,7 +1,24 @@
 'use strict';
 
-// Declare app level module which depends on views, and components
-var app = angular.module('flavrs', ['ngRoute']);
+// APP is defined!
+var app = angular.module('flavrs', ['ngRoute','ngCookies','ngStorage']);
+
+//factory
+app.factory('httpRequestInterceptor', function ($cookies) {
+  return {
+    request: function (config) {
+      var token = 'lols';
+      config.headers['X-CSRFToken'] = $cookies.csrftoken;
+      return config;
+    }
+  };
+});
+ 
+//configs
+
+app.config(function ($httpProvider) {
+  $httpProvider.interceptors.push('httpRequestInterceptor');
+});
 
 app.config(function($locationProvider) {
   $locationProvider.html5Mode(true).hashPrefix('!');

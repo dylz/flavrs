@@ -1,3 +1,5 @@
+from django.conf import settings
+
 def normalise_email(email):
     """
     The local part of an email address is case-sensitive, the domain part
@@ -9,3 +11,7 @@ def normalise_email(email):
         local, host = clean_email.split('@')
         return local + '@' + host.lower()
     return clean_email
+
+
+def get_home_url():
+    return settings.PROTOCAL+'://'+settings.DOMAIN

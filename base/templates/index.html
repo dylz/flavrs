@@ -1,5 +1,18 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    hello
+    
+{% verbatim %}
+    <div>
+        <form>
+            {% endverbatim %}
+            {% csrf_token %}
+            {% verbatim %}
+            <input type="text" name="username" ng-model="username" /> <br/>
+            <input type="password" name="password" ng-model="password" /> <br/>
+            <button type="submit" ng-click="login(username,password)" >Log In</button>
+        </form>
+    </div>
+{% endverbatim %}
+
 {% endblock %}
