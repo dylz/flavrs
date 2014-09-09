@@ -1,4 +1,7 @@
+import ast
+
 from django.core.urlresolvers import reverse
+from django.contrib.auth import authenticate, login
 
 import requests
 from provider.oauth2.views import AccessTokenView
@@ -45,5 +48,35 @@ class BlackBox(Base):
 
         url = get_home_url()+reverse('oauth2:access_token')
         r = requests.post(url,data=self.data)
-        print r.text
-        return r.text
+        
+        #Now, lets check if the user authenticated successfully.
+
+        self._set_log({'status': 'error'})
+
+        response = ast.literal_eval(r.text)
+        if response.get('access_token',False):
+            #Access token granted, lets log them in through Django so the 
+            #session gets created properly.
+            user = authenticate(username=self.data['username'],
+                                    password=self.data['password'])
+            if user is not None and user.is_active:
+                login(self.request,user)
+                self._set_log({
+                    'status': 'success',
+                    'msg': 'Login Successful. Welcome!',
+                    'response': response
+                })
+            else:
+                self._set_log({
+                    'level': 'validation',
+                    'msg': 'Account No Longer Active.'
+                })
+
+        else:
+            #Users login failed
+            self._set_log({
+                'level': 'validation',
+                'msg': 'Login Credentials Were Incorrect.'
+            })
+
+        return response

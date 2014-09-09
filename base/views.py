@@ -32,10 +32,12 @@ def controllers(request,module,action):
                 controllers = importlib.import_module(name+".controllers")
                 blackbox = getattr(controllers,'BlackBox',None)
                 if blackbox:
-                    return HttpResponse(
-                        json.dumps(blackbox().open(request,action)),
+                    content = blackbox().open(request,action)
+                    response = HttpResponse(
                         content_type="application/json"
                     )
+                    response.write(json.dumps(content))
+                    return response
 
     """
     Controller Not Found! 404!

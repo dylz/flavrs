@@ -31,7 +31,12 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage', 
 
         $http.post($scope.api+'controllers/base/login/',data)
              .success(function(data,status){
-                
+                if(data.status == 'success'){
+                    $scope.$storage = {
+                        access_token: data.response.access_token,
+                        expires: data.response.expires_in
+                    }
+                }
               });
     }
 
