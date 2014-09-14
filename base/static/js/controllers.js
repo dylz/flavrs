@@ -32,10 +32,12 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage', 
         $http.post($scope.api+'controllers/base/login/',data)
              .success(function(data,status){
                 if(data.status == 'success'){
-                    $scope.$storage = {
+                    //Get current seconds, and add the expired time to them
+                    var seconds = new Date().getTime() / 1000;
+                    $localStorage.$reset({
                         access_token: data.response.access_token,
-                        expires: data.response.expires_in
-                    }
+                        expires: seconds+(data.response.expires_in)
+                    });
                 }
               });
     }
