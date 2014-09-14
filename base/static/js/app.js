@@ -4,9 +4,9 @@
 var app = angular.module('flavrs', ['ngRoute','ngCookies','ngStorage']);
 
 //factory
-app.factory('httpRequestInterceptor', function ($cookies,$localStorage) {
+app.factory('httpRequestInterceptor', function ($cookies,$localStorage,$q) {
   return {
-    request: function (config) {
+    request: function(config) {
 
         //check expire date if valid, append access token to request.
         //if invalid, send a "reauthenticate" signal
@@ -16,6 +16,7 @@ app.factory('httpRequestInterceptor', function ($cookies,$localStorage) {
         if (config.url != '/controllers/base/login/'){
             if ((new Date().getTime() / 1000) > $localStorage.expires){
                 //emit signal to reauthenticate
+
             }
             else{
                 //still valid! append the access token
@@ -25,6 +26,19 @@ app.factory('httpRequestInterceptor', function ($cookies,$localStorage) {
 
         config.headers['X-CSRFToken'] = $cookies.csrftoken;
         return config;
+    },
+    response: function(response){
+        //intercept the response object and rearrange the data
+        //so the app can use the data better
+
+        //generally, this is where we will do the msg handling to the user.
+        //since all requests should have this, we can handle it here, and just
+        //rearrange the data object to remove redundent code
+
+        //msg handling here...
+
+        response.data = response.data.response;
+        return response;
     }
   };
 });

@@ -49,7 +49,8 @@ INSTALLED_APPS = (
     'base',
     'provider',
     'provider.oauth2',
-    'requests'
+    'requests',
+    'auth_remember'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -57,6 +58,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'auth_remember.middleware.AuthRememberMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -118,7 +120,11 @@ STATICFILES_DIRS = (
 AUTHENTICATION_BACKENDS = (
     'base.auth.Emailbackend',
     'django.contrib.auth.backends.ModelBackend',
+    'auth_remember.backend.AuthRememberBackend'
 )
+
+#Set session age
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 try:
     from local_settings import *

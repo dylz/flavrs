@@ -6,12 +6,24 @@
     <div>
         <form>
             {% endverbatim %}
-            {% csrf_token %}
+            
             {% verbatim %}
-            <input type="text" name="username" ng-model="username" /> <br/>
-            <input type="password" name="password" ng-model="password" /> <br/>
-            <button type="submit" ng-click="login(username,password)" >Log In</button>
+            <input type="text" name="username" ng-model="username" > <br/>
+            <input type="password" name="password" ng-model="password" > <br/>
+            <input type="checkbox" name="remember_me" ng-model="remember_me">
+            <button type="submit" ng-click="login(username,password,remember_me)" >
+                Log In
+            </button> <br/>
+            <button type="button" ng-click="logout()">
+                Log Out
+            </button>
         </form>
+        <div ng-if="!logged">
+            You are not logged in
+        </div>
+        <div ng-if="logged">
+            YOU is logged in!
+        </div>
     </div>
 {% endverbatim %}
 

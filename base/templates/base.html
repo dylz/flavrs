@@ -19,6 +19,8 @@
         <script src="{% static "js/controllers.js" %}"></script>
     </head>
     <body ng-controller="mainCtrl">
+        <div ng-show="ready" class="ng-cloak">
         {% block content %}{% endblock %}
+        </div>
     </body> 
 </html>

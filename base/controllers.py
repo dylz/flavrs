@@ -1,12 +1,13 @@
 import ast
 
 from django.core.urlresolvers import reverse
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 
 import requests
+from auth_remember import remember_user
 from provider.oauth2.views import AccessTokenView
 
-from base.utils import get_home_url
+from base.utils import get_home_url, is_access_token_valid
 from .blackbox import Base
 
 class BlackBox(Base):
@@ -15,13 +16,36 @@ class BlackBox(Base):
 
 
         self.actions = {
-            'login': self._login
+            'check_login': self._check_login,
+            'login': self._login,
+            'logout': self._logout
         }
 
 
     '''
     Module specific functions below here
     '''
+
+    def _check_login(self):
+        """
+        Just checking if the user is logged in or not, and gets passed to the
+        front end to determine the scope from there.
+        """
+
+        #No errors can happen here, it is just a boolean just
+        logged = False
+        user = self.request.user
+        access_token = self.data.get('access_token',None)
+
+        if user.is_authenticated() and is_access_token_valid(access_token,user):
+            logged = True
+
+        self._set_log({
+            'status': 'success',
+            'response': {
+                'logged': logged 
+            }
+        })
 
     def _login(self):
         """
@@ -60,6 +84,8 @@ class BlackBox(Base):
             user = authenticate(username=self.data['username'],
                                     password=self.data['password'])
             if user is not None and user.is_active:
+                if self.data.get('remember_me', None):
+                   remember_user(self.request,user) 
                 login(self.request,user)
                 self._set_log({
                     'status': 'success',
@@ -80,3 +106,9 @@ class BlackBox(Base):
             })
 
         return response
+
+    def _logout(self):
+        """
+        Log the user out.
+        """
+        logout(self.request)
