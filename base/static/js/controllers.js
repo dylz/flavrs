@@ -19,6 +19,9 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage','
     client_secret = '2eb3bf30aec9bed3226b7fc30728e8c26283910b';
     grant_type = 'password';
 
+    //modules.. this won't be hardcoded in the future.. so fix this kay!?
+    $scope.modules = ['bookmarks'];
+
     //Attempt to log the user in
 
     $scope.login = function(is_valid){
@@ -120,8 +123,26 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage','
               });
     }
 
+    //Load module requirements in background
+    $scope.load_modules = function(){
+        $scope.modules.forEach(function(module){
+            //Load modules controller file
+            $.getScript("/static/"+module+"/js/controllers.js");
+        });
+    }
+
     //Init functions
     //check if user is logged or not
     $scope.check_if_logged();
+    //load modules
+    $scope.load_modules();
+
+}]);
+
+
+app.controller('indexCtrl', ['$scope','$http',function(
+    $scope,$http) {
+
+
 
 }]);

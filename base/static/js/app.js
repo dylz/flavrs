@@ -12,15 +12,16 @@ app.factory('httpRequestInterceptor', function ($cookies,$localStorage,$q) {
         //if invalid, send a "reauthenticate" signal
 
         //if requested url is to login, ignore this process
+        if(config.hasOwnProperty('data')){
+            if (config.url != '/controllers/base/login/'){
+                if ((new Date().getTime() / 1000) > $localStorage.expires){
+                    //emit signal to reauthenticate
 
-        if (config.url != '/controllers/base/login/'){
-            if ((new Date().getTime() / 1000) > $localStorage.expires){
-                //emit signal to reauthenticate
-
-            }
-            else{
-                //still valid! append the access token
-                config.data.access_token = $localStorage.access_token;
+                }
+                else{
+                    //still valid! append the access token
+                    config.data.access_token = $localStorage.access_token;
+                }
             }
         }
 
@@ -56,4 +57,20 @@ app.config(function ($httpProvider) {
 
 app.config(function($locationProvider) {
   $locationProvider.html5Mode(true).hashPrefix('!');
+});
+
+// routing
+// hardcoded routes for now
+app.config(function($routeProvider) {
+    $routeProvider
+
+        .when('/', {
+            templateUrl : '/static/partials/view.html',
+            controller  : 'indexCtrl'
+        })
+
+        .when('/bookmarks/', {
+            templateUrl : '/static/bookmarks/partials/view.html',
+            controller  : 'bookmarksCtrl'
+        })
 });

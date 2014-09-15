@@ -47,3 +47,17 @@ def controllers(request,module,action):
     Controller Not Found! 404!
     """
     raise Http404
+
+def module_view(request,module):
+    """
+    Check if valid module
+    """
+
+    ignore = ['.git']
+    for name in os.listdir(settings.BASE_DIR):
+        if name not in ignore and os.path.isdir(settings.BASE_DIR+'/'+name):
+            #Valid module, return module and let the front end deal with the rest
+            if name == module:
+                return index(request)
+
+    raise Http404
