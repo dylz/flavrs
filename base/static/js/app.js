@@ -36,6 +36,11 @@ app.factory('httpRequestInterceptor', function ($cookies,$localStorage,$q) {
         //rearrange the data object to remove redundent code
 
         //msg handling here...
+        
+        //Lets handle 'error's
+        if(response.data.status == 'error'){
+            return $q.reject(response);
+        }
 
         response.data = response.data.response;
         return response;

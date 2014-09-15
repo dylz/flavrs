@@ -21,28 +21,33 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage','
 
     //Attempt to log the user in
 
-    $scope.login = function(username,password,remember_me){
-        var data = {
-            username: username,
-            password: password,
-            remember_me: remember_me,
-            client_id: client_id,
-            client_secret: client_secret,
-            grant_type: grant_type
-        }
+    $scope.login = function(is_valid){
+        if(is_valid){
+            var data = {
+                username: $scope.username,
+                password: $scope.password,
+                remember_me: $scope.remember_me,
+                client_id: client_id,
+                client_secret: client_secret,
+                grant_type: grant_type
+            }
 
-        $http.post($scope.api+'controllers/base/login/',data)
-             .success(function(data,status){
-                //Get current seconds, and add the expired time to them
-                var seconds = new Date().getTime() / 1000;
-                $localStorage.$reset({
-                    access_token: data.access_token,
-                    expires: seconds+(data.expires_in),
-                    logged: true
-                });
-                //Say the user is logged in
-                $scope.logged = true;
-              });
+            $http.post($scope.api+'controllers/base/login/',data)
+                 .success(function(data,status){
+                    //Get current seconds, and add the expired time to them
+                    var seconds = new Date().getTime() / 1000;
+                    $localStorage.$reset({
+                        access_token: data.access_token,
+                        expires: seconds+(data.expires_in),
+                        logged: true
+                    });
+                    //Say the user is logged in
+                    $scope.logged = true;
+                  })
+                 .error(function(data,status){
+                    console.log('this is an error')
+                 })
+        }
     }
 
     $scope.check_if_logged = function(){
