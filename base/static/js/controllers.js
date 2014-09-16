@@ -7,8 +7,11 @@ user is logged in or not.
 
 */
 
-app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage','$cookies','$q',function(
-    $scope,$http,$localStorage,$sessionStorage,$cookies,$q) {
+app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
+                            '$cookies','$q','$location','$controller',
+                            '$rootScope',function(
+    $scope,$http,$localStorage,$sessionStorage,$cookies,$q,$location,
+    $controller, $rootScope) {
     
     $scope.api = '/';
     $scope.ready = false;
@@ -124,25 +127,58 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage','
     }
 
     //Load module requirements in background
-    $scope.load_modules = function(){
-        $scope.modules.forEach(function(module){
-            //Load modules controller file
-            $.getScript("/static/"+module+"/js/controllers.js");
-        });
+    $scope.load_module = function(module,callback){
+        //only try to load the module if it is in the list of approved
+        //modules..
+        //This will also help prevent client errors when trying to load
+        //modules that do not exist
+        if($scope.modules.indexOf(module) > -1){
+            $.getScript("/static/"+module+"/js/controllers.js",function(){
+                callback;
+            });
+        }
     }
+
+    $rootScope.$on("$locationChangeSuccess", function(event, current) {
+        //Get the path, and use it to determine the module
+        var path_split = $location.path().split('/'),
+            load_ctrl = function(){
+                $controller(ctrl_name,{$scope:$scope});
+            }
+
+        $scope.module = path_split[1];
+        
+        if($scope.module == ""){
+            $scope.module = 'base';
+        }
+
+        //try to load the modules ctrl
+        var ctrl_name = $scope.module+'Ctrl',
+            foundit = false;
+        //loop through the apps controllers and determine if the one we want
+        //is loaded yet. if not, attempt to load it!
+        app._invokeQueue.forEach(function(service){
+            if(service[0] == '$controllerProvider'){
+                if(ctrl_name == service[2][0]){
+                    foundit = true;
+                }
+            }
+        });
+
+        if(foundit){
+            load_ctrl();
+        }
+    });
 
     //Init functions
     //check if user is logged or not
     $scope.check_if_logged();
-    //load modules
-    $scope.load_modules();
 
 }]);
 
 
-app.controller('indexCtrl', ['$scope','$http',function(
+app.controller('baseCtrl', ['$scope','$http',function(
     $scope,$http) {
-
 
 
 }]);

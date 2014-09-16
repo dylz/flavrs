@@ -5,6 +5,6 @@
 app.controller('bookmarksCtrl', ['$scope','$http',function(
     $scope,$http) {
 
-
+    
 
 }]);

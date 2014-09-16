@@ -61,6 +61,7 @@ app.config(function($locationProvider) {
 
 // routing
 // hardcoded routes for now
+/*
 app.config(function($routeProvider) {
     $routeProvider
 
@@ -70,7 +71,8 @@ app.config(function($routeProvider) {
         })
 
         .when('/bookmarks/', {
-            templateUrl : '/static/bookmarks/partials/view.html',
+            templateUrl : '/static/partials/view.html',
             controller  : 'bookmarksCtrl'
         })
 });
+*/
