@@ -4,6 +4,7 @@ argparse==1.2.1
 bcrypt==1.0.2
 certifi==14.05.14
 cffi==0.8.6
+django-auth-remember==0.3
 django-jsonfield==0.9.12b2
 django-oauth2-provider==0.2.6.1
 django-password-reset==0.7
