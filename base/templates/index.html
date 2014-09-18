@@ -3,11 +3,8 @@
 {% block content %}
     
 {% verbatim %}
-    <div>
+    <!--<div>
         <form novalidate ng-submit="login(login_form.$valid)" name="login_form">
-            {% endverbatim %}
-            
-            {% verbatim %}
             <input type="text" name="username" ng-model="username" required> <br/>
             <input type="password" name="password" ng-model="password" required> <br/>
             <input type="checkbox" name="remember_me" ng-model="remember_me">
@@ -32,7 +29,54 @@
         <div>
             {{test}}
         </div>
+    </div>-->
+<div class="navbar navbar-material-lightgrey">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="javascript:void(0)">Flavrs</a>
     </div>
+    <div class="navbar-collapse collapse navbar-responsive-collapse">
+        <form class="navbar-form navbar-left">
+            <div class="form-control-wrapper">
+                <input type="text" class="form-control col-lg-8" placeholder="Search"><span class="material-input"></span>
+            </div>
+        </form>
+        <ul class="nav navbar-nav navbar-left">
+            <li class="dropdown">
+                <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">Category <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="javascript:void(0)">Action</a>
+                    </li>
+                    <li><a href="javascript:void(0)">Another action</a>
+                    </li>
+                    <li><a href="javascript:void(0)">Something else here</a>
+                    </li>
+                    <li class="divider"></li>
+                    <li><a href="javascript:void(0)">Separated link</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                    <img src="https://avatars0.githubusercontent.com/u/3157312?v=2&s=40" class="profile-image">
+                    Dylan <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="#"><i class="fa fa-cog"></i> Account</a></li>
+                    <li class="divider"></li>
+                    <li><a href="#"><i class="fa fa-sign-out"></i> Sign-out</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+    
 {% endverbatim %}
 
 {% endblock %}
