@@ -1,7 +1,7 @@
 'use strict';
 
 // APP is defined!
-var app = angular.module('flavrs', ['ngRoute','ngCookies','ngStorage']);
+var app = angular.module('flavrs', ['ngRoute','ngCookies','ngStorage','ngAnimate','ngMaterial']);
 
 //factory
 app.factory('httpRequestInterceptor', function ($cookies,$localStorage,$q) {
