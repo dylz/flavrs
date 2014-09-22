@@ -50,7 +50,8 @@ INSTALLED_APPS = (
     'provider',
     'provider.oauth2',
     'requests',
-    'auth_remember'
+    'auth_remember',
+    'compressor'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -118,6 +119,13 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'bookmarks', 'static'),
 )
 
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    # other finders..
+    'compressor.finders.CompressorFinder',
+)
+
 AUTHENTICATION_BACKENDS = (
     'base.auth.Emailbackend',
     'django.contrib.auth.backends.ModelBackend',
@@ -126,6 +134,8 @@ AUTHENTICATION_BACKENDS = (
 
 #Set session age
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+COMPRESS_ENABLED = False
 
 try:
     from local_settings import *
