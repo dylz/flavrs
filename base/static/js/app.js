@@ -58,21 +58,3 @@ app.config(function ($httpProvider) {
 app.config(function($locationProvider) {
   $locationProvider.html5Mode(true).hashPrefix('!');
 });
-
-// routing
-// hardcoded routes for now
-/*
-app.config(function($routeProvider) {
-    $routeProvider
-
-        .when('/', {
-            templateUrl : '/static/partials/view.html',
-            controller  : 'indexCtrl'
-        })
-
-        .when('/bookmarks/', {
-            templateUrl : '/static/partials/view.html',
-            controller  : 'bookmarksCtrl'
-        })
-});
-*/

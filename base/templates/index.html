@@ -107,10 +107,55 @@
         <i class="fa fa-plus"></i>
     </div>
     <div class="clearfix"></div>
-    <div class="animate-switch-container" ng-switch on="selectedIndex">
-        <div class="animate-switch tab1" ng-switch-when="0">
-            View for Item #1<br/>
-            Selection index = 0
+    <div id="tab-content" class="animate-switch-container" ng-switch on="selectedIndex">
+        <div class="animate-switch tab1 js-masonry" ng-switch-when="0" 
+        data-masonry-options='{ "columnWidth": 300, "itemSelector": ".tab-inner-wrapper" }'>
+            <div class="tab-inner-wrapper">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Panel heading</div>
+                    <div class="panel-body">
+                        Try-hard heirloom umami,
+                        McSweeney's Wes Anderson small batch Marfa twee blog 
+                        Tonx Portland semiotics disrupt retro. Bicycle rights 
+                        Thundercats pork belly, High Life wolf fap chambray 
+                        master cleanse cornhole before they sold out polaroid 
+                        YOLO trust fund. Gluten-free pug normcore umami put a 
+                        bird on it heirloom lomo, typewriter Portland. Crucifix 
+                        YOLO farm-to-table Carles, distillery kale chips twee 
+                        cornhole Banksy hashtag kitsch lo-fi PBR&B Vice. 
+                        You probably haven't heard of them fanny pack mumblecore 
+                        banh mi Carles Thundercats skateboard, ugh chillwave 
+                        salvia. Roof party pug seitan, cardigan wayfarers 
+                        Kickstarter Carles irony brunch tattooed wolf selvage 
+                        shabby chic. Sartorial Vice pour-over wolf mumblecore 
+                        iPhone.
+                    </div>
+                </div>
+            </div>
+            <div class="tab-inner-wrapper">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Panel heading</div>
+                    <div class="panel-body">
+                        Panel content
+                    </div>
+                </div>
+            </div>
+            <div class="tab-inner-wrapper">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Panel heading</div>
+                    <div class="panel-body">
+                        Panel content
+                    </div>
+                </div>
+            </div>
+            <div class="tab-inner-wrapper">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Panel heading</div>
+                    <div class="panel-body">
+                        Panel content
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="animate-switch tab2" ng-switch-when="1">
             View for Item #2<br/>
@@ -157,6 +202,27 @@
             Selection index = 9
         </div>
     </div>
+    <!-- Button Bar -->
+    <div class="button-bar">
+        <section layout="vertical" layout-sm="vertical" layout-align="center center">
+            <material-button class="material-button-fab material-btn-red">
+                <material-icon icon="fa-plus"></material-icon>
+            </material-button>
+        
+            <material-button class="material-button-fab material-btn-purple">
+                <material-icon icon="fa-edit"></material-icon>
+            </material-button>
+        
+            <material-button class="material-button-fab material-btn-orange">
+                <material-icon icon="fa-trash"></material-icon>
+            </material-button>
+        
+            <material-button class="material-button-fab material-btn-lightblue">
+                <material-icon icon="fa-times"></material-icon>
+            </material-button>
+        </section>
+    </div>
+    <!-- Button Bar : End -->
 </div>
 <!-- Tab Bar : End -->
 

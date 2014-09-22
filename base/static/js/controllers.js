@@ -138,7 +138,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             });
         }
     }
-
+    
     $rootScope.$on("$locationChangeSuccess", function(event, current) {
         //Get the path, and use it to determine the module
         var path_split = $location.path().split('/'),
@@ -169,10 +169,18 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             load_ctrl();
         }
     });
-
+    
+    //Private functions
+    function fixHeight(){
+        var new_height = $(document).height()-$('.menu-bar').height()-$('material-tabs').height();
+        $('#tab-content,.button-bar').height(new_height);
+    }
+    
     //Init functions
     //check if user is logged or not
     $scope.check_if_logged();
+    //Fix height of tab content to match document size
+    fixHeight();
 
 }]);
 
