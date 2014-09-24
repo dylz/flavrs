@@ -181,7 +181,19 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     $scope.check_if_logged();
     //Fix height of tab content to match document size
     fixHeight();
-
+    //Bind this to a scroll event so the height gets fixed whenever the user scrolls
+    window.onresize = function(event) {
+        fixHeight();
+        var windowH = $(window).height(),
+            documentH = $(document).height();
+        if(windowH == documentH){
+            var height = documentH
+        }
+        else{
+            var height = documentH;
+        }
+        $('body').height(height);
+    };
 }]);
 
 

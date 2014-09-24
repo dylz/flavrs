@@ -2,9 +2,17 @@
 .title-me{
   text-transform: capitalize
 }
+
+.img16x16{
+  height: 16px;
+}
+
 /* Body */
 body{
     background-color: #eee;
+}
+.ready{
+  height: 100%;
 }
 /* Navbar */
 .menu-bar.navbar{
@@ -67,6 +75,10 @@ Navbar For Lightgrey mode
 }
 
 /* Tabs */
+.tab-bar{
+  
+}
+
 material-tabs{
   width: 95%;
   float:left;
@@ -226,4 +238,86 @@ material-button{
 material-button:focus,
 material-button:hover{
   color: #222;
+}
+
+/* Cards */
+
+.tab-inner-wrapper .module{
+  position: absolute;
+  right: 0;
+  bottom: 23px;
+  background-color: #09c;
+  color: white;
+  padding: 10px;
+}
+
+.panel-heading-img.img16x16{
+  margin-top: -4px;
+  padding-right: 5px;
+}
+
+.panel-heading-text{
+  margin-left: 20px;
+}
+
+.panel-heading-secondary{
+  font-size: 11px;
+  color: #555;
+}
+
+.panel-footer{
+  background-color: white;
+  border-top: 1px solid #eee;
+  min-height: 44px;
+}
+
+.panel-footer > div{
+  display: inline;
+  padding-right: 5px;
+  margin-left: 5px;
+  border-right: 1px solid #ddd;
+}
+
+.panel-footer > div:first-child{
+  margin-left: 0;
+}
+
+.panel-footer > div:last-child{
+  border-right: none;
+}
+
+.panel-footer a{
+  text-decoration: none;
+}
+
+.panel-footer .dropdown-menu{
+  top: 93%;
+}
+
+a.panel-heading,
+a.panel-body{
+  width: 100%;
+  display: block;
+  text-decoration: none;
+  color: #212121;
+}
+
+.panel-type-link .panel:hover{
+  box-shadow: 0 0px 6px #08c;
+  cursor: pointer;
+}
+
+.panel-img.imgx1{
+  text-align: center;
+  width: 100%;
+}
+
+.panel-img.imgx1 img{
+  width: 45%;
+  margin-left: 6px;
+}
+
+.panel-img.imgx2 img{
+  width: 45%;
+  margin-left: 6px;
 }
