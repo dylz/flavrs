@@ -148,7 +148,11 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     
     //Get the tab content for the selected tab
     $scope.load_tab_content = function(id){
-        
+        var data = {};
+        $http.post($scope.meta.root+'static/json/'+id+'.json',data)
+             .success(function(response,status){
+                $scope.tab_content = response;
+             });
     }
     
     $rootScope.$on("$locationChangeSuccess", function(event, current) {
@@ -217,14 +221,18 @@ app.controller('baseCtrl', ['$scope','$http',function(
     $scope,$http) {
     
     //private
-    function get_tabs(){
+    function init(){
         $http.post($scope.api+'static/json/main.json',{})
              .success(function(response,status){
                 $scope.tabs = response.tabs;
+                $scope.meta = response.meta;
+                
+                //load the first tab's content
+                $scope.load_tab_content($scope.tabs[0].id);
              });
     }
     
     //init
-    get_tabs();
+    init();
 
 }]);

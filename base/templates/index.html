@@ -77,7 +77,7 @@
         <div class="animate-switch tab1 js-masonry" ng-show="selectedTab==0"
         data-masonry-options='{ "columnWidth": 300, "itemSelector": ".tab-inner-wrapper" }'>
             <!-- SHIT -->
-            <div class="tab-inner-wrapper module-events panel-type-event ">
+            <div ng-repeat="content in tab_content"  class="tab-inner-wrapper module-events panel-type-event ">
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         Detroit Red Wings vs Toronto Maple Leafs
@@ -121,6 +121,7 @@
                     <div class="module">Events</div>
                 </div>
             </div>
+            <!--
             <div class="tab-inner-wrapper module-bookmarks panel-type-link">
                 <div class="panel panel-default">
                     <a class="panel-heading" href="">
@@ -374,7 +375,7 @@
                     </div>
                     <div class="module">Events</div>
                 </div>
-            </div>
+            </div>-->
         </div>
         <div class="clearfix"></div>
         <!-- END SHIT -->

@@ -1,5 +1,10 @@
 {
-    "response":{    
+    "response":{
+        "meta": {
+            "version": "0.1",
+            "colour": "#0f6",
+            "root": "/"
+        },
         "tabs": [
             { "title": "Turtle", "editable": true, "id": "dw9udqdjdqbfqdgqw7dq"},
             { "title": "Cat", "editable": true, "id": "kndwfn38210"},
