@@ -21,14 +21,16 @@
         </form>
         <ul class="nav navbar-nav navbar-left">
             <li class="dropdown">
-                <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">
-                    Home
+                <a href="javascript:void(0)" class="dropdown-toggle title-me" data-toggle="dropdown">
+                    {{ module | module }}
                     <b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a href="javascript:void(0)">Bookmarks</a></li>
-                    <li><a href="javascript:void(0)">Events</a></li>
-                    <li><a href="javascript:void(0)">Twitter</a></li>
+                    <li ng-repeat="mod in get_modules()" class="title-me" ng-hide="mod==module">
+                        <a href="{{api}}{{mod | module}}/">
+                            {{ mod | module }}
+                        </a>
+                    </li>
                 </ul>
             </li>
             <li class="dropdown">
@@ -64,24 +66,15 @@
 <!-- Menu Bar : End -->
 <!-- Tab Bar -->
 <div class="tab-bar material-tabs-cyan">
-    <material-tabs selected="selectedIndex" center>
-        <material-tab label="ITEM ONE"></material-tab>
-        <material-tab label="ITEM TWO"></material-tab>
-        <material-tab label="ITEM THREE"></material-tab>
-        <material-tab label="ITEM FOUR"></material-tab>
-        <material-tab label="ITEM FIVE"></material-tab>
-        <material-tab label="ITEM SIX"></material-tab>
-        <material-tab label="ITEM SEVEN"></material-tab>
-        <material-tab label="ITEM EIGHT"></material-tab>
-        <material-tab label="ITEM NINE"></material-tab>
-        <material-tab label="ITEM TEN"></material-tab>
+    <material-tabs selected="selectedTab" center>
+        <material-tab ng-repeat="tab in tabs" label="{{tab.title}}" ng-click="load_tab_content(tab.id)"></material-tab>
     </material-tabs>
     <div class="material-tabs-plus withripple">
         <i class="fa fa-plus"></i>
     </div>
     <div class="clearfix"></div>
-    <div id="tab-content" class="animate-switch-container" ng-switch on="selectedIndex">
-        <div class="animate-switch tab1 js-masonry" ng-switch-when="0" 
+    <div id="tab-content" class="animate-switch-container">
+        <div class="animate-switch tab1 js-masonry" ng-show="selectedTab==0"
         data-masonry-options='{ "columnWidth": 300, "itemSelector": ".tab-inner-wrapper" }'>
             <!-- SHIT -->
             <div class="tab-inner-wrapper module-events panel-type-event ">
@@ -309,13 +302,7 @@
                     </div>
                     <div class="panel-body">
                         <div class="panel-text">
-                            The seat that
-                            <a href="https://twitter.com/BettyFofinha" >@<b></b>BettyFofinha</b></a> won from us! 
-                            <a href="https://twitter.com/hashtag/Toronto?src=hash" class="hashtag customisable">#<b>Toronto</b></a> <a href="https://twitter.com/hashtag/MapleLeafs?src=hash">#<b>MapleLeafs</b></a> 
-                            <a href="https://twitter.com/hashtag/NHL?src=hash" >#<b>NHL</b></a> 
-                            <a href="https://twitter.com/hashtag/AJ?src=hash">#<b>AJ</b></a> Sports <a href="https://twitter.com/hashtag/GoLeafsGo?src=hash">#<b>GoLeafsGo</b></a>
-                            <a href="http://t.co/FVnAvxQTJp">pic.twitter.com/FVnAvxQTJp</a>
-                            <div>Retweeted by A.J. Sports World</div>
+                            
                         </div>
                         <div class="panel-img imgx1">
                             <a href="https://pbs.twimg.com/media/ByQpcOvCUAA9Fx4.jpg:small">
@@ -391,49 +378,17 @@
         </div>
         <div class="clearfix"></div>
         <!-- END SHIT -->
-        <div class="animate-switch tab2" ng-switch-when="1">
+        <div class="animate-switch tab2" ng-show="selectedTab==1">
             View for Item #2<br/>
             Selection index = 1
         </div>
-        <div class="animate-switch tab3" ng-switch-when="2">
+        <div class="animate-switch tab3" ng-show="selectedTab==2">
             View for Item #3<br/>
             Selection index = 2
         </div>
-        <div class="animate-switch tab4" ng-switch-when="3">
+        <div class="animate-switch tab4" ng-show="selectedTab==3">
             View for Item #4<br/>
             Selection index = 3
-        </div>
-        <div class="animate-switch tab5" ng-switch-when="4">
-            View for Item #5<br/>
-            Selection index = 4
-        </div>
-        <div class="animate-switch tab6" ng-switch-when="5">
-            View for Item #6<br/>
-            Selection index = 5
-        </div>
-        <div class="animate-switch tab7" ng-switch-when="6">
-            View for Item #7<br/>
-            Selection index = 6
-        </div>
-        <div class="animate-switch tab8" ng-switch-when="7">
-            View for Item #8<br/>
-            Selection index = 7
-        </div>
-        <div class="animate-switch tab9" ng-switch-when="8">
-            View for Item #9<br/>
-            Selection index = 8
-        </div>
-        <div class="animate-switch tab10" ng-switch-when="9">
-            View for Item #10<br/>
-            Selection index = 9
-        </div>
-        <div class="animate-switch tab1" ng-switch-when="10">
-            View for Item #9<br/>
-            Selection index = 8
-        </div>
-        <div class="animate-switch tab2" ng-switch-when="11">
-            View for Item #10<br/>
-            Selection index = 9
         </div>
     </div>
     <!-- Button Bar -->

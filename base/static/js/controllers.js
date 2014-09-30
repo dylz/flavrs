@@ -17,13 +17,14 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     $scope.ready = false;
     $scope.logged = false;
     $scope.$storage = $localStorage;
+    $scope.selectedTab = 0;
 
     client_id = '2175e6706018c9472694';
     client_secret = '2eb3bf30aec9bed3226b7fc30728e8c26283910b';
     grant_type = 'password';
 
     //modules.. this won't be hardcoded in the future.. so fix this kay!?
-    $scope.modules = ['bookmarks'];
+    $scope.modules = ['base','bookmarks','events','twitter'];
 
     //Attempt to log the user in
 
@@ -139,6 +140,17 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         }
     }
     
+    //get all registered modules. This is done in a function so we can do special
+    //logic like sorting and such
+    $scope.get_modules = function(){
+        return $scope.modules.sort();
+    }
+    
+    //Get the tab content for the selected tab
+    $scope.load_tab_content = function(id){
+        
+    }
+    
     $rootScope.$on("$locationChangeSuccess", function(event, current) {
         //Get the path, and use it to determine the module
         var path_split = $location.path().split('/'),
@@ -148,7 +160,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
 
         $scope.module = path_split[1];
         
-        if($scope.module == ""){
+        if(($scope.module == "") || ($scope.module == "home")){
             $scope.module = 'base';
         }
 
@@ -171,19 +183,9 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     });
     
     //Private functions
-    function fixHeight(){
+    function fix_height(){
         var new_height = $(document).height()-$('.menu-bar').height()-$('material-tabs').height();
         $('#tab-content,.button-bar').height(new_height);
-    }
-    
-    //Init functions
-    //check if user is logged or not
-    $scope.check_if_logged();
-    //Fix height of tab content to match document size
-    fixHeight();
-    //Bind this to a scroll event so the height gets fixed whenever the user scrolls
-    window.onresize = function(event) {
-        fixHeight();
         var windowH = $(window).height(),
             documentH = $(document).height();
         if(windowH == documentH){
@@ -193,6 +195,20 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             var height = documentH;
         }
         $('body').height(height);
+    }
+    
+    //Init functions
+    //check if user is logged or not
+    $scope.check_if_logged();
+    //Fix height of tab content to match document size
+    fix_height();
+    //Bind this to a scroll event so the height gets fixed whenever the user scrolls
+    window.onresize = function(event) {
+        fix_height();
+    };
+    
+    window.onscroll = function(event){
+        fix_height();
     };
 }]);
 
@@ -200,22 +216,15 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
 app.controller('baseCtrl', ['$scope','$http',function(
     $scope,$http) {
     
-    var tabs = [
-      { title: 'Polymer', active: true,  disabled: false, content:"Polymer practices are great!" },
-      { title: 'Material', active: false, disabled: true , content:"Material Design practices are better!" },
-      { title: 'Angular', active: false, disabled: true , content:"AngularJS practices are the best!" },
-      { title: 'NodeJS' , active: false, disabled: false, content:"NodeJS practices are amazing!" },
-      { title: 'Tab 5', active: true,  disabled: false, content:"Tab 5 content..." },
-      { title: 'Tab 6', active: false, disabled: true , content:"Tab 6 content..." },
-      { title: 'Tab 7', active: false, disabled: true , content:"Tab 7 content..." },
-      { title: 'Tab 8' , active: false, disabled: false, content:"Tab 8 content..." },
-      { title: 'Tab 9', active: false, disabled: true , content:"Tab 9 content..." },
-      { title: 'Tab 10' , active: false, disabled: false, content:"Tab 10 content..." },
-      { title: 'Tab 11', active: false, disabled: true , content:"Tab 11 content..." },
-      { title: 'Tab 12' , active: false, disabled: false, content:"Tab 12 content..." }
-    ];
-
-    $scope.selectedIndex = 0;
-    $scope.locked = true;
+    //private
+    function get_tabs(){
+        $http.post($scope.api+'static/json/main.json',{})
+             .success(function(response,status){
+                $scope.tabs = response.tabs;
+             });
+    }
+    
+    //init
+    get_tabs();
 
 }]);

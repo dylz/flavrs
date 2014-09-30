@@ -117,6 +117,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'base', 'static'),
     os.path.join(BASE_DIR, 'bookmarks', 'static'),
+    os.path.join(BASE_DIR, 'events', 'static'),
+    os.path.join(BASE_DIR, 'twitter', 'static'),
 )
 
 STATICFILES_FINDERS = (

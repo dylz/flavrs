@@ -51,9 +51,15 @@ def controllers(request,module,action):
 def module_view(request,module):
     """
     Check if valid module
+    
+    convert 'home' to 'base'. 'home' is more user friendly
     """
-
+    
     ignore = ['.git']
+    
+    if module == 'home':
+        module = 'base'
+    
     for name in os.listdir(settings.BASE_DIR):
         if name not in ignore and os.path.isdir(settings.BASE_DIR+'/'+name):
             #Valid module, return module and let the front end deal with the rest

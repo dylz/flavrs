@@ -1,0 +1,10 @@
+{
+    "response":{    
+        "tabs": [
+            { "title": "Turtle", "editable": true, "id": "dw9udqdjdqbfqdgqw7dq"},
+            { "title": "Cat", "editable": true, "id": "kndwfn38210"},
+            { "title": "Dog", "editable": true, "id": "1mf89qbqd"},
+            { "title": "Monkey", "editable": true, "id": "0ihmhduqid"}
+        ]
+    }
+}

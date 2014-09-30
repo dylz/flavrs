@@ -1,0 +1,27 @@
+{
+    "response":[
+        {
+            "header": {
+                "img": "https://pbs.twimg.com/profile_images/378800000739968204/14cbce38719baf6465189e9f2b0667b9_normal.jpeg",
+                "text": {
+                    "primary": "A.J. Sports World",
+                    "secondary": "@AJSportsworld"
+                },
+                "right":"29 Sept"
+            },
+            "body": {
+                "text": "The seat that<a href=\"https://twitter.com/BettyFofinha\" >@<b></b>BettyFofinha</b></a> won from us! <a href=\"https://twitter.com/hashtag/Toronto?src=hash\" class=\"hashtag customisable\">#<b>Toronto</b></a> <a href=\"https://twitter.com/hashtag/MapleLeafs?src=hash\">#<b>MapleLeafs</b></a> <a href=\"https://twitter.com/hashtag/NHL?src=hash\" >#<b>NHL</b></a> <a href=\"https://twitter.com/hashtag/AJ?src=hash\">#<b>AJ</b></a> Sports <a href=\"https://twitter.com/hashtag/GoLeafsGo?src=hash\">#<b>GoLeafsGo</b></a><a href=\"http://t.co/FVnAvxQTJp\">pic.twitter.com/FVnAvxQTJp</a><div>Retweeted by A.J. Sports World</div>",
+                "imgs": [
+                    {"link": "https://pbs.twimg.com/media/ByQpcOvCUAA9Fx4.jpg:small", "src":"https://pbs.twimg.com/media/ByQpcOvCUAA9Fx4.jpg:small"}
+                ]  
+            },
+            "footer": {
+                "options": [
+                    {"name": "Details", "link": "details"},
+                    {"name": "Share", "directive": "base-share"},
+                    {"name": "Retweet", "directive": "twitter-retweet"}
+                ]
+            }
+        }
+    ]
+}

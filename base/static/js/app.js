@@ -42,7 +42,7 @@ app.factory('httpRequestInterceptor', function ($cookies,$localStorage,$q) {
         if(response.data.status == 'error'){
             return $q.reject(response);
         }
-
+        
         response.data = response.data.response;
         return response;
     }
@@ -57,4 +57,15 @@ app.config(function ($httpProvider) {
 
 app.config(function($locationProvider) {
   $locationProvider.html5Mode(true).hashPrefix('!');
+});
+
+
+//filters
+app.filter('module', function() {
+    return function(input) {
+        if(input == 'base'){
+            input = 'home';
+        }
+        return input;
+    };
 });
