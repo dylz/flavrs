@@ -76,7 +76,9 @@
     <div id="tab-content" class="animate-switch-container">
         <div class="animate-switch tab1 js-masonry" ng-show="selectedTab==0"
         data-masonry-options='{ "columnWidth": 300, "itemSelector": ".tab-inner-wrapper" }'>
+            <card ng-repeat="content in tab_content" content="content"></card>
             <!-- SHIT -->
+            <!--
             <div ng-repeat="content in tab_content"  class="tab-inner-wrapper module-events panel-type-event ">
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -121,7 +123,6 @@
                     <div class="module">Events</div>
                 </div>
             </div>
-            <!--
             <div class="tab-inner-wrapper module-bookmarks panel-type-link">
                 <div class="panel panel-default">
                     <a class="panel-heading" href="">

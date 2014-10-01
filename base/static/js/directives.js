@@ -123,3 +123,120 @@ app.directive('ellipsis', ['$timeout', '$window', function($timeout, $window) {
 		}
 	};
 }]);
+
+app.directive('card', function() {
+    return {
+        restrict: 'E',
+        scope: true,
+        template: '<div class="tab-inner-wrapper">' +
+                    '<div class="panel panel-default">' +
+                    '<div class="panel-heading">' +
+                    '</div>' +
+                    '<div class="panel-body">' +
+                    '   <div class="panel-text"></div>' +
+                    '</div>' +
+                    '<div class="panel-footer">' +
+                    '</div>' +
+                    '<div class="module"></div>' +
+                    '</div>' +
+                  '</div>',
+        controller: ['$scope',
+            function($scope) {
+
+            }
+        ],
+        link: function(scope, iElement, iAttrs, ctrl) {
+
+        },
+        compile: function(element, attributes) {
+            return {
+                pre: function(scope, element, attributes, controller, transcludeFn) {
+
+                },
+                post: function(scope, element, attributes, controller, transcludeFn) {
+                    var content = scope.content,
+                        findKey = function(parent, key) {
+                            if (parent.hasOwnProperty(key)) {
+                                if ((parent[key]) && (parent[key] !== "")) {
+                                    return true;
+                                }
+                                else {
+                                    return false;
+                                }
+                            }
+                            else {
+                                return false
+                            }
+                        },
+                        toType = function(obj) {
+                            return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
+                        }
+                        //Header
+                    if (findKey(content, 'header')) {
+                        var parent = content.header,
+                            panel_header = element.find('.panel-heading');
+                        //img
+                        if (findKey(parent, 'img')) {
+                            var html = '<div class="panel-heading-img pull-left">' +
+                                '<img src="' + parent.img + '">' +
+                                '</div>';
+                            panel_header.append(html);
+                        }
+                        //text
+                        if (findKey(parent, 'text')) {
+                            //check what type, just straight text or an obj (primary and secondary)
+                            if (toType(parent.text) == 'object') {
+                                var html = '<div class="panel-heading-text pull-left">' +
+                                    '	<div class="panel-heading-primary">' +
+                                    parent.text.primary +
+                                    ' </div>' +
+                                    '	<div class="panel-heading-secondary">' +
+                                    parent.text.secondary +
+                                    ' </div>' +
+                                    '</div>';
+                                if (!findKey(parent, 'right')) {
+                                    html += '<div class="clearfix"></div>';
+                                }
+                            }
+                            else {
+                                var html = parent.text;
+                            }
+                            panel_header.append(html);
+                        }
+                        //right side text
+                        if (findKey(parent, 'right')) {
+                            var html = '<div class="panel-heading-right pull-right">' + parent.right + '</div>';
+                            html += '<div class="clearfix"></div>';
+                            panel_header.append(html)
+                        }
+                    }
+                    //body
+                    if (findKey(content, 'body')) {
+                        var parent = content.body,
+                            panel_text = element.find('.panel-text');
+                        if (findKey(parent, 'text')) {
+                            panel_text.html(parent.text);
+                        }
+                        if (findKey(parent, 'imgs')) {
+                            var imgs_length = parent.imgs.length,
+                                inner_html = "";
+                            for (var i = 0; i < imgs_length; i++) {
+                                var img_obj = parent.imgs[i];
+                                if (findKey(img_obj, 'link')) {
+                                    inner_html += '<a href="'+img_obj.link+'">';   
+                                }
+                                inner_html += '<img src="'+img_obj.src+'">';
+                                if (findKey(img_obj, 'link')) {
+                                    inner_html += '</a>';
+                                }
+                                inner_html += '<a href=""><img src=""></a>';
+                            }
+                            //add all imgs to img container
+                            panel_text.after('<div class="panel-img imgx'+imgs_length+'">'+inner_html+'</div>')
+                        }
+                    }
+                }
+            }
+        },
+    }
+});

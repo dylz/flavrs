@@ -39,6 +39,7 @@ app.factory('httpRequestInterceptor', function ($cookies,$localStorage,$q) {
         //msg handling here...
         
         //Lets handle 'error's
+        
         if(response.data.status == 'error'){
             return $q.reject(response);
         }
