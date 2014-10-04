@@ -1,6 +1,7 @@
 {
     "response":[
         {
+            "module": "twitter",
             "header": {
                 "img": "https://pbs.twimg.com/profile_images/378800000739968204/14cbce38719baf6465189e9f2b0667b9_normal.jpeg",
                 "text": {
@@ -17,9 +18,53 @@
             },
             "footer": {
                 "options": [
-                    {"name": "Details", "link": "details"},
-                    {"name": "Share", "directive": "base-share"},
-                    {"name": "Retweet", "directive": "twitter-retweet"}
+                    {"name": "View Tweet","icon":"twitter", "link": "details"},
+                    {"name": "Retweet","icon":"retweet", "ngclick": "twitter_retweet"},
+                    {"name": "Share","icon":"share", "ngclick": "share"}
+                ]
+            }
+        },
+        {
+            "module": "bookmarks",
+            "card_type": "link",
+            "card_url": "http://mail.google.com",
+            "header": {
+                "text": "Gmail"
+            },
+            "body": {
+                "img16": "http://www.google.com/s2/favicons?domain=mail.google.com",
+                "text": "mail.google.com"
+            },
+            "footer": {
+                "options": [
+                    {"name": "Edit","icon":"edit", "link": "details"},
+                    {"name": "Share","icon":"share", "ngclick": "share"}
+                ]
+            }
+        },
+        {
+            "module": "events",
+            "header": {
+                "text": "Detroit Red Wings vs Toronto Maple Leafs"
+            },
+            "body": {
+                "alert": {
+                    "type": "info",
+                    "text": "<strong>4 days, 3 hours, 15 minutes</strong>"
+                },
+                "text": "September 27, 2014 @ 7:00PM EST",
+                "imgs": [
+                    {"src":"http://goodlogo.com/images/logos/detroit_red_wings_logo_3942.png"},
+                    {"src":"http://upload.wikimedia.org/wikipedia/en/thumb/f/fc/Toronto_Maple_Leafs_logo.svg/954px-Toronto_Maple_Leafs_logo.svg.png"}
+                ]  
+            },
+            "footer": {
+                "options": [
+                    {"name": "View Details","icon":"cubes", "link": "details"},
+                    {"name": "Share","icon":"share", "ngclick": "share"}
+                ],
+                "more_options": [
+                    {"name": "Change Timezone","icon":"cog", "ngclick": "events_timezone_change"}
                 ]
             }
         }

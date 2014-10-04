@@ -124,10 +124,11 @@ app.directive('ellipsis', ['$timeout', '$window', function($timeout, $window) {
 	};
 }]);
 
-app.directive('card', function() {
+app.directive('card', function($compile) {
     return {
         restrict: 'E',
         scope: true,
+        transclude: true,
         template: '<div class="tab-inner-wrapper">' +
                     '<div class="panel panel-default">' +
                     '<div class="panel-heading">' +
@@ -170,8 +171,30 @@ app.directive('card', function() {
                         },
                         toType = function(obj) {
                             return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
+                        },
+                        get_options = function(arr,node){
+                            var html = "";
+                            for (var i = 0; i < arr.length; i++) {
+                                var obj = arr[i];
+                                //check if ahref link vs ngclick
+                                if(findKey(obj,'link')){
+                                    var ahref = obj.link,
+                                        extra = "";
+                                }
+                                else if(findKey(obj,'ngclick')){
+                                    var ahref = "javascript:void(0)",
+                                        extra = "ng-click='"+obj.ngclick+"()'";
+                                }
+                                html += '<'+node+'><a href="'+ahref+'" '+extra+'>';
+                                //check if icon is needed
+                                if(findKey(obj,'icon')){
+                                    html += '<i class="fa fa-'+obj.icon+'"></i> ';
+                                }
+                                html += obj.name+'</a></'+node+'>';
+                            }
+                            return html;
                         }
-                        //Header
+                    //Header
                     if (findKey(content, 'header')) {
                         var parent = content.header,
                             panel_header = element.find('.panel-heading');
@@ -214,8 +237,25 @@ app.directive('card', function() {
                     if (findKey(content, 'body')) {
                         var parent = content.body,
                             panel_text = element.find('.panel-text');
+                        
+                        
+                        //Check and display and alerts
+                        if(findKey(parent,'alert')){
+                            var html = '<div class="alert alert-';
+                            html += parent.alert.type+'">'+parent.alert.text+'</div>';
+                            panel_text.append(html);
+                        }
+                        
+                        //Check if img16 is present. Bookmarks is the only one
+                        //currently using this key. If this is theorycrafted
+                        //that this is the case, then a slight redesign for
+                        //bookmark cards might happen
+                        if(findKey(parent,'img16')){
+                            var html = '<img src="'+parent.img16+'" class="panel-heading-img img16x16">';
+                            panel_text.append(html);
+                        }
                         if (findKey(parent, 'text')) {
-                            panel_text.html(parent.text);
+                            panel_text.append(parent.text);
                         }
                         if (findKey(parent, 'imgs')) {
                             var imgs_length = parent.imgs.length,
@@ -229,11 +269,71 @@ app.directive('card', function() {
                                 if (findKey(img_obj, 'link')) {
                                     inner_html += '</a>';
                                 }
-                                inner_html += '<a href=""><img src=""></a>';
                             }
                             //add all imgs to img container
                             panel_text.after('<div class="panel-img imgx'+imgs_length+'">'+inner_html+'</div>')
                         }
+                    }
+                    //footer
+                    if(findKey(content,'footer')){
+                        var parent = content.footer,
+                            panel_footer = element.find('.panel-footer'),
+                            footer_html = "";
+                        
+                        if(findKey(parent,'options')){
+                            footer_html += get_options(parent.options,'div');
+                        }
+                        //more options! and for this we just give the user a 
+                        // dropdown
+                        if(findKey(parent,'more_options')){
+                            var list_items = get_options(parent.more_options,'li');
+                            footer_html += '<div>' +
+                                            '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' +
+                                                '&nbsp;<b class="caret"></b>' +
+                                            '</a>' +
+                                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                                            list_items +
+                                            '</ul>' +
+                                        '</div>';
+                        }
+                        panel_footer.html(footer_html);
+                    }
+                    //module
+                    if(findKey(content,'module')){
+                        element.find('.module').html(content.module)
+                    }
+                    //compile so angular will run any angular functions
+                    $compile(element.find('.panel-footer a'))(scope);
+                    //last step is to determine the card type and adjust
+                    //this card to reflect
+                     //Determine card type
+                    if(!findKey(content,'card_type')){
+                        //not here, set default to w/e. The switch will take
+                        //care of the rest.
+                        content.card_type = "";
+                    }
+                    switch (content.card_type) {
+                        case 'link':
+                            /*
+                            a link card type means that the header
+                            and body elements are clickable to an
+                            external URL.
+                            This means that card_url is required.
+                            */
+                            var replaceElement = function(klass){
+                                var ele = element.find('.'+klass),
+                                    html = "<a class='"+klass+"' href='"+content.card_url+"'>"+ele.html()+"</a>";
+                                element.find('.'+klass).replaceWith(html);
+                            }
+                            //update header, and body. basically, replace the divs with a
+                            replaceElement('panel-heading');
+                            replaceElement('panel-body');
+                            //add the class to the element for CSS reasons
+                            element.addClass('panel-type-link');
+                            break;
+                        
+                        default:
+                            //by default, nothing needs to be done.
                     }
                 }
             }

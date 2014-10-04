@@ -243,8 +243,7 @@ material-button:hover{
 /* Cards */
 
 .tab-inner-wrapper .module{
-  position: absolute;
-  right: 0;
+  text-transform: capitalize;
   bottom: 23px;
   background-color: #09c;
   color: white;
@@ -266,6 +265,7 @@ material-button:hover{
 }
 
 .panel-footer{
+  position: relative;
   background-color: white;
   border-top: 1px solid #eee;
   min-height: 44px;
@@ -291,7 +291,7 @@ material-button:hover{
 }
 
 .panel-footer .dropdown-menu{
-  top: 93%;
+  top: 90%;
 }
 
 a.panel-heading,

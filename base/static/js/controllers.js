@@ -155,6 +155,11 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
              });
     }
     
+    //generic share function
+    $scope.share = function(){
+        console.log('HEY')
+    }
+    
     $rootScope.$on("$locationChangeSuccess", function(event, current) {
         //Get the path, and use it to determine the module
         var path_split = $location.path().split('/'),
