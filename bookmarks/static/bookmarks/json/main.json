@@ -6,13 +6,13 @@
             "root": "/"
         },
         "tabs": [
-            { "title": "Turtle", "editable": true, "id": "dw9udqdjdqbfqdgqw7dq"},
+            { "title": "Turtle", "editable": true, "id": "9f0wfjw732"},
             { "title": "Cat", "editable": true, "id": "kndwfn38210"},
             { "title": "Dog", "editable": true, "id": "1mf89qbqd"},
             { "title": "Monkey", "editable": true, "id": "0ihmhduqid"}
         ],
         "actions": [
-            { "name": "Manage Rows", "icon": "bars", "colour": "lightblue", "ngclick": "turtle" }    
+            { "name": "Add Link", "icon": "plus", "colour": "lightblue", "ngclick": "open_link_modal" }
         ]
     }
 }

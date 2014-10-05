@@ -9,9 +9,9 @@ user is logged in or not.
 
 app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                             '$cookies','$q','$location','$controller',
-                            '$rootScope',function(
+                            '$rootScope','$modal',function(
     $scope,$http,$localStorage,$sessionStorage,$cookies,$q,$location,
-    $controller, $rootScope) {
+    $controller, $rootScope,$modal) {
     
     $scope.api = '/';
     $scope.ready = false;
@@ -149,7 +149,13 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     //Get the tab content for the selected tab
     $scope.load_tab_content = function(id){
         var data = {};
-        $http.post($scope.meta.root+'static/json/'+id+'.json',data)
+        if($scope.module != "base"){
+            var module_path = '/'+$scope.module;
+        }
+        else{
+            var module_path = '';
+        }
+        $http.post($scope.meta.root+'static'+module_path+'/json/'+id+'.json',data)
              .success(function(response,status){
                 $scope.tab_content = response;
              });
@@ -158,6 +164,23 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     //generic share function
     $scope.share = function(){
         console.log('HEY')
+    }
+    
+    //wrapper for ngclick buttons. Angular doesn't like dynamic ng-clicks too much.
+    $scope.action_click = function(ngclick){
+        $scope[ngclick]();
+    }
+    
+    //generic 'open modal window' function
+    $scope.open_modal = function(controller){
+        var modalInstance = $modal.open({
+            templateUrl: 'modal.html',
+            controller: controller,
+            size: 'lg',
+            resolve: {
+                
+            }
+        });
     }
     
     $rootScope.$on("$locationChangeSuccess", function(event, current) {
@@ -225,13 +248,17 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
 app.controller('baseCtrl', ['$scope','$http',function(
     $scope,$http) {
     
+    $scope.turtle = function(){
+        console.log('helloooooo')
+    }
+    
     //private
     function init(){
         $http.post($scope.api+'static/json/main.json',{})
              .success(function(response,status){
                 $scope.tabs = response.tabs;
                 $scope.meta = response.meta;
-                
+                $scope.actions = response.actions;
                 //load the first tab's content
                 $scope.load_tab_content($scope.tabs[0].id);
              });

@@ -77,306 +77,6 @@
         <div class="animate-switch tab1 js-masonry" ng-show="selectedTab==0"
         data-masonry-options='{ "columnWidth": 300, "itemSelector": ".tab-inner-wrapper" }'>
             <card ng-repeat="content in tab_content" content="content"></card>
-            <!-- SHIT -->
-            <!--
-            <div ng-repeat="content in tab_content"  class="tab-inner-wrapper module-events panel-type-event ">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        Detroit Red Wings vs Toronto Maple Leafs
-                    </div>
-                    <div class="panel-body">
-                        <div class="panel-text">
-                            <div class="alert alert-dismissable alert-info">
-                                <strong>4 days, 3 hours, 15 minutes</strong>
-                            </div>
-                            September 27, 2014 @ 7:00PM EST
-                        </div>
-                        <div class="panel-img imgx2">
-                            <img src="http://goodlogo.com/images/logos/detroit_red_wings_logo_3942.png">
-                            <img src="http://upload.wikimedia.org/wikipedia/en/thumb/f/fc/Toronto_Maple_Leafs_logo.svg/954px-Toronto_Maple_Leafs_logo.svg.png">
-                        </div>
-                    </div>
-                    <div class="panel-footer">
-                        <div>
-                            <a href="">
-                                <i class="fa fa-share"></i> Details
-                            </a>
-                        </div>
-                        <div>
-                            <a href="">
-                                <i class="fa fa-share"></i> Share
-                            </a>
-                        </div>
-                        <div>
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                More <b class="caret"></b>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-right">
-                                <li>
-                                    <a href="#"><i class="fa fa-cog"></i>
-                                        Change Timezone
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="module">Events</div>
-                </div>
-            </div>
-            <div class="tab-inner-wrapper module-bookmarks panel-type-link">
-                <div class="panel panel-default">
-                    <a class="panel-heading" href="">
-                        Gmail
-                    </a>
-                    <a class="panel-body" href="">
-                        <img src="http://www.google.com/s2/favicons?domain=mail.google.com" class="panel-heading-img img16x16">
-                        mail.google.com
-                    </a>
-                    <div class="panel-footer">
-                        <div>
-                            <a href="">
-                                <i class="fa fa-edit"></i> Edit
-                            </a>
-                        </div>
-                        <div>
-                            <a href="">
-                                <i class="fa fa-share"></i> Share
-                            </a>
-                        </div>
-                    </div>
-                    <div class="module">Bookmarks</div>
-                </div>
-            </div>
-            <div class="tab-inner-wrapper module-twitter">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <div class="panel-heading-img pull-left">
-                            <img src="https://pbs.twimg.com/profile_images/378800000739968204/14cbce38719baf6465189e9f2b0667b9_normal.jpeg">
-                        </div>
-                        <div class="panel-heading-text pull-left">
-                            <div class="panel-heading-primary">
-                                A.J. Sports World
-                            </div>
-                            <div class="panel-heading-secondary">
-                                @Ajsportsworld
-                            </div>
-                        </div>
-                        <div class="panel-heading-right pull-right">
-                            22 Sept
-                        </div>
-                        <div class="clearfix"></div>
-                    </div>
-                    <div class="panel-body">
-                        <div class="panel-text">
-                            The seat that
-                            <a href="https://twitter.com/BettyFofinha" >@<b></b>BettyFofinha</b></a> won from us! 
-                            <a href="https://twitter.com/hashtag/Toronto?src=hash" class="hashtag customisable">#<b>Toronto</b></a> <a href="https://twitter.com/hashtag/MapleLeafs?src=hash">#<b>MapleLeafs</b></a> 
-                            <a href="https://twitter.com/hashtag/NHL?src=hash" >#<b>NHL</b></a> 
-                            <a href="https://twitter.com/hashtag/AJ?src=hash">#<b>AJ</b></a> Sports <a href="https://twitter.com/hashtag/GoLeafsGo?src=hash">#<b>GoLeafsGo</b></a>
-                            <a href="http://t.co/FVnAvxQTJp">pic.twitter.com/FVnAvxQTJp</a>
-                            <div>Retweeted by A.J. Sports World</div>
-                        </div>
-                        <div class="panel-img imgx1">
-                            <a href="https://pbs.twimg.com/media/ByQpcOvCUAA9Fx4.jpg:small">
-                                <img src="https://pbs.twimg.com/media/ByQpcOvCUAA9Fx4.jpg:small">
-                            </a>
-                        </div>
-                    </div>
-                    <div class="panel-footer">
-                        <div>
-                            <a href="">
-                                <i class="fa fa-edit"></i> Retweet
-                            </a>
-                        </div>
-                        <div>
-                            <a href="">
-                                <i class="fa fa-edit"></i> Details
-                            </a>
-                        </div>
-                        <div>
-                            <a href="">
-                                <i class="fa fa-share"></i> Share
-                            </a>
-                        </div>
-                    </div>
-                    <div class="module">Twitter</div>
-                </div>
-                
-            </div>
-             <div class="tab-inner-wrapper module-bookmarks panel-type-link">
-                <div class="panel panel-default">
-                    <a class="panel-heading" href="">
-                        Gmail
-                    </a>
-                    <a class="panel-body" href="">
-                        <img src="http://www.google.com/s2/favicons?domain=mail.google.com" class="panel-heading-img img16x16">
-                        mail.google.com
-                    </a>
-                    <div class="panel-footer">
-                        <div>
-                            <a href="">
-                                <i class="fa fa-edit"></i> Edit
-                            </a>
-                        </div>
-                        <div>
-                            <a href="">
-                                <i class="fa fa-share"></i> Share
-                            </a>
-                        </div>
-                    </div>
-                    <div class="module">Bookmarks</div>
-                </div>
-            </div>
-                   <div class="tab-inner-wrapper module-twitter">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <div class="panel-heading-img pull-left">
-                            <img src="https://pbs.twimg.com/profile_images/378800000739968204/14cbce38719baf6465189e9f2b0667b9_normal.jpeg">
-                        </div>
-                        <div class="panel-heading-text pull-left">
-                            <div class="panel-heading-primary">
-                                A.J. Sports World
-                            </div>
-                            <div class="panel-heading-secondary">
-                                @Ajsportsworld
-                            </div>
-                        </div>
-                        <div class="panel-heading-right pull-right">
-                            22 Sept
-                        </div>
-                        <div class="clearfix"></div>
-                    </div>
-                    <div class="panel-body">
-                        <div class="panel-text">
-                            The seat that
-                            <a href="https://twitter.com/BettyFofinha" >@<b></b>BettyFofinha</b></a> won from us! 
-                            <a href="https://twitter.com/hashtag/Toronto?src=hash" class="hashtag customisable">#<b>Toronto</b></a> <a href="https://twitter.com/hashtag/MapleLeafs?src=hash">#<b>MapleLeafs</b></a> 
-                            <a href="https://twitter.com/hashtag/NHL?src=hash" >#<b>NHL</b></a> 
-                            <a href="https://twitter.com/hashtag/AJ?src=hash">#<b>AJ</b></a> Sports <a href="https://twitter.com/hashtag/GoLeafsGo?src=hash">#<b>GoLeafsGo</b></a>
-                            <a href="http://t.co/FVnAvxQTJp">pic.twitter.com/FVnAvxQTJp</a>
-                            <div>Retweeted by A.J. Sports World</div>
-                        </div>
-                        <div class="panel-img imgx1">
-                            <a href="https://pbs.twimg.com/media/ByQpcOvCUAA9Fx4.jpg:small">
-                                <img src="https://pbs.twimg.com/media/ByQpcOvCUAA9Fx4.jpg:small">
-                            </a>
-                        </div>
-                    </div>
-                    <div class="panel-footer">
-                        <div>
-                            <a href="">
-                                <i class="fa fa-edit"></i> Retweet
-                            </a>
-                        </div>
-                        <div>
-                            <a href="">
-                                <i class="fa fa-edit"></i> Details
-                            </a>
-                        </div>
-                        <div>
-                            <a href="">
-                                <i class="fa fa-share"></i> Share
-                            </a>
-                        </div>
-                    </div>
-                    <div class="module">Twitter</div>
-                </div>
-                
-            </div>
-                   <div class="tab-inner-wrapper module-twitter">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <div class="panel-heading-img pull-left">
-                            <img src="https://pbs.twimg.com/profile_images/378800000739968204/14cbce38719baf6465189e9f2b0667b9_normal.jpeg">
-                        </div>
-                        <div class="panel-heading-text pull-left">
-                            <div class="panel-heading-primary">
-                                A.J. Sports World
-                            </div>
-                            <div class="panel-heading-secondary">
-                                @Ajsportsworld
-                            </div>
-                        </div>
-                        <div class="panel-heading-right pull-right">
-                            22 Sept
-                        </div>
-                        <div class="clearfix"></div>
-                    </div>
-                    <div class="panel-body">
-                        <div class="panel-text">
-                            
-                        </div>
-                        <div class="panel-img imgx1">
-                            <a href="https://pbs.twimg.com/media/ByQpcOvCUAA9Fx4.jpg:small">
-                                <img src="https://pbs.twimg.com/media/ByQpcOvCUAA9Fx4.jpg:small">
-                            </a>
-                        </div>
-                    </div>
-                    <div class="panel-footer">
-                        <div>
-                            <a href="">
-                                <i class="fa fa-edit"></i> Retweet
-                            </a>
-                        </div>
-                        <div>
-                            <a href="">
-                                <i class="fa fa-edit"></i> Details
-                            </a>
-                        </div>
-                        <div>
-                            <a href="">
-                                <i class="fa fa-share"></i> Share
-                            </a>
-                        </div>
-                    </div>
-                    <div class="module">Twitter</div>
-                </div>
-                
-            </div>
-            <div class="tab-inner-wrapper module-events panel-type-event ">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        Detroit Red Wings vs Toronto Maple Leafs
-                    </div>
-                    <div class="panel-body">
-                        <div class="panel-text">
-                            <div class="alert alert-dismissable alert-info">
-                                <strong>4 days, 3 hours, 15 minutes</strong>
-                            </div>
-                            September 27, 2014 @ 7:00PM EST
-                        </div>
-                        <div class="panel-img imgx2">
-                            <img src="http://goodlogo.com/images/logos/detroit_red_wings_logo_3942.png">
-                            <img src="http://upload.wikimedia.org/wikipedia/en/thumb/f/fc/Toronto_Maple_Leafs_logo.svg/954px-Toronto_Maple_Leafs_logo.svg.png">
-                        </div>
-                    </div>
-                    <div class="panel-footer">
-                        <div>
-                            <a href="">
-                                <i class="fa fa-share"></i> Details
-                            </a>
-                        </div>
-                        <div>
-                            <a href="">
-                                <i class="fa fa-share"></i> Share
-                            </a>
-                        </div>
-                        <div>
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                More <b class="caret"></b>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-right">
-                                <li>
-                                    <a href="#"><i class="fa fa-cog"></i>
-                                        Change Timezone
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="module">Events</div>
-                </div>
-            </div>-->
         </div>
         <div class="clearfix"></div>
         <!-- END SHIT -->
@@ -396,27 +96,35 @@
     <!-- Button Bar -->
     <div class="button-bar">
         <section layout="vertical" layout-sm="vertical" layout-align="center center">
-            <material-button class="material-button-fab material-btn-red">
-                <material-icon icon="fa-plus"></material-icon>
-            </material-button>
-        
-            <material-button class="material-button-fab material-btn-purple">
-                <material-icon icon="fa-edit"></material-icon>
-            </material-button>
-        
-            <material-button class="material-button-fab material-btn-orange">
-                <material-icon icon="fa-trash"></material-icon>
-            </material-button>
-        
-            <material-button class="material-button-fab material-btn-lightblue">
-                <material-icon icon="fa-times"></material-icon>
+            <material-button ng-repeat="action in actions" 
+                class="material-button-fab material-btn-{{action.colour}}"
+                ng-click="action_click(action.ngclick)" title="{{action.name}}">
+                <material-icon icon="fa-{{action.icon}}"></material-icon>
             </material-button>
         </section>
     </div>
     <!-- Button Bar : End -->
 </div>
 <!-- Tab Bar : End -->
-    
+<!-- Modal Window -->
+<script type="text/ng-template" id="modal.html">
+    <div class="modal-header">
+        <h3 class="modal-title">I'm a modal!</h3>
+    </div>
+    <div class="modal-body">
+        <ul>
+            <li ng-repeat="item in items">
+                <a ng-click="selected.item = item">{{ item }}</a>
+            </li>
+        </ul>
+        Selected: <b>{{ selected.item }}</b>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">OK</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+<!-- Modal Window : End -->
 {% endverbatim %}
 
 {% endblock %}
