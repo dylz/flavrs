@@ -1,7 +1,6 @@
 {
     "response":[
         {
-            "module": "bookmarks",
             "card_type": "link",
             "card_url": "http://mail.google.com",
             "header": {
@@ -19,7 +18,6 @@
             }
         },
         {
-            "module": "bookmarks",
             "card_type": "link",
             "card_url": "http://reddit.com",
             "header": {
@@ -37,7 +35,6 @@
             }
         },
         {
-            "module": "bookmarks",
             "card_type": "link",
             "card_url": "http://twitch.tv/directory/game/Hearthstone%3A Heroes of Warcraft",
             "header": {

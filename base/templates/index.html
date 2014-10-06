@@ -98,7 +98,7 @@
         <section layout="vertical" layout-sm="vertical" layout-align="center center">
             <material-button ng-repeat="action in actions" 
                 class="material-button-fab material-btn-{{action.colour}}"
-                ng-click="action_click(action.ngclick)" title="{{action.name}}">
+                ng-click="click(action.ngclick)" title="{{action.name}}">
                 <material-icon icon="fa-{{action.icon}}"></material-icon>
             </material-button>
         </section>
@@ -112,16 +112,13 @@
         <h3 class="modal-title">I'm a modal!</h3>
     </div>
     <div class="modal-body">
-        <ul>
-            <li ng-repeat="item in items">
-                <a ng-click="selected.item = item">{{ item }}</a>
-            </li>
-        </ul>
-        Selected: <b>{{ selected.item }}</b>
+        <form sf-schema="schema" sf-form="form" sf-model="model"></form>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="ok()">OK</button>
-        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+        <button ng-repeat="button in buttons" class="btn btn-{{ button.colour }}" 
+            ng-click="broadcast(button.ngclick)">
+            {{ button.name }}
+        </button>
     </div>
 </script>
 <!-- Modal Window : End -->

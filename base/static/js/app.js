@@ -1,13 +1,12 @@
 'use strict';
 
 // APP is defined!
-var app = angular.module('flavrs', ['ngRoute','ngCookies','ngStorage','ngAnimate','ngMaterial','ui.bootstrap']);
+var app = angular.module('flavrs', ['ngRoute','ngCookies','ngStorage','ngAnimate','ngMaterial','schemaForm','ui.bootstrap']);
 
 //factory
 app.factory('httpRequestInterceptor', function ($cookies,$localStorage,$q) {
   return {
     request: function(config) {
-
         //check expire date if valid, append access token to request.
         //if invalid, send a "reauthenticate" signal
 
@@ -41,10 +40,11 @@ app.factory('httpRequestInterceptor', function ($cookies,$localStorage,$q) {
         //Lets handle 'error's
         
         if(response.data.status == 'error'){
-            return $q.reject(response);
+            //return $q.reject(response);
         }
-        
-        response.data = response.data.response;
+        if(response.data.hasOwnProperty('response')){
+            response.data = response.data.response;
+        }
         return response;
     }
   };

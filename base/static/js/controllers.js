@@ -11,7 +11,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                             '$cookies','$q','$location','$controller',
                             '$rootScope','$modal',function(
     $scope,$http,$localStorage,$sessionStorage,$cookies,$q,$location,
-    $controller, $rootScope,$modal) {
+    $controller, $rootScope,$modal,$modalInstance) {
     
     $scope.api = '/';
     $scope.ready = false;
@@ -167,21 +167,35 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     }
     
     //wrapper for ngclick buttons. Angular doesn't like dynamic ng-clicks too much.
-    $scope.action_click = function(ngclick){
+    $scope.click = function(ngclick){
         $scope[ngclick]();
+    }
+    
+    //wrapper for ngclicks outside of this scope
+    
+    $scope.broadcast = function(ngclick){
+        $rootScope.$broadcast(ngclick);
     }
     
     //generic 'open modal window' function
     $scope.open_modal = function(controller){
-        var modalInstance = $modal.open({
+        $scope.modalInstance = $modal.open({
             templateUrl: 'modal.html',
             controller: controller,
+            scope: $scope,
             size: 'lg',
+            backdrop: true,
             resolve: {
                 
             }
         });
+        
     }
+    
+    //API usage to close a modal
+    $scope.$on('close_modal', function(){
+        $scope.modalInstance.dismiss('cancel');
+    });
     
     $rootScope.$on("$locationChangeSuccess", function(event, current) {
         //Get the path, and use it to determine the module
