@@ -109,14 +109,19 @@
 <!-- Modal Window -->
 <script type="text/ng-template" id="modal.html">
     <div class="modal-header">
-        <h3 class="modal-title">I'm a modal!</h3>
+        <h3 class="modal-title">{{ modal.title }}</h3>
     </div>
     <div class="modal-body">
-        <form sf-schema="schema" sf-form="form" sf-model="model"></form>
+        <div ng-if="modal.body" ng-bind-html="modal.body">
+        
+        </div>
+        <form ng-if="!modal.body" sf-schema="schema" sf-form="form" sf-model="model"></form>
     </div>
-    <div class="modal-footer">
+    <div class="modal-footer ng-cloak">
         <button ng-repeat="button in buttons" class="btn btn-{{ button.colour }}" 
-            ng-click="broadcast(button.ngclick)">
+            ng-click="broadcast(button.ngclick)"
+            ng-disabled="button.disabled" ng-cloak>
+            <i ng-show="button.icon" class="fa fa-{{ button.icon }}"></i>
             {{ button.name }}
         </button>
     </div>

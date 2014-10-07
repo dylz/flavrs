@@ -12,7 +12,7 @@
             { "title": "Monkey", "editable": true, "id": "0ihmhduqid"}
         ],
         "actions": [
-            { "name": "Add Link", "icon": "plus", "colour": "lightblue", "ngclick": "open_link_modal" }
+            { "name": "Add Bookmark", "icon": "plus", "colour": "lightblue", "ngclick": "open_link_modal" }
         ]
     }
 }

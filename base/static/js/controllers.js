@@ -9,9 +9,9 @@ user is logged in or not.
 
 app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                             '$cookies','$q','$location','$controller',
-                            '$rootScope','$modal',function(
+                            '$rootScope','$modal','$timeout',function(
     $scope,$http,$localStorage,$sessionStorage,$cookies,$q,$location,
-    $controller, $rootScope,$modal,$modalInstance) {
+    $controller, $rootScope,$modal,$timeout) {
     
     $scope.api = '/';
     $scope.ready = false;
@@ -190,11 +190,26 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             }
         });
         
+        $scope.modalInstance.opened.then(function () {
+            //focus the first input
+            //timeout is used to ensure the rendering of angular-scheme attributes
+            //are compeleted properly before focusing the input
+            $timeout(function(){
+                $('.modal-body input:first').focus();
+            },250);
+        }, function () {
+            
+        });
     }
     
     //API usage to close a modal
     $scope.$on('close_modal', function(){
         $scope.modalInstance.dismiss('cancel');
+    });
+    
+    //API usage to append content
+    $scope.$on('add_to_content',function(event,data){
+        $scope.tab_content.push(data);
     });
     
     $rootScope.$on("$locationChangeSuccess", function(event, current) {
