@@ -202,6 +202,19 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         });
     }
     
+    //validate modal form
+    $scope.validate_modal = function(form){
+        // First we broadcast an event so all fields validate themselves
+        console.log(form)
+        form.$commitViewValue(true)
+        console.log($scope.model)
+        // Then we check if the form is valid
+        if (form.$valid) {
+            console.log('valid form')
+          // ... do whatever you need to do with your data.
+        }
+    }
+    
     //API usage to close a modal
     $scope.$on('close_modal', function(){
         $scope.modalInstance.dismiss('cancel');

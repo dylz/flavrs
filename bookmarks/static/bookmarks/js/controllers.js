@@ -72,26 +72,40 @@ app.controller('openModalCtrl', ['$scope',function($scope) {
         $scope.$emit('close_modal');
     });
     
+    $scope.validate_modal2 = function(form){
+         $scope.$broadcast('schemaFormValidate',form);
+
+    // Then we check if the form is valid
+    if (form.$valid) {
+      // ... do whatever you need to do with your data.
+    }
+    }
+    
     //form schema
     $scope.schema = {
-        type: "object",
-        properties: {
-            url: {
-                type: "string",
-                minLength: 5,
-                title: "URL"
+        "type": "object",
+        "properties": {
+            "url": {
+                "type": "string",
+                "minLength": 5,
+                "required": true,
+                "title": "URL"
             },
-            name: {
-                type: "string",
-                minLength: 2,
-                title: 'Name',
-                description: "If left blank, name will be determined from URL."
+            "name": {
+                "type": "string",
+                "minLength": 2,
+                "title": 'Name',
+                "description": "If left blank, name will be determined from URL."
             }
-        }
+        },
+        "required": ["url"]
     };
-    
     $scope.form = [
-        "*"
+        "*",
+        {
+          "type": "submit",
+          "title": "Save"
+        }
     ];
     
     $scope.model = {};

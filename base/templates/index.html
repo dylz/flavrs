@@ -115,7 +115,15 @@
         <div ng-if="modal.body" ng-bind-html="modal.body">
         
         </div>
-        <form ng-if="!modal.body" sf-schema="schema" sf-form="form" sf-model="model"></form>
+        <form
+            novalidate
+            name="modal_form"
+            ng-if="!modal.body"
+            ng-submit="validate_modal2(modal_form)"
+            sf-schema="schema" 
+            sf-form="form" 
+            sf-model="model">
+        </form>
     </div>
     <div class="modal-footer ng-cloak">
         <button ng-repeat="button in buttons" class="btn btn-{{ button.colour }}" 
