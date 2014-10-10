@@ -205,13 +205,14 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     //validate modal form
     $scope.validate_modal = function(form){
         // First we broadcast an event so all fields validate themselves
-        console.log(form)
-        form.$commitViewValue(true)
-        console.log($scope.model)
+        $scope.$broadcast('schemaFormValidate',form);
         // Then we check if the form is valid
         if (form.$valid) {
             console.log('valid form')
           // ... do whatever you need to do with your data.
+        }
+        else{
+            console.log('not so valid eh')
         }
     }
     
