@@ -182,8 +182,25 @@ app.directive('card', function($compile) {
                                         extra = "";
                                 }
                                 else if(findKey(obj,'ngclick')){
+                                    var params = 'content';
+                                    if(obj.ngclick.indexOf(' ') == -1 ){
+                                        //no params
+                                        var ngclick = obj.ngclick;
+                                    }
+                                    else{
+                                        var ngclick_with_params = obj.ngclick.split(' '),
+                                            ngclick = ngclick_with_params[0];
+                                        //create params
+                                        params += ',';
+                                        for (var k = 1; k < ngclick_with_params.length; k++) {
+                                            params += '"'+ngclick_with_params[k]+'"';
+                                            if(k != (ngclick_with_params.length-1)){
+                                                params += ','
+                                            }
+                                        }
+                                    }
                                     var ahref = "javascript:void(0)",
-                                        extra = "ng-click='"+obj.ngclick+"()'";
+                                        extra = "ng-click='"+ngclick+"("+params+")'";
                                 }
                                 html += '<'+node+'><a href="'+ahref+'" '+extra+'>';
                                 //check if icon is needed

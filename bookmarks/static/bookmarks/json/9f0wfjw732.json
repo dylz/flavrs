@@ -12,7 +12,7 @@
             },
             "footer": {
                 "options": [
-                    {"name": "Edit","icon":"edit", "link": "details"},
+                    {"name": "Edit","icon":"edit", "ngclick": "edit openModalCtrl"},
                     {"name": "Share","icon":"share", "ngclick": "share"}
                 ]
             }
@@ -29,7 +29,7 @@
             },
             "footer": {
                 "options": [
-                    {"name": "Edit","icon":"edit", "link": "details"},
+                    {"name": "Edit","icon":"edit", "ngclick": "edit openModalCtrl"},
                     {"name": "Share","icon":"share", "ngclick": "share"}
                 ]
             }
@@ -46,7 +46,7 @@
             },
             "footer": {
                 "options": [
-                    {"name": "Edit","icon":"edit", "link": "details"},
+                    {"name": "Edit","icon":"edit", "ngclick": "edit openModalCtrl"},
                     {"name": "Share","icon":"share", "ngclick": "share"}
                 ]
             }

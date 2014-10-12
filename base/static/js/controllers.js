@@ -173,12 +173,19 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     
     //wrapper for ngclicks outside of this scope
     
-    $scope.broadcast = function(ngclick){
-        $rootScope.$broadcast(ngclick);
+    $scope.broadcast = function(ngclick,arg){
+        $rootScope.$broadcast(ngclick,arg);
     }
-    
+
     //generic 'open modal window' function
-    $scope.open_modal = function(controller){
+    $scope.open_modal = function(controller,content){
+        
+        //if content is passed, send it to the controller to do whatever
+        //data binding it wishes
+        if(!angular.isDefined(content)){
+            content = {};
+        }
+        
         $scope.modalInstance = $modal.open({
             templateUrl: 'modal.html',
             controller: controller,
@@ -186,7 +193,9 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             size: 'lg',
             backdrop: true,
             resolve: {
-                
+                content: function(){
+                    return content;
+                }
             }
         });
         
@@ -202,19 +211,26 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         });
     }
     
-    //validate modal form
-    $scope.validate_modal = function(form){
-        // First we broadcast an event so all fields validate themselves
-        $scope.$broadcast('schemaFormValidate',form);
-        // Then we check if the form is valid
-        if (form.$valid) {
-            console.log('valid form')
-          // ... do whatever you need to do with your data.
-        }
-        else{
-            console.log('not so valid eh')
-        }
+    //generic edit - open modal and pass content. let the modules' controller
+    // do the rest of the work
+    $scope.edit = function(content,controller){
+        $scope.open_modal(controller,content);
     }
+    
+    //validate modal form
+    $scope.validate_modal = function(form,callback){
+        // First we broadcast an event so all fields validate themselves
+        $scope.$broadcast('schemaFormValidate');
+        // Then we check if the form is valid and broadcast the result
+        $timeout(function(){
+            $rootScope.$broadcast(callback,form.hasClass('ng-valid'));
+        },100);
+    }
+    
+    //listen to validate the form on request
+    $scope.$on('validate_modal_form', function(event, callback) {
+        return $scope.validate_modal($("#modal_form"),callback);
+    });
     
     //API usage to close a modal
     $scope.$on('close_modal', function(){

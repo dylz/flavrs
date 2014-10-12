@@ -117,9 +117,9 @@
         </div>
         <form
             novalidate
+            id="modal_form"
             name="modal_form"
             ng-if="!modal.body"
-            ng-submit="validate_modal(modal_form)"
             sf-schema="schema" 
             sf-form="form" 
             sf-model="model">
@@ -127,7 +127,7 @@
     </div>
     <div class="modal-footer ng-cloak">
         <button ng-repeat="button in buttons" class="btn btn-{{ button.colour }}" 
-            ng-click="broadcast(button.ngclick)"
+            ng-click="broadcast(button.ngclick,modal_form)"
             ng-disabled="button.disabled" ng-cloak>
             <i ng-show="button.icon" class="fa fa-{{ button.icon }}"></i>
             {{ button.name }}
