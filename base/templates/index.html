@@ -69,8 +69,8 @@
     <material-tabs selected="selectedTab" center>
         <material-tab ng-repeat="tab in tabs" label="{{tab.title}}" ng-click="load_tab_content(tab.id)"></material-tab>
     </material-tabs>
-    <div class="material-tabs-plus withripple">
-        <i class="fa fa-plus"></i>
+    <div class="material-tabs-plus withripple" ng-click="open_tab_management()">
+        <i class="fa fa-bars"></i>
     </div>
     <div class="clearfix"></div>
     <div id="tab-content" class="animate-switch-container">
@@ -108,30 +108,34 @@
 <!-- Tab Bar : End -->
 <!-- Modal Window -->
 <script type="text/ng-template" id="modal.html">
-    <div class="modal-header">
-        <h3 class="modal-title">{{ modal.title }}</h3>
-    </div>
-    <div class="modal-body">
-        <div ng-if="modal.body" ng-bind-html="modal.body">
-        
+    <div class="{{ modal.class }}">
+        <div class="modal-header">
+            <h3 class="modal-title">{{ modal.title }}</h3>
         </div>
-        <form
-            novalidate
-            id="modal_form"
-            name="modal_form"
-            ng-if="!modal.body"
-            sf-schema="schema" 
-            sf-form="form" 
-            sf-model="model">
-        </form>
-    </div>
-    <div class="modal-footer ng-cloak">
-        <button ng-repeat="button in buttons" class="btn btn-{{ button.colour }}" 
-            ng-click="broadcast(button.ngclick,modal_form)"
-            ng-disabled="button.disabled" ng-cloak>
-            <i ng-show="button.icon" class="fa fa-{{ button.icon }}"></i>
-            {{ button.name }}
-        </button>
+        <div class="modal-body">
+            <div ng-if="modal.body" compile="modal.body">
+            
+            </div>
+            <div class="{{ modal.form.class }}">
+                <h3>{{ modal.form.header }}</h3>
+                <form
+                    novalidate
+                    id="modal_form"
+                    name="modal_form"
+                    sf-schema="schema" 
+                    sf-form="form" 
+                    sf-model="model">
+                </form>
+            </div>
+        </div>
+        <div class="modal-footer ng-cloak">
+            <button ng-repeat="button in buttons" class="btn btn-{{ button.colour }}" 
+                ng-click="broadcast(button.ngclick,modal_form)"
+                ng-disabled="button.disabled" ng-cloak>
+                <i ng-show="button.icon" class="fa fa-{{ button.icon }}"></i>
+                {{ button.name }}
+            </button>
+        </div>
     </div>
 </script>
 <!-- Modal Window : End -->

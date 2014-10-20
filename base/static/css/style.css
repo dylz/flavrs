@@ -333,3 +333,18 @@ a.panel-body{
   width: 45%;
   margin-left: 6px;
 }
+
+/* Generic Tab Management Modal */
+.tab-management .modal-footer{
+  clear:both;
+}
+
+.tab-management tbody tr td:hover{
+  cursor: pointer;
+  color: white;
+  background-color: #08c !important;
+}
+
+.tab-management .form-group:last-child button{
+  display: none;
+}

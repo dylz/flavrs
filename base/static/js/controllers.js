@@ -217,6 +217,12 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         $scope.open_modal(controller,content);
     }
     
+    // tabs are generic, which means the functionality does not belong to any one
+    // module.
+    $scope.open_tab_management = function(){
+        $scope.open_modal('tabCtrl');
+    }
+    
     //validate modal form
     $scope.validate_modal = function(form,callback){
         // First we broadcast an event so all fields validate themselves
@@ -303,6 +309,128 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     };
 }]);
 
+
+//Tab management controller
+app.controller('tabCtrl', ['$scope', function($scope){
+    $scope.status = "create";
+    $scope.buttons = [
+        {'name': 'Save', 'colour': 'primary','ngclick': 'save'},
+        {'name': 'Save & Close', 'colour': 'info','ngclick': 'saveClose'},
+        {'name': 'Close', 'colour': 'warning','ngclick': 'close'}
+    ];
+    
+    var body = '<div class="col-md-6"><table class="table table-striped">'+
+                    '<thead>'+
+                        '<tr>'+
+                            '<th>Name</th>'+
+                        '</tr>'+
+                    '</thead>' +
+                    '<tbody>'+
+                        '<tr ng-repeat="tab in tabs" ng-click="edit_tab(tab)">'+
+                            '<td>{{tab.title}}</td>'+
+                        '</tr>'+
+                    '</tbody>'+
+                '</table></div>';
+    
+    $scope.modal = {
+        "class": "tab-management",
+        title: "Manage Tabs",
+        body: body,
+        form: {
+            header: "Add Tab",
+            "class": "col-md-6",
+        }
+    }
+    
+     $scope.schema = {
+        "type": "object",
+        "properties": {
+            "title": {
+                "type": "string",
+                "title": "Title",
+                "description": "",
+                "required": true
+            }
+        },
+        "required": ["title"]
+    };
+    $scope.form = [
+            "*",
+            {
+                title:'cancel',
+                type:'button',
+                onClick: function(modelValue,form){
+                    $scope.create_tab();
+                }
+            }
+        ];
+    $scope.model = {};
+    
+    // Edit a tab by clicking that tab's row in the table
+    $scope.edit_tab = function(tab){
+        $scope.tab_to_edit = tab;
+        //auto fill title
+        $scope.model.title = tab.title;
+        //enable "cancel" link (done thru jquery cause we do not have access)
+        //to ng-if
+        $('.tab-management .form-group:last button').show();
+        //update form header
+        $scope.modal.form.header = "Edit Tab";
+        //set 'edit' status
+        $scope.status = "edit";
+    }
+    
+    //set "create" state
+    $scope.create_tab = function(){
+        //reset model inputs
+        $scope.model.title = "";
+        //hide cancel btn
+        $('.tab-management .form-group:last button').hide();
+        //update form header
+        $scope.modal.form.header = "Add Tab";
+        //auto focus the first input
+        $('.tab-management form input:first').focus();
+        //set "create" status
+        $scope.status = "create";
+    }
+    
+    //button actions
+    
+    //close - close the model
+    $scope.$on('close',function(){
+        $scope.$emit('close_modal');
+    });
+    
+    //save - update if edit status or create tab
+    $scope.$on('save',function(){
+        $scope.save();
+    });
+    
+    //save it, then if successful, close the modal
+    $scope.$on('saveClose',function(){
+        $scope.close_modal = true;
+        $scope.save();
+    });
+    
+    // Save function
+    $scope.save = function(){
+        console.log(' i am saving')
+        if($scope.status == 'create'){
+            
+        }
+        else{
+            //update tab info from what was set in the form
+            var tab = $scope.tab_to_edit;
+            tab.title = $scope.model.title;
+        }
+        
+        //if "close modal" is a thing, close the modal!
+        if($scope.close_modal){
+            $scope.$emit('close_modal');
+        }
+    }
+    
+}]);
 
 app.controller('baseCtrl', ['$scope','$http',function(
     $scope,$http) {
