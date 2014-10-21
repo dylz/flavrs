@@ -313,6 +313,10 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
 //Tab management controller
 app.controller('tabCtrl', ['$scope', function($scope){
     $scope.status = "create";
+    //we are going to create a deepcopy of the tabs so we can mess with them
+    //as much as possible without effecting the front end and the "true" copy
+    //of what the user sees
+    $scope.tabs_copy = angular.copy($scope.tabs);
     $scope.buttons = [
         {'name': 'Save', 'colour': 'primary','ngclick': 'save'},
         {'name': 'Save & Close', 'colour': 'info','ngclick': 'saveClose'},
@@ -323,11 +327,14 @@ app.controller('tabCtrl', ['$scope', function($scope){
                     '<thead>'+
                         '<tr>'+
                             '<th>Name</th>'+
+                            '<th></th>'+
                         '</tr>'+
                     '</thead>' +
-                    '<tbody>'+
-                        '<tr ng-repeat="tab in tabs" ng-click="edit_tab(tab)">'+
+                    '<tbody as-sortable="sortableTabs" ng-model="tabs_copy">'+
+                        '<tr ng-repeat="tab in tabs_copy" ng-click="edit_tab(tab)" as-sortable-item>'+
                             '<td>{{tab.title}}</td>'+
+                            '<td as-sortable-item-handle class="col-md-1">'+
+                            '<i class="fa fa-arrows"></i></td>'+
                         '</tr>'+
                     '</tbody>'+
                 '</table></div>';
@@ -429,6 +436,13 @@ app.controller('tabCtrl', ['$scope', function($scope){
             $scope.$emit('close_modal');
         }
     }
+    
+    //sortable
+    $scope.sortableTabs = {
+        accept: function (sourceItemHandleScope, destSortableScope) {return true},
+        itemMoved: function (event) {},
+        orderChanged: function(event) {},
+    };
     
 }]);
 
