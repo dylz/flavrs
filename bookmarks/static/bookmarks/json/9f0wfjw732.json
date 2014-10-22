@@ -1,6 +1,7 @@
 {
     "response":[
         {
+            "id": "dmqihd8qd",
             "card_type": "link",
             "card_url": "http://mail.google.com",
             "header": {
@@ -12,12 +13,13 @@
             },
             "footer": {
                 "options": [
-                    {"name": "Edit","icon":"edit", "ngclick": "edit openModalCtrl"},
-                    {"name": "Share","icon":"share", "ngclick": "share"}
+                    {"name": "Edit","icon":"edit", "route":"edit"},
+                    {"name": "Share","icon":"share", "route": "share"}
                 ]
             }
         },
         {
+            "id": "mlqduadll",
             "card_type": "link",
             "card_url": "http://reddit.com",
             "header": {
@@ -29,12 +31,13 @@
             },
             "footer": {
                 "options": [
-                    {"name": "Edit","icon":"edit", "ngclick": "edit openModalCtrl"},
-                    {"name": "Share","icon":"share", "ngclick": "share"}
+                    {"name": "Edit","icon":"edit", "route":"edit"},
+                    {"name": "Share","icon":"share", "route": "share"}
                 ]
             }
         },
         {
+            "id": "123dj2",
             "card_type": "link",
             "card_url": "http://twitch.tv/directory/game/Hearthstone%3A Heroes of Warcraft",
             "header": {
@@ -46,8 +49,8 @@
             },
             "footer": {
                 "options": [
-                    {"name": "Edit","icon":"edit", "ngclick": "edit openModalCtrl"},
-                    {"name": "Share","icon":"share", "ngclick": "share"}
+                    {"name": "Edit","icon":"edit", "route":"edit"},
+                    {"name": "Share","icon":"share", "route": "share"}
                 ]
             }
         }

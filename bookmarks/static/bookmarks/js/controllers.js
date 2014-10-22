@@ -3,8 +3,8 @@
 */
 
 app.controller('bookmarksCtrl', ['$scope','$http',function(
-    $scope,$http,$modalInstance) {
-
+    $scope,$http) {
+    
     $scope.open_link_modal = function(){
         $scope.open_modal('openModalCtrl');   
     }
@@ -13,11 +13,7 @@ app.controller('bookmarksCtrl', ['$scope','$http',function(
     function init(){
         $http.post($scope.api+'static/bookmarks/json/main.json',{})
              .success(function(response,status){
-                $scope.tabs = response.tabs;
-                $scope.meta = response.meta;
-                $scope.actions = response.actions;
-                //load the first tab's content
-                $scope.load_tab_content($scope.tabs[0].id);
+                $scope.register_init(response);
              });
     }
     

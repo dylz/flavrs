@@ -10,5 +10,5 @@ urlpatterns = patterns('',
     url(r'^oauth2/', include('provider.oauth2.urls', namespace = 'oauth2')),
     url(r'^controllers/(?P<module>\w+)/(?P<action>\w+)', controllers),
     url(r'^$', index),
-    url(r'^(?P<module>\w+)/$', module_view),
+    url(r'^(?P<module>\w+)/', module_view),
 )

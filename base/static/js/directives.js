@@ -181,26 +181,38 @@ app.directive('card', function($compile) {
                                     var ahref = obj.link,
                                         extra = "";
                                 }
-                                else if(findKey(obj,'ngclick')){
-                                    var params = 'content';
-                                    if(obj.ngclick.indexOf(' ') == -1 ){
-                                        //no params
-                                        var ngclick = obj.ngclick;
-                                    }
-                                    else{
-                                        var ngclick_with_params = obj.ngclick.split(' '),
-                                            ngclick = ngclick_with_params[0];
-                                        //create params
-                                        params += ',';
-                                        for (var k = 1; k < ngclick_with_params.length; k++) {
-                                            params += '"'+ngclick_with_params[k]+'"';
-                                            if(k != (ngclick_with_params.length-1)){
-                                                params += ','
-                                            }
+                                else if(findKey(obj,'route')){
+                                    
+                                    var route = obj.route,
+                                        route_obj = null;
+                                    
+                                    //find the route
+                                    angular.forEach(scope.routes,function(entry){
+                                        if(entry.name == route){
+                                            //route is registered!
+                                            //Now split the paths up and determine
+                                            //if any of them are "dynamic"
+                                            //this is noted by the colon. ex.
+                                            //edit/:id = id is dynamic
+                                            var final_route = scope.module+'/', //always prefix with current module
+                                                rsplit = entry.route.split('/');
+                                            
+                                            rsplit.forEach(function(path){
+                                                if(path.indexOf(':') > -1){
+                                                    path = path.replace(':','');
+                                                    final_route += content[path];
+                                                }
+                                                else{
+                                                    final_route += path+'/';
+                                                }
+                                            });
+                                            //route is final route!
+                                            route = final_route;
                                         }
-                                    }
-                                    var ahref = "javascript:void(0)",
-                                        extra = "ng-click='"+ngclick+"("+params+")'";
+                                    });
+                                    
+                                    var ahref = route,
+                                        extra = "";
                                 }
                                 html += '<'+node+'><a href="'+ahref+'" '+extra+'>';
                                 //check if icon is needed

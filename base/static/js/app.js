@@ -61,7 +61,6 @@ app.config(function($locationProvider) {
   $locationProvider.html5Mode(true).hashPrefix('!');
 });
 
-
 //filters
 app.filter('module', function() {
     return function(input) {

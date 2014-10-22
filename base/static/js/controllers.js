@@ -9,9 +9,9 @@ user is logged in or not.
 
 app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                             '$cookies','$q','$location','$controller',
-                            '$rootScope','$modal','$timeout',function(
+                            '$rootScope','$modal','$timeout','$route',function(
     $scope,$http,$localStorage,$sessionStorage,$cookies,$q,$location,
-    $controller, $rootScope,$modal,$timeout) {
+    $controller, $rootScope,$modal,$timeout,$route) {
     
     $scope.api = '/';
     $scope.ready = false;
@@ -25,7 +25,14 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
 
     //modules.. this won't be hardcoded in the future.. so fix this kay!?
     $scope.modules = ['base','bookmarks','events','twitter'];
-
+    //store modules that have been loaded already so the routing does not load
+    //them again.
+    $scope.module_is_loaded = false;
+    //load generic routes
+    var routes = [
+            {"name": "add","route": "add/", 'tool': 'modal',"controller": "linkModalCtrl"},
+            {"name": "edit","route": "edit/:id/", 'tool': 'modal' ,"controller": "linkModalCtrl"}
+        ];
     //Attempt to log the user in
 
     $scope.login = function(is_valid){
@@ -146,6 +153,20 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         return $scope.modules.sort();
     }
     
+    //register a modules "init". Basically just save time by making sure all
+    //required scopes are updated so data is not crosedd between modules
+    $scope.register_init = function(response){
+        $scope.tabs = response.tabs;
+        $scope.meta = response.meta;
+        $scope.actions = response.actions;
+        $scope.routes = routes.concat(response.routes);
+        //load the first tab's content
+        $scope.load_tab_content($scope.tabs[0].id);
+        
+        //tell the app that this module is loaded so it does not try to load it again.
+        $scope.module_is_loaded = true;
+    }
+    
     //Get the tab content for the selected tab
     $scope.load_tab_content = function(id){
         var data = {};
@@ -254,13 +275,20 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             load_ctrl = function(){
                 $controller(ctrl_name,{$scope:$scope});
             }
-
+        
+        if(path_split[1] != $scope.module){
+            var different = true;
+        }
+        else{
+            var different = false;
+        }
+        
         $scope.module = path_split[1];
         
         if(($scope.module == "") || ($scope.module == "home")){
             $scope.module = 'base';
         }
-
+        
         //try to load the modules ctrl
         var ctrl_name = $scope.module+'Ctrl',
             foundit = false;
@@ -274,12 +302,39 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             }
         });
 
-        if(foundit){
+        //only init the controller if it is there and not loaded yet
+        if((foundit) && (different)){
             load_ctrl();
+        }
+        else{
+            //module is the same but the route is different.
+            //update the view using the new route.
+            update_view();
         }
     });
     
+    //update the view after the module is registered
+    $scope.$watch("module_is_loaded", function(){
+        update_view();
+    });
+    
     //Private functions
+        
+    function update_view(){
+        //check the rest of the route and determine what controller to load
+        console.log($location.path().split('/'))
+        var route_value = $location.path().split('/').length-2,
+            found_route = null;
+        
+        console.log(route_value)
+        angular.forEach($scope.routes,function(value,key){
+            console.log(value)
+            if(route_value == value.route.split('/').length){
+                console.log('this route: '+value.route)
+            }
+        });
+    }
+    
     function fix_height(){
         var new_height = $(document).height()-$('.menu-bar').height()-$('material-tabs').height();
         $('#tab-content,.button-bar').height(new_height);
@@ -460,6 +515,7 @@ app.controller('baseCtrl', ['$scope','$http',function(
                 $scope.tabs = response.tabs;
                 $scope.meta = response.meta;
                 $scope.actions = response.actions;
+                $scope.routes = response.routes;
                 //load the first tab's content
                 $scope.load_tab_content($scope.tabs[0].id);
              });
