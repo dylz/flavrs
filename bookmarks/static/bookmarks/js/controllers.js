@@ -23,7 +23,17 @@ app.controller('bookmarksCtrl', ['$scope','$http',function(
 }]);
 
 //Controller for modal window
-app.controller('openModalCtrl', ['$scope','content',function($scope,content) {
+app.controller('openModalCtrl', ['$scope','route',function($scope,route) {
+    
+    if(route.initialized){
+        route.initialized = false;
+        var locals = {
+            route: route,
+            $scope: $scope
+        };
+        $scope.open_modal('openModalCtrl',locals);
+    }
+    
     $scope.buttons = [
         {'name': 'Save', 'colour': 'primary','ngclick': 'save'},
         {'name': 'Cancel', 'colour': 'warning','ngclick': 'close'}
@@ -104,20 +114,35 @@ app.controller('openModalCtrl', ['$scope','content',function($scope,content) {
         "*"
     ];
     
-    //if "content",set up model. Otherwise, it is blank.
-    //basically, if "content", we are editing, and if empty, we are creating.
+    // Check if 'id' is in args. If so, then we are in an 'edit' state.
     
-    if($.isEmptyObject(content)){
-        //empty - create
-        var model = {};
-    }
-    else{
-        //edit
-        var model = {
-            "url": content.card_url,
-            "name": content.header.text
+    if(angular.isDefined(route.args.id)){
+        // edit
+        // Get the content with this id
+        
+        var content = null;
+        angular.forEach($scope.tab_content,function(value,key){
+           if(value.id == route.args.id){
+               content = value;
+           } 
+        });
+        
+        if(content !== null){
+            var model = {
+                "url": content.card_url,
+                "name": content.header.text
+            }    
+        }
+        else{
+            // id is not found.. this should through a 404 eh
+            $scope.location('404');
         }
     }
+    else{
+        // add
+        var model = {};
+    }
+    
     
     $scope.model = model;
 

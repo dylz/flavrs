@@ -28,11 +28,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     //store modules that have been loaded already so the routing does not load
     //them again.
     $scope.module_is_loaded = false;
-    //load generic routes
-    var routes = [
-            {"name": "add","route": "add/", 'tool': 'modal',"controller": "linkModalCtrl"},
-            {"name": "edit","route": "edit/:id/", 'tool': 'modal' ,"controller": "linkModalCtrl"}
-        ];
+    
     //Attempt to log the user in
 
     $scope.login = function(is_valid){
@@ -159,7 +155,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         $scope.tabs = response.tabs;
         $scope.meta = response.meta;
         $scope.actions = response.actions;
-        $scope.routes = routes.concat(response.routes);
+        $scope.routes = response.routes;
         //load the first tab's content
         $scope.load_tab_content($scope.tabs[0].id);
         
@@ -187,9 +183,21 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         console.log('HEY')
     }
     
-    //wrapper for ngclick buttons. Angular doesn't like dynamic ng-clicks too much.
-    $scope.click = function(ngclick){
-        $scope[ngclick]();
+    $scope.location = function(route){
+        
+        /// check internal routes
+        
+        switch (route) {
+            case '/':
+                //if route is empty, load the 'root' path (this is the module root)
+                route = $scope.module;
+                break;
+            default:
+                //get the actual path
+                route = $scope.get_route(route)
+        }
+        
+        $location.path(route);
     }
     
     //wrapper for ngclicks outside of this scope
@@ -199,13 +207,15 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     }
 
     //generic 'open modal window' function
-    $scope.open_modal = function(controller,content){
+    $scope.open_modal = function(controller,locals){
         
-        //if content is passed, send it to the controller to do whatever
-        //data binding it wishes
-        if(!angular.isDefined(content)){
-            content = {};
-        }
+        var resolve_locals = {};
+        
+        angular.forEach(locals,function(value,key){
+           resolve_locals[key] = function(){
+               return value;
+           } 
+        });
         
         $scope.modalInstance = $modal.open({
             templateUrl: 'modal.html',
@@ -213,11 +223,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             scope: $scope,
             size: 'lg',
             backdrop: true,
-            resolve: {
-                content: function(){
-                    return content;
-                }
-            }
+            resolve: resolve_locals
         });
         
         $scope.modalInstance.opened.then(function () {
@@ -227,15 +233,21 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             $timeout(function(){
                 $('.modal-body input:first').focus();
             },250);
-        }, function () {
-            
+        });
+        
+        //closed modal
+        $scope.modalInstance.result.then(function () {
+
+        },function(){
+            //modal is closed.. update route to module root
+            $scope.location('/');
         });
     }
     
     //generic edit - open modal and pass content. let the modules' controller
     // do the rest of the work
     $scope.edit = function(content,controller){
-        $scope.open_modal(controller,content);
+        $scope.open_modal(controller,{content:content});
     }
     
     // tabs are generic, which means the functionality does not belong to any one
@@ -254,6 +266,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         },100);
     }
     
+    
     //listen to validate the form on request
     $scope.$on('validate_modal_form', function(event, callback) {
         return $scope.validate_modal($("#modal_form"),callback);
@@ -268,6 +281,25 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     $scope.$on('add_to_content',function(event,data){
         $scope.tab_content.push(data);
     });
+    
+    // Get the route based off of object.route name
+    $scope.get_route = function(route){
+        var output = null;
+        angular.forEach($scope.routes,function(value,key){
+            if(value.name == route){
+                output = value.route;
+            }
+        });
+        
+        if(output !== null){
+            // route is found. We need to remember to append the current module
+            // the user is in to prevent routing conflicts.
+            return $scope.module+'/'+output;
+        }
+        else{
+            throw new Error(route+' does not exist.')   
+        }
+    };
     
     $rootScope.$on("$locationChangeSuccess", function(event, current) {
         //Get the path, and use it to determine the module
@@ -322,15 +354,98 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         
     function update_view(){
         //check the rest of the route and determine what controller to load
-        console.log($location.path().split('/'))
-        var route_value = $location.path().split('/').length-2,
+        
+        var route_arr = $location.path().split('/'),
+            route_value = route_arr.length-2,
             found_route = null;
         
-        console.log(route_value)
+        
         angular.forEach($scope.routes,function(value,key){
-            console.log(value)
-            if(route_value == value.route.split('/').length){
-                console.log('this route: '+value.route)
+            var loop_route_arr = value.route.split('/');
+            if(route_value == loop_route_arr.length){
+                // This *could* be the correct route. But lets double check.
+                // Any path with a colon is ambigous so ignore those.
+                var indexes = [],
+                    matched_indexes = [];
+                for (var i = 0; i < loop_route_arr.length; i++) {
+                    // Don't include any empty paths
+                    var path = loop_route_arr[i],
+                        dynamic_paths = [];
+                    if((path != "") && (path.indexOf(':') == -1)){
+                        indexes.push(i);
+                    }
+                }
+                // Now, compare the paths with the following indexes in 'indexes'
+                // to those of the current route with those indexes
+                for (var i = 0; i < indexes.length; i++) {
+                    var index = indexes[i];
+                    if(route_arr[index+2] == loop_route_arr[index]){
+                        matched_indexes.push(i);
+                    }
+                }
+                // If the matched indexes matches the indexes, then this is the route.
+                if(indexes.length == matched_indexes.length){
+                    // BAM, load the controller for this route.
+                    
+                    // For the locals of this controller, pass scope regardless
+                    // and then check if the controller has any 'locals' that wish
+                    // to be passed as well.
+                    
+                    var ctrl = value.controller,
+                        locals = {
+                            $scope:$scope,
+                            route: {'initialized': true, 'args': {}}
+                        };
+
+                    if(angular.isDefined(value.controller_locals)){
+                        angular.extend(locals,value.controller_locals)
+                    }
+                    
+                    // next, get the dynamic bits of the route (if any) and 
+                    // make them 'locals' to the controller
+                    var dynamic_paths = [];
+                    for (var i = 0; i < loop_route_arr.length; i++) {
+                        var path = loop_route_arr[i];
+                        if(path.indexOf(':') > -1){
+                            dynamic_paths.push({
+                               index: i,
+                               pattern: path.replace(':','')
+                            });
+                        }
+                    }
+                    
+                    for (var i = 0; i < dynamic_paths.length; i++) {
+                        var dp = dynamic_paths[i];
+                        locals.route.args[dp.pattern] = route_arr[dp.index+2];
+                    }
+                    // Before we can do load this controller, check if the route
+                    // has any dependencies and ensure they are loaded before 
+                    // running this controller
+                    $scope.queued_controller = {
+                        'controller': value.controller,
+                        'locals': locals
+                    };
+                    if(angular.isDefined(value.dependencies)){
+                        var listener = $scope.$watchGroup(value.dependencies, function(newValues,oldValues){
+                            // When ALL dependencies are not longer undefined,
+                            // destory the watcher.
+                            var num_defined = 0;
+                            for (var i = 0; i < newValues.length; i++) {
+                                if(angular.isDefined(newValues[i])){
+                                    num_defined++;
+                                }
+                            }
+                            // if num_defined == # in newValues.. then kill the listener and load the controller
+                            if(num_defined == newValues.length){
+                                listener(); //this kills the watchGroup
+                                $controller(value.controller,locals);
+                            }
+                        });
+                    }
+                    else{
+                        $controller(value.controller,locals);
+                    }
+                }
             }
         });
     }
