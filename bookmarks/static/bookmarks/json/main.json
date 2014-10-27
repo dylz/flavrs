@@ -18,8 +18,7 @@
             {"name": "add","route": "add/", "controller": "openModalCtrl"},
             {"name": "edit","route": "edit/:id/","controller": "openModalCtrl",
                 "controller_locals": {}, "dependencies": ["tab_content","tabs"]
-            },
-            {"name": "404", "route": "404/", "template": ""}
+            }
         ]
     }
 }

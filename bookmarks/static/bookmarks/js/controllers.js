@@ -134,8 +134,9 @@ app.controller('openModalCtrl', ['$scope','route',function($scope,route) {
             }    
         }
         else{
-            // id is not found.. this should through a 404 eh
-            $scope.location('404');
+            // this should never get here.. as no id is found
+            // the 404 handler should of taken care of this for us.
+            var model = {};
         }
     }
     else{
