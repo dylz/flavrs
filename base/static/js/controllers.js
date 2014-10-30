@@ -28,6 +28,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     //store modules that have been loaded already so the routing does not load
     //them again.
     $scope.module_is_loaded = false;
+    $scope.carry_on = true;
     
     //Attempt to log the user in
 
@@ -301,7 +302,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         }
     };
     
-    $rootScope.$on("$locationChangeSuccess", function(event, current) {
+    $rootScope.$on("$locationChangeStart", function(event, current) {
         //Get the path, and use it to determine the module
         var path_split = $location.path().split('/'),
             load_ctrl = function(){
@@ -342,6 +343,10 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             //module is the same but the route is different.
             //update the view using the new route.
             update_view();
+            //check if we need to prevent the route change
+            if(!$scope.carry_on){
+                event.preventDefault();
+            }
         }
     });
     
@@ -386,7 +391,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                 // If the matched indexes matches the indexes, then this is the route.
                 if(indexes.length == matched_indexes.length){
                     // BAM, load the controller for this route.
-                    
+                
                     // For the locals of this controller, pass scope regardless
                     // and then check if the controller has any 'locals' that wish
                     // to be passed as well.
@@ -418,6 +423,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                         var dp = dynamic_paths[i];
                         locals.route.args[dp.pattern] = route_arr[dp.index+2];
                     }
+                    
                     // Before we can do load this controller, check if the route
                     // has any dependencies and ensure they are loaded before 
                     // running this controller
@@ -437,6 +443,30 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                             }
                             // if num_defined == # in newValues.. then kill the listener and load the controller
                             if(num_defined == newValues.length){
+                                
+                                // Check if any validation is required for this route
+                                // to trigger. If there is, run the validators and if any fail
+                                // don't contuine.
+                                // It is up to the validator to show any messages, 404s, etc.
+                                
+                                $scope.carry_on = true;
+                                if(angular.isDefined(value.validators)){
+                                    angular.forEach(value.validators,function(value,key){
+                                        var validator = $scope.validators[value]($location.path(),locals.route.args);
+                                        // validator must return a boolean. if false, then 
+                                        // validation failed and we do not carry on this process (ie. no route change)
+                                        if(!validator){
+                                            $scope.carry_on = false;
+                                        }
+                                    });
+                                }
+                                
+                                // if validation fails, stop everything!
+                                if(!$scope.carry_on){
+                                    return false;
+                                }
+                                
+                                
                                 listener(); //this kills the watchGroup
                                 $controller(value.controller,locals);
                             }

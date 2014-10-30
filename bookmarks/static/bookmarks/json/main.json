@@ -17,7 +17,8 @@
         "routes": [
             {"name": "add","route": "add/", "controller": "openModalCtrl"},
             {"name": "edit","route": "edit/:id/","controller": "openModalCtrl",
-                "controller_locals": {}, "dependencies": ["tab_content","tabs"]
+                "controller_locals": {}, "dependencies": ["tab_content","tabs"],
+                "validators": ["check_id"]
             }
         ]
     }

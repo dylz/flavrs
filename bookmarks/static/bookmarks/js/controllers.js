@@ -9,6 +9,28 @@ app.controller('bookmarksCtrl', ['$scope','$http',function(
         $scope.open_modal('openModalCtrl');   
     }
     
+    //validators
+    $scope.validators = {
+        check_id: function(path,params){
+            // check if id is fail
+            var good_to_go = false;
+            angular.forEach($scope.tab_content,function(value,key){
+                if(value.id == params.id){
+                    good_to_go = true;
+                }
+            });
+            console.log(good_to_go)
+            if(good_to_go){
+                // id is valid, so let the process carry on
+                return true;
+            }
+            else{
+                // id is not valid, throw 404 and end routing process
+                return false;
+            }
+        }
+    }
+    
     //private
     function init(){
         $http.post($scope.api+'static/bookmarks/json/main.json',{})
@@ -43,6 +65,9 @@ app.controller('openModalCtrl', ['$scope','route',function($scope,route) {
     $scope.modal = {
         title: "Add Bookmark"
     }
+    
+    //validation
+    
     
     //button actions
     $scope.$on('save', function(event, success) {
