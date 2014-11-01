@@ -107,8 +107,12 @@
 </div>
 <!-- Tab Bar : End -->
 <!-- Command Bar -->
-<div class="command-bar col-lg-12">
-    <div contenteditable class="col-lg-12 input"></div>
+<div class="command-bar well col-lg-12" ng-show="command_bar">
+    <a href="javascript:;" class="pull-right" ng-click="command_bar=false">
+        close
+    </a>
+    <input type="text" class="col-lg-12 input" ng-model="command" 
+    typeahead="command for command in commands | filter:$viewValue | limitTo:8">
 </div>
 <!-- Command Bar : End -->
 <!-- Modal Window -->

@@ -20,6 +20,10 @@
                 "controller_locals": {}, "dependencies": ["tab_content","tabs"],
                 "validators": ["check_id"]
             }
+        ],
+        "commands": [
+            {"command": "add", "route": "add"},
+            {"command": "edit :name", "route": "edit"}
         ]
     }
 }

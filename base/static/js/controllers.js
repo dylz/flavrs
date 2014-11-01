@@ -30,6 +30,9 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     $scope.module_is_loaded = false;
     $scope.carry_on = true;
     
+    //command bar default - hide it
+    $scope.command_bar = false;
+    
     //Attempt to log the user in
 
     $scope.login = function(is_valid){
@@ -157,6 +160,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         $scope.meta = response.meta;
         $scope.actions = response.actions;
         $scope.routes = response.routes;
+        $scope.commands = response.commands;
         //load the first tab's content
         $scope.load_tab_content($scope.tabs[0].id);
         
@@ -507,6 +511,43 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     window.onscroll = function(event){
         fix_height();
     };
+    
+    // Check when user clicks '/' on their keyboard, then show the command bar
+    document.onkeypress=function(e){
+        var e=window.event || e;
+        //only trigger then if user is not typing in an input
+        var tag = document.activeElement.tagName;
+        if((e.charCode == '47') && (tag != "INPUT")){
+            $scope.$apply(function(){
+               $scope.command_bar = true;
+               $timeout(function(){
+                   $('.command-bar .input').focus();
+               },100)
+            });
+        }
+    }
+
+    // Watch and adjust CSS for typeahead results.
+    // This is because the command bar is at the bottom of the page, so the
+    // search results are off the page. 
+    // Watch when user types in bar, then change location of results and show them.
+    $scope.$watch('command', function(){
+        var command_bar = $('.command-bar ul');
+        if($scope.command !== undefined){
+            var height = command_bar.height();
+            if($scope.command_bar_height != height){
+                command_bar.css('visibility','hidden').hide();
+                $scope.command_bar_height = command_bar.height();
+            }
+            $timeout(function(){
+                var position = (-command_bar.height() + 30)+'px';
+                command_bar.css({
+                    'top':position,
+                    'visibility': 'visible'
+                }).show();
+            },200);
+        }
+    });
 }]);
 
 
