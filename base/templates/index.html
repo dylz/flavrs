@@ -107,12 +107,18 @@
 </div>
 <!-- Tab Bar : End -->
 <!-- Command Bar -->
-<div class="command-bar well col-lg-12" ng-show="command_bar">
+<div ng-controller="commandCtrl" class="command-bar well col-lg-12" ng-show="command_bar">
     <a href="javascript:;" class="pull-right" ng-click="command_bar=false">
         close
     </a>
-    <input type="text" class="col-lg-12 input" ng-model="command" 
-    typeahead="command for command in commands | filter:$viewValue | limitTo:8">
+    
+    <input type="text" class="col-lg-12 input" ng-model="command"
+    typeahead="command for command in command_options | filter:$viewValue | limitTo:8">
+    
+    <input ng-repeat="cs in command_syntax" type="text" class="hide hidden-command-input" ng-model="command_syntax_model[cs]"
+    typeahead="command for command in command_syntax_options[cs] | filter:$viewValue | limitTo:8"
+    data-name="{{cs}}" typeahead-trigger typeahead-text="typeaheadInput.text" trigger-flag="typeaheadInput.trigger">
+    
 </div>
 <!-- Command Bar : End -->
 <!-- Modal Window -->

@@ -22,8 +22,18 @@
             }
         ],
         "commands": [
-            {"command": "add", "route": "add"},
-            {"command": "edit :name", "route": "edit"}
+            {
+                "syntax": "add :url",
+                "options": [
+                    {"option": "n", "key": "name" }
+                ]
+            },
+            {
+                "syntax": "edit :name", 
+                "options": [
+                    {"option": "i", "key": "id" }
+                ]
+            }
         ]
     }
 }

@@ -146,7 +146,7 @@ app.directive('card', function($compile) {
 
             }
         ],
-        link: function(scope, iElement, iAttrs, ctrl) {
+        link: function(scope, element, attributes, ctrl) {
 
         },
         compile: function(element, attributes) {
@@ -393,3 +393,24 @@ app.directive('compile', ['$compile', function ($compile) {
         );
     };
 }])
+
+//directive to manually trigger typeahead suggestions
+.directive('typeaheadTrigger', function() {
+  return {
+    require: ["ngModel"],
+    scope: {
+      typeaheadText: '=',
+      triggerFlag: '='
+    },
+    link: function(scope, element, attr, ctrls) {
+      scope.$watch('triggerFlag', function(value) {
+        if (scope.triggerFlag) {
+            console.log(scope.typeaheadText)
+          //ctrls[0].$setViewValue(scope.typeaheadText);
+          scope.typeaheadText = '';
+          scope.triggerFlag = false;
+        }
+      });
+    }
+  };
+});

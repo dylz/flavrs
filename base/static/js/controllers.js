@@ -166,6 +166,9 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         
         //tell the app that this module is loaded so it does not try to load it again.
         $scope.module_is_loaded = true;
+        
+        // update the command bar logic by broadcasting to the command controller
+        $scope.$broadcast('update_commands',response.commands);
     }
     
     //Get the tab content for the selected tab
@@ -526,14 +529,30 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             });
         }
     }
+}]);
 
+
+app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
+    
+    $scope.typeaheadInput = {
+        text: '',
+        trigger: false
+    };
+
+    $scope.triggerTypeahead = function(name) {
+        $scope.typeaheadInput.trigger = true;
+        $scope.typeaheadInput.text = $scope.command_syntax_model[name];
+    }
+    
     // Watch and adjust CSS for typeahead results.
     // This is because the command bar is at the bottom of the page, so the
     // search results are off the page. 
     // Watch when user types in bar, then change location of results and show them.
     $scope.$watch('command', function(){
-        var command_bar = $('.command-bar ul');
-        if($scope.command !== undefined){
+        var command_bar = $('.command-bar ul'),
+            command = $scope.command;
+        if(command !== undefined){
+            //adjust height
             var height = command_bar.height();
             if($scope.command_bar_height != height){
                 command_bar.css('visibility','hidden').hide();
@@ -546,10 +565,58 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                     'visibility': 'visible'
                 }).show();
             },200);
+            //check if valid command and load autocomplete for options
+            // 
+            var command_split = command.split(" ");
+            if(command_split.length == 1){
+                //get the correct command
+                var option = null;
+                angular.forEach($scope.commands,function(value,key){
+                   if(command == value.syntax.split(" ")[0]){
+                       option = value;
+                   } 
+                });
+                if(option){
+                    //option found, generate hidden inputs for extra typeaheads
+                    var option_split = option.syntax.split(" ");
+                    $scope.command_syntax = [];
+                    $scope.command_syntax_options = {};
+                    $scope.command_syntax_model = {};
+                    for (var i = 1; i < option_split.length; i++) {
+                        var option_name = option_split[i].replace(':','');
+                        if($scope.command_syntax.indexOf(option_name) == -1){
+                            $scope.command_syntax.push(option_name);
+                            $scope.command_syntax_options[option_name] = ["turtle","tough","tommy"];
+                            $scope.command_syntax_model[option_name] = "";
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // update commands on demand
+    $scope.$on('update_commands', function(event,commands){
+       //typeahead options
+       $scope.command_options = [];
+       angular.forEach(commands,function(value,key){
+           var syntax_split = value.syntax.split(' ');
+           $scope.command_options.push(syntax_split[0]);
+       });
+    });
+    
+    // update autocomplete when user types
+    $('.command-bar .input').keydown(function(){
+        var value_split = $(this).val().split(" "),
+            index = value_split.length-2,
+            selected_hipt = $('.hidden-command-input').eq(index),
+            name = selected_hipt.attr('data-name');
+        if(index >= 0){
+            $scope.command_syntax_model[name] = value_split.slice(-1)[0];
+            $scope.triggerTypeahead(name);
         }
     });
 }]);
-
 
 //Tab management controller
 app.controller('tabCtrl', ['$scope', function($scope){
