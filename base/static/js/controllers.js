@@ -570,12 +570,7 @@ app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
             var command_split = command.split(" ");
             if(command_split.length == 1){
                 //get the correct command
-                var option = null;
-                angular.forEach($scope.commands,function(value,key){
-                   if(command == value.syntax.split(" ")[0]){
-                       option = value;
-                   } 
-                });
+                var option = get_matching_command(command);
                 if(option){
                     //option found, generate hidden inputs for extra typeaheads
                     var option_split = option.syntax.split(" ");
@@ -594,6 +589,67 @@ app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
             }
         }
     });
+    
+    // execute a command
+    $scope.execute_command = function(command){
+        var matching_command = get_matching_command(command),
+            command_object = generate_command_input_object(command,matching_command);
+        if((matching_command) && (command_object)){
+            
+        }
+        else{
+            // not a valid command or user supplied invalid syntax, error this.
+        }
+    }
+    
+    // helpers
+    
+    function get_matching_command(command){
+        // gets the matching command from the list of module supplied commands.
+        var output = null;
+        angular.forEach($scope.commands,function(value,key){
+           if(command == command.syntax.split(" ")[0]){
+               output = value;
+           }
+        });
+        return output;
+    }
+    
+    function generate_command_input_object(user_supplied,module_supplied){
+        // checks if user supplied syntax is correct or not.
+        // easiest way is to attempt to create command to input object
+        var user_supplied_split = user_supplied.split(" "),
+            module_supplied_split = module_supplied.split(" "),
+            user_supplied_clean_split = [],
+            output = {};
+        
+        // clean the user input and remove any 'options'.. or store em while we are at it
+        for (var i = 1; i < user_supplied_split.length; i++) {
+            var input = user_supplied_split[i];
+            
+        }
+        
+        for (var i = 1; i < module_supplied_split.length; i++) {
+            //check if user_supplied also has this index.
+            if(user_supplied_split.indexOf(i) > -1){
+                // no worries, they match!
+                // ex. output[name] = 'turtlesarefun'
+                output[module_supplied_split[i]] = user_supplied_clean_split[i];
+            }
+            else{
+                // nope, this is bad, error it.
+                output = false;
+                break;
+            }
+        }
+        
+        if(output){
+            // now the options values..
+            
+        }
+        
+        return output
+    }
     
     // update commands on demand
     $scope.$on('update_commands', function(event,commands){
