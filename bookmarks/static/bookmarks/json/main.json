@@ -23,15 +23,18 @@
         ],
         "commands": [
             {
-                "syntax": "add :url",
+                "syntax": "add",
                 "options": [
-                    {"option": "n", "key": "name" }
+                    {"option": "u", "key": "url", "position":2, "required": true},
+                    {"option": "n", "key": "name", "position":1, "required": true},
+                    {"option": "d"}
                 ]
             },
             {
-                "syntax": "edit :name", 
+                "syntax": "edit", 
                 "options": [
-                    {"option": "i", "key": "id" }
+                    {"option": "i", "key": "id", "position": 2},
+                    {"option": "n", "key": "name", "position":1}
                 ]
             }
         ]

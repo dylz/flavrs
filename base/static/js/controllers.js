@@ -566,7 +566,7 @@ app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
                 }).show();
             },200);
             //check if valid command and load autocomplete for options
-            // 
+            // broken code is broken
             var command_split = command.split(" ");
             if(command_split.length == 1){
                 //get the correct command
@@ -608,7 +608,7 @@ app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
         // gets the matching command from the list of module supplied commands.
         var output = null;
         angular.forEach($scope.commands,function(value,key){
-           if(command == command.syntax.split(" ")[0]){
+           if(command == command.syntax){
                output = value;
            }
         });
@@ -618,28 +618,62 @@ app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
     function generate_command_input_object(user_supplied,module_supplied){
         // checks if user supplied syntax is correct or not.
         // easiest way is to attempt to create command to input object
-        var user_supplied_split = user_supplied.split(" "),
-            module_supplied_split = module_supplied.split(" "),
-            user_supplied_clean_split = [],
-            output = {};
+        var output = null,
+            user_supplied_split = user_supplied.split(" ");
         
-        // clean the user input and remove any 'options'.. or store em while we are at it
-        for (var i = 1; i < user_supplied_split.length; i++) {
-            var input = user_supplied_split[i];
-            
+        // Loop through command options and create a map. This should make
+        // Comparing with user supplied input easier.
+        var map = {
+            required_num: 0,
+            required_keys: [],
+            has_value: [],
+            options: {}
+        };
+        for (var i = 0; i < module_supplied.options.length; i++) {
+            var option = module_supplied.options[i];
+            if(option.required){
+                map.required_num++;
+                map.required_keys.push(option.key);
+            }
+            if(option.hasOwnProperty('key')){
+                map.has_value.push(option.key);
+            }
+            map.options[option.option] = option;
         }
         
-        for (var i = 1; i < module_supplied_split.length; i++) {
-            //check if user_supplied also has this index.
-            if(user_supplied_split.indexOf(i) > -1){
-                // no worries, they match!
-                // ex. output[name] = 'turtlesarefun'
-                output[module_supplied_split[i]] = user_supplied_clean_split[i];
-            }
-            else{
-                // nope, this is bad, error it.
-                output = false;
-                break;
+        // check if enough options are supplied
+        if((user_supplied_split.length-1) >= map.required_num){
+            // now lets map the user supplied input into key:value
+            var user_input = {},
+                ignore_index = [],
+                output = {};
+            for (var i = 1; i < user_supplied_split.length; i++) {
+                var input = user_supplied_split[i];
+                if(ignore_index.indexOf(i) == -1){
+                    // position matters a lot here
+                    if(input.indexOf('-') > -1){
+                        // option, ex -i
+                        input = input.replace('-','');
+                        // get option
+                        if(map.options.hasOwnProperty(input)){
+                            // we have the option
+                            // log key:value
+                            // in this case, value would be the NEXT index's value
+                            output[map.options[input].key] = input[i+1];
+                            // put the next index in the ignore_index so 
+                            // we don't parse it, cause we have no need to.
+                            ignore_index.push(i+1);
+                        }
+                        else{
+                            // invalid option, bail.
+                            output = null;
+                            break;
+                        }
+                    }
+                    else{
+                        // NO DASH - DO LOGIC HERE NEXT
+                    }
+                }
             }
         }
         
@@ -656,8 +690,7 @@ app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
        //typeahead options
        $scope.command_options = [];
        angular.forEach(commands,function(value,key){
-           var syntax_split = value.syntax.split(' ');
-           $scope.command_options.push(syntax_split[0]);
+           $scope.command_options.push(value.syntax);
        });
     });
     
