@@ -592,23 +592,41 @@ app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
     
     // execute a command
     $scope.execute_command = function(command){
-        var matching_command = get_matching_command(command),
-            command_object = generate_command_input_object(command,matching_command);
-        if((matching_command) && (command_object)){
+        var matching_command = get_matching_command(command);
+        if(matching_command){
+            var command_object = generate_command_input_object(command,matching_command);
+            if((matching_command) && (command_object)){
             
+            }
+            else{
+                // not a valid command or user supplied invalid syntax, error this.
+            }
         }
         else{
-            // not a valid command or user supplied invalid syntax, error this.
+            // no matching command.. error
         }
     }
     
     // helpers
     
+    //dynamic sorting for objects
+    function object_sort(property) {
+        var sortOrder = 1;
+        if(property[0] === "-") {
+            sortOrder = -1;
+            property = property.substr(1);
+        }
+        return function (a,b) {
+            var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+            return result * sortOrder;
+        }
+    }
+    
     function get_matching_command(command){
         // gets the matching command from the list of module supplied commands.
         var output = null;
         angular.forEach($scope.commands,function(value,key){
-           if(command == command.syntax){
+           if(command.split(" ")[0] == value.syntax){
                output = value;
            }
         });
@@ -619,7 +637,7 @@ app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
         // checks if user supplied syntax is correct or not.
         // easiest way is to attempt to create command to input object
         var output = null,
-            user_supplied_split = user_supplied.split(" ");
+            user_supplied_split = user_supplied.split(" ").filter(function(v){return v!==''});
         
         // Loop through command options and create a map. This should make
         // Comparing with user supplied input easier.
@@ -629,6 +647,9 @@ app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
             has_value: [],
             options: {}
         };
+        
+        // sort module supplied
+        module_supplied.options = module_supplied.options.sort(object_sort('position'))
         for (var i = 0; i < module_supplied.options.length; i++) {
             var option = module_supplied.options[i];
             if(option.required){
@@ -646,9 +667,11 @@ app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
             // now lets map the user supplied input into key:value
             var user_input = {},
                 ignore_index = [],
-                output = {};
+                output = {},
+                ms_diff = -1;
             for (var i = 1; i < user_supplied_split.length; i++) {
-                var input = user_supplied_split[i];
+                var input = user_supplied_split[i],
+                    ms_index = i+ms_diff;// module supplied index
                 if(ignore_index.indexOf(i) == -1){
                     // position matters a lot here
                     if(input.indexOf('-') > -1){
@@ -656,13 +679,23 @@ app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
                         input = input.replace('-','');
                         // get option
                         if(map.options.hasOwnProperty(input)){
-                            // we have the option
-                            // log key:value
-                            // in this case, value would be the NEXT index's value
-                            output[map.options[input].key] = input[i+1];
-                            // put the next index in the ignore_index so 
-                            // we don't parse it, cause we have no need to.
-                            ignore_index.push(i+1);
+                            var mapped_option = map.options[input];
+                            // check if flag or input
+                            if((mapped_option.hasOwnProperty('flag')) && (mapped_option.flag)){
+                                // this is a flag
+                                output[mapped_option.key] = true;
+                            }
+                            else{
+                                // log key:value
+                                // in this case, value would be the NEXT index's value
+                                output[mapped_option.key] = user_supplied_split[i+1];
+                                // put the next index in the ignore_index so 
+                                // we don't parse it, cause we have no need to.
+                                ignore_index.push(i+1);
+                                //update module supplied index in case next option
+                                //does not have a dash
+                                ms_diff--;
+                            }
                         }
                         else{
                             // invalid option, bail.
@@ -671,16 +704,23 @@ app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
                         }
                     }
                     else{
-                        // NO DASH - DO LOGIC HERE NEXT
+                        // NO DASH
+                        output[module_supplied.options[ms_index].key] = input;
                     }
                 }
             }
         }
         
         if(output){
-            // now the options values..
-            
+            // fill in the missing flags to make using this object easier
+            angular.forEach(module_supplied.options,function(value,key){
+                if((value.hasOwnProperty('flag')) && (!output.hasOwnProperty(value.key))){
+                    output[value.key] = false;
+                } 
+            });
         }
+        
+        console.log(output)
         
         return output
     }
@@ -701,8 +741,8 @@ app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
             selected_hipt = $('.hidden-command-input').eq(index),
             name = selected_hipt.attr('data-name');
         if(index >= 0){
-            $scope.command_syntax_model[name] = value_split.slice(-1)[0];
-            $scope.triggerTypeahead(name);
+            //$scope.command_syntax_model[name] = value_split.slice(-1)[0];
+            //$scope.triggerTypeahead(name);
         }
     });
 }]);
