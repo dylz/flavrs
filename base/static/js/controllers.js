@@ -30,9 +30,6 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     $scope.module_is_loaded = false;
     $scope.carry_on = true;
     
-    //command bar default - hide it
-    $scope.command_bar = false;
-    
     //Attempt to log the user in
 
     $scope.login = function(is_valid){
@@ -487,10 +484,6 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         });
     }
     
-    $scope.close_command_bar = function(){
-        $scope.command_bar = false;
-    }
-    
     function fix_height(){
         var new_height = $(document).height()-$('.menu-bar').height()-$('material-tabs').height();
         $('#tab-content,.button-bar').height(new_height);
@@ -521,25 +514,14 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     
     // Check when user clicks '/' on their keyboard, then show the command bar
     $(document).keyup(function(e){
-        //var e=window.event || e;
         //only trigger then if user is not typing in an input
         var tag = document.activeElement.tagName;
         if((e.keyCode == '191') && (tag != "INPUT")){
-            $scope.$apply(function(){
-               $scope.command_bar = true;
-               $timeout(function(){
-                   $('.command-bar .input').focus();
-               },100)
-            });
+            $scope.$broadcast('manage_command_bar','show'); 
         }
         // close the command bar if it active and the user hits 'esc'
-        if(($scope.command_bar) && (e.keyCode == '27')){
-            $scope.$apply(function(){
-                // close input
-                $scope.close_command_bar(); 
-                // clear text
-                $('.command-bar .input').val('');
-            });
+        if(e.keyCode == '27'){
+            $scope.$broadcast('manage_command_bar','reset');
         }
     });
 }]);
@@ -600,6 +582,56 @@ app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
                     }
                 }
             }
+        }
+    });
+    
+    // close the command bar
+    $scope.close_command_bar = function(){
+        $scope.command_bar = false;
+    }
+    
+    // throw error on command bar
+    $scope.command_error = function(){
+        $scope.command_bar_error = true;
+    }
+    
+    // reset the command bar
+    $scope.reset_command_bar = function(){
+        // only bother if command bar is currently open
+        if($scope.command_bar){
+            $scope.$apply(function(){
+                $scope.close_command_bar();
+                $scope.command_bar_error = false;
+                $('.command-bar .input').val(''); 
+            })
+        }
+    }
+    
+    // show the command bar
+    $scope.show_command_bar = function(){
+        $scope.command_bar = true;
+        $scope.$apply(function(){
+            $timeout(function(){
+               $('.command-bar .input').focus();
+            },100)
+        });
+    };
+    
+    // watcher for command bar actions
+    $scope.$on('manage_command_bar',function(event,action){
+        switch (action) {
+            case 'error':
+                $scope.command_error();
+                break;
+            case 'reset':
+                $scope.reset_command_bar();
+                break;
+            case 'show':
+                $scope.show_command_bar();
+                break;
+            case 'close':
+                $scope.close_command_bar();
+                break;
         }
     });
     
@@ -735,8 +767,6 @@ app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
                 } 
             });
         }
-        
-        console.log(output)
         
         return output
     }
