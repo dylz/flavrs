@@ -487,6 +487,10 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         });
     }
     
+    $scope.close_command_bar = function(){
+        $scope.command_bar = false;
+    }
+    
     function fix_height(){
         var new_height = $(document).height()-$('.menu-bar').height()-$('material-tabs').height();
         $('#tab-content,.button-bar').height(new_height);
@@ -516,11 +520,11 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     };
     
     // Check when user clicks '/' on their keyboard, then show the command bar
-    document.onkeypress=function(e){
-        var e=window.event || e;
+    $(document).keyup(function(e){
+        //var e=window.event || e;
         //only trigger then if user is not typing in an input
         var tag = document.activeElement.tagName;
-        if((e.charCode == '47') && (tag != "INPUT")){
+        if((e.keyCode == '191') && (tag != "INPUT")){
             $scope.$apply(function(){
                $scope.command_bar = true;
                $timeout(function(){
@@ -528,7 +532,16 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                },100)
             });
         }
-    }
+        // close the command bar if it active and the user hits 'esc'
+        if(($scope.command_bar) && (e.keyCode == '27')){
+            $scope.$apply(function(){
+                // close input
+                $scope.close_command_bar(); 
+                // clear text
+                $('.command-bar .input').val('');
+            });
+        }
+    });
 }]);
 
 
@@ -596,14 +609,17 @@ app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
         if(matching_command){
             var command_object = generate_command_input_object(command,matching_command);
             if((matching_command) && (command_object)){
-            
+                console.log(command_object)
+                console.log('valid')
             }
             else{
                 // not a valid command or user supplied invalid syntax, error this.
+                console.log('invalid')
             }
         }
         else{
             // no matching command.. error
+            console.log('invalid')
         }
     }
     
