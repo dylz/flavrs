@@ -19,7 +19,7 @@ app.controller('bookmarksCtrl', ['$scope','$http',function(
                     good_to_go = true;
                 }
             });
-            console.log(good_to_go)
+
             if(good_to_go){
                 // id is valid, so let the process carry on
                 return true;
@@ -30,6 +30,24 @@ app.controller('bookmarksCtrl', ['$scope','$http',function(
             }
         }
     }
+    
+    //handle the command emit
+    $scope.$on('command_emit',function(event,command){
+        // user has submitted a command to add a bookmark.
+        // if the nocommit flag is flag, then load it in the modal
+        // otherwise just go ahead and try to add the bookmark
+        if(command.nocommit){
+            
+        }
+        else{
+            var params = {
+                'name': command.name,
+                'url': command.url
+            }
+            
+            $scope.location('add',params);
+        }
+    });
     
     //private
     function init(){
@@ -138,9 +156,7 @@ app.controller('openModalCtrl', ['$scope','route',function($scope,route) {
     $scope.form = [
         "*"
     ];
-    
     // Check if 'id' is in args. If so, then we are in an 'edit' state.
-    
     if(angular.isDefined(route.args.id)){
         // edit
         // Get the content with this id
@@ -164,9 +180,13 @@ app.controller('openModalCtrl', ['$scope','route',function($scope,route) {
             var model = {};
         }
     }
-    else{
-        // add
-        var model = {};
+    else{ 
+        var model = {}
+        // check if any url params are present and if so use them to prepopulate
+        // the fields
+        angular.forEach(route.params,function(value,key){
+            model[key] = value;
+        });
     }
     
     

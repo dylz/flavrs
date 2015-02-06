@@ -107,18 +107,22 @@
 </div>
 <!-- Tab Bar : End -->
 <!-- Command Bar -->
-<div ng-controller="commandCtrl" class="command-bar well col-lg-12" ng-show="command_bar">
+<div ng-controller="commandCtrl" class="command-bar well col-lg-12 col-sm-12" ng-show="command_bar" ng-class="{'has-error':command_bar_error}">
     <a href="javascript:;" class="pull-right" ng-click="close_command_bar()">
         close
     </a>
     
     <input type="text" class="col-lg-12 input" ng-model="command"
     typeahead="command for command in command_options | filter:$viewValue | limitTo:8"
-    ng-enter="execute_command(command)">
+    ng-enter="execute_command(command)" ng-keyup="remove_command_errors($event)">
     
     <input ng-repeat="cs in command_syntax" type="text" class="hide hidden-command-input" ng-model="command_syntax_model[cs]"
     typeahead="command for command in command_syntax_options[cs] | filter:$viewValue | limitTo:8"
     data-name="{{cs}}" typeahead-trigger typeahead-text="typeaheadInput.text" trigger-flag="typeaheadInput.trigger">
+    
+    <button id="command-popover" class="command-popover" popover="{{dynamic_popover}}" popover-title="{{dynamic_popover_title}}">
+        click
+    </button>
     
 </div>
 <!-- Command Bar : End -->

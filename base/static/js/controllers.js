@@ -188,7 +188,12 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         console.log('HEY')
     }
     
-    $scope.location = function(route){
+    $scope.location = function(route,params){
+        
+        // params is optional, if not defined, set a default
+        if(!angular.isDefined(params)){
+            params = {};
+        }
         
         /// check internal routes
         
@@ -202,7 +207,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                 route = $scope.get_route(route)
         }
         
-        $location.path(route);
+        $location.path(route).search(params);
     }
     
     //wrapper for ngclicks outside of this scope
@@ -366,6 +371,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         
         var route_arr = $location.path().split('/'),
             route_value = route_arr.length-2,
+            route_params = $location.search();
             found_route = null;
         
         
@@ -403,7 +409,8 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                     var ctrl = value.controller,
                         locals = {
                             $scope:$scope,
-                            route: {'initialized': true, 'args': {}}
+                            route: {'initialized': true, 'args': {}, 
+                                    'params': route_params}
                         };
 
                     if(angular.isDefined(value.controller_locals)){
@@ -593,6 +600,29 @@ app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
     // throw error on command bar
     $scope.command_error = function(){
         $scope.command_bar_error = true;
+        // display popover about the error
+        $scope.dynamic_popover_title = "Opps!";
+        $scope.dynamic_popover = "This command does not look right, try again!";
+        // trigger it!
+        $timeout(function(){
+            if($('.command-bar .popover').length == 0){
+                angular.element('#command-popover').trigger('click');
+            }
+        },100);
+    }
+    
+    // reset the error popover
+    $scope.remove_command_errors = function(event){
+        // we pass event so we can get the keycode the user pressed. if it was
+        // 'enter' then we know that the command is trying to be processed
+        if(event.keyCode != '13'){
+            $timeout(function(){
+                if($('.command-bar .popover').length == 1){
+                    $scope.command_bar_error = false;
+                    angular.element('#command-popover').trigger('click');
+                }
+            },1);
+        }
     }
     
     // reset the command bar
@@ -641,17 +671,17 @@ app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
         if(matching_command){
             var command_object = generate_command_input_object(command,matching_command);
             if((matching_command) && (command_object)){
-                console.log(command_object)
-                console.log('valid')
+                // this is a valid command, emit it
+                $scope.$emit('command_emit',command_object);
             }
             else{
                 // not a valid command or user supplied invalid syntax, error this.
-                console.log('invalid')
+                $scope.command_error();
             }
         }
         else{
             // no matching command.. error
-            console.log('invalid')
+            $scope.command_error();
         }
     }
     
