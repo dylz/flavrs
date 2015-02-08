@@ -959,6 +959,15 @@ app.controller('tabCtrl', ['$scope', function($scope){
     
 }]);
 
+app.controller('searchCtrl',['$scope', function($scope){
+
+    // the user can change the active search module with shortcuts
+    // but by default the active search is the active module
+    
+    $scope.search_module = $scope.module;
+    
+}]);
+
 app.controller('baseCtrl', ['$scope','$http',function(
     $scope,$http) {
     

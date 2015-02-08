@@ -37,6 +37,18 @@
                     {"option": "n", "key": "name", "position":1}
                 ]
             }
+        ],
+        "searches": [
+            {
+                "name": "My Bookmarks",
+                "shortcut": "bm",
+                "route": "search"
+            },
+            {
+                "name": "Google",
+                "shortcut": "gg",
+                "url": "https://google.ca/search?q=:q"
+            }
         ]
     }
 }
