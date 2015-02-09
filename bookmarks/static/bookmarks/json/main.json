@@ -19,7 +19,8 @@
             {"name": "edit","route": "edit/:id/","controller": "openModalCtrl",
                 "controller_locals": {}, "dependencies": ["tab_content","tabs"],
                 "validators": ["check_id"]
-            }
+            },
+            {"name": "search","route": "search/", "controller": "openModalCtrl"}
         ],
         "commands": [
             {

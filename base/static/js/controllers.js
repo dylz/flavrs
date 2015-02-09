@@ -959,12 +959,87 @@ app.controller('tabCtrl', ['$scope', function($scope){
     
 }]);
 
-app.controller('searchCtrl',['$scope', function($scope){
+app.controller('searchCtrl',['$scope','$http','$sce','$timeout',
+    function($scope,$http,$sce,$timeout){
 
-    // the user can change the active search module with shortcuts
-    // but by default the active search is the active module
+    // private
     
-    $scope.search_module = $scope.module;
+    function load_search(search_engines,module,delay){
+        // if module is undefined, use the currently active module
+        var parent_scope = $scope.$$nextSibling.$parent;
+        if(!angular.isDefined(module)){
+            module = parent_scope.module;
+        }
+        
+        // sometimes we want to delay binding of background data
+        // esp when we are switching modules and the data isn't even
+        // important yet
+        
+        // delay is 0 ms by default
+        if(!angular.isDefined(delay)){
+            delay = 0;
+        }
+        else{
+            delay = 100;
+        }
+        
+        // wrapper to bind all required compontents to search logistics
+        // get the active module and load the logistics for it's engine
+        angular.forEach(search_engines,function(value,key){
+            // get the details for the selected search module
+            if(value.module == module){
+                // it is very possible that a module can have more than one engine
+                // so we look for the primary (aka default) one
+               if((!angular.isDefined(value.primary) || value.primary == true)){
+                   
+                    // make sure the name of the search gets shown asap
+                    $scope.search = {
+                        name: value.name
+                    };
+                    
+                    // -- background data --
+                    $timeout(function(){
+                        // if the loaded engine has the property "url"
+                        // that means that the endpoint is external (ie. Google)
+                        // these urls have to be loaded as a "trusted resource" in angular
+                        if(angular.isDefined(value.url)){
+                            var action = $sce.trustAsResourceUrl(value.url);
+                        }
+                        else{
+                            // if url is not provided, then use the default 'search'
+                            // route for the active module
+                            var action = parent_scope.get_route('search');
+                        }
+                        
+                        $scope.search.action = action;
+                        
+                        // a specific url param can be passed, otherwise 
+                        // default to 'q'
+                        
+                        if(!angular.isDefined(value.param)){
+                            value.param = "q";
+                        }
+                        
+                        $scope.search.param = value.param;
+                        
+                    },delay);
+               } 
+            }
+        });
+    }
+    
+    function init(){
+        // each module should allow easy access to each piece of meta information
+        // seperately from eachother. 
+        $http.post($scope.api+'static/json/search_engines.json',{})
+             .success(function(response,status){
+                $scope.search_engines = response.searches;
+                load_search($scope.search_engines,undefined,true);
+             });
+    }
+    
+    // run these functions when search controller is loaded (ie. on page load)
+    init();
     
 }]);
 

@@ -1,0 +1,21 @@
+{    
+    "searches": [
+        {
+            "module": "bookmarks",
+            "name": "My Bookmarks",
+            "shortcut": "bm"
+        },
+        {
+            "module": "bookmarks",
+            "primary": false,
+            "name": "Google",
+            "shortcut": "gg",
+            "url": "https://google.ca/search"
+        },
+        {
+            "module": "base",
+            "name": "Flavrs",
+            "shortcut": "bs"
+        }
+    ]
+}
