@@ -16,7 +16,10 @@
     <div class="navbar-collapse collapse navbar-responsive-collapse">
         <form class="navbar-form navbar-left" ng-controller="searchCtrl" method="get" action="{{search.action}}">
             <div class="form-control-wrapper">
-                <input type="text" class="form-control col-lg-8" placeholder="Search {{search.name}}" name="{{search.param}}"><span class="material-input"></span>
+                <input type="text" class="form-control col-lg-8" placeholder="Search {{search.name}}" 
+                name="{{search.param}}" ng-model="search.input" ng-change="search.change(search.input)" 
+                typeahead="shortcut for shortcut in search.shortcuts_typeahead | filter:$viewValue | limitTo:8" 
+                typeahead-on-select="search.onselect($item, $model, $label)"><span class="material-input"></span>
             </div>
         </form>
         <ul class="nav navbar-nav navbar-left">

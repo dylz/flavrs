@@ -961,8 +961,36 @@ app.controller('tabCtrl', ['$scope', function($scope){
 
 app.controller('searchCtrl',['$scope','$http','$sce','$timeout',
     function($scope,$http,$sce,$timeout){
-
+    
+    $scope.search = {
+        shortcuts: {}, 
+        shortcuts_typeahead: [],
+        name: '',
+        input: '',
+        param: '',
+        change: change_search,
+        onselect: onselect
+    };
+    
     // private
+    
+    function onselect($item, $model, $label){
+        console.log('hey')
+    }
+    
+    function change_search(input){
+        // compare user input to search-changing-keybinds
+        // ... oh ya only do this if the input starts with an @ symbol
+        if(input.indexOf('@') === 0){
+            // input starts with @, so lets strip that out of the input
+            input = input.substr(1);
+            // check if input is in mapping
+            if(input in $scope.search.shortcuts){
+                // valid shortcut, load new search data
+                generate_search_scope($scope.search.shortcuts[input]);
+            }
+        }
+    }
     
     function load_search(search_engines,module,delay){
         // if module is undefined, use the currently active module
@@ -983,6 +1011,9 @@ app.controller('searchCtrl',['$scope','$http','$sce','$timeout',
             delay = 100;
         }
         
+        // reset short discovery
+        $scope.search = {'shortcuts': {}, 'shortcuts_typeahead': []}
+        
         // wrapper to bind all required compontents to search logistics
         // get the active module and load the logistics for it's engine
         angular.forEach(search_engines,function(value,key){
@@ -991,41 +1022,59 @@ app.controller('searchCtrl',['$scope','$http','$sce','$timeout',
                 // it is very possible that a module can have more than one engine
                 // so we look for the primary (aka default) one
                if((!angular.isDefined(value.primary) || value.primary == true)){
-                   
-                    // make sure the name of the search gets shown asap
-                    $scope.search = {
-                        name: value.name
-                    };
-                    
-                    // -- background data --
-                    $timeout(function(){
-                        // if the loaded engine has the property "url"
-                        // that means that the endpoint is external (ie. Google)
-                        // these urls have to be loaded as a "trusted resource" in angular
-                        if(angular.isDefined(value.url)){
-                            var action = $sce.trustAsResourceUrl(value.url);
-                        }
-                        else{
-                            // if url is not provided, then use the default 'search'
-                            // route for the active module
-                            var action = parent_scope.get_route('search');
-                        }
-                        
-                        $scope.search.action = action;
-                        
-                        // a specific url param can be passed, otherwise 
-                        // default to 'q'
-                        
-                        if(!angular.isDefined(value.param)){
-                            value.param = "q";
-                        }
-                        
-                        $scope.search.param = value.param;
-                        
-                    },delay);
+                   generate_search_scope(value,delay);
                } 
             }
+            
+            // map the shortcut to value
+            $scope.search.shortcuts[value.shortcut] = value;
+            // this is for typeahead purposes only
+            $scope.search.shortcuts_typeahead.push(value.name+" (@"+value.shortcut+")");
+            
         });
+    }
+    
+    function generate_search_scope(value,delay){
+        
+        if(!angular.isDefined(delay)){
+            delay = 0;
+        }
+        else{
+            delay = 100;
+        }
+        var parent_scope = $scope.$$nextSibling.$parent;
+        // make sure the name of the search gets shown asap
+        $scope.search.name = value.name;
+        
+        // empty out the input so it is obv that the search changed
+        $scope.search.input = "";
+        
+        // -- background data --
+        $timeout(function(){
+            // if the loaded engine has the property "url"
+            // that means that the endpoint is external (ie. Google)
+            // these urls have to be loaded as a "trusted resource" in angular
+            if(angular.isDefined(value.url)){
+                var action = $sce.trustAsResourceUrl(value.url);
+            }
+            else{
+                // if url is not provided, then use the default 'search'
+                // route for the active module
+                var action = parent_scope.get_route('search');
+            }
+            
+            $scope.search.action = action;
+            
+            // a specific url param can be passed, otherwise 
+            // default to 'q'
+            
+            if(!angular.isDefined(value.param)){
+                value.param = "q";
+            }
+            
+            $scope.search.param = value.param;
+            
+        },delay);
     }
     
     function init(){
