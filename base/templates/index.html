@@ -14,12 +14,12 @@
         <a class="navbar-brand" href="javascript:void(0)">Flavrs</a>
     </div>
     <div class="navbar-collapse collapse navbar-responsive-collapse">
-        <form class="navbar-form navbar-left" ng-controller="searchCtrl" method="get" action="{{search.action}}">
+        <form class="navbar-form navbar-left" id="search" ng-controller="searchCtrl" method="get" action="{{search.action}}">
             <div class="form-control-wrapper">
                 <input type="text" class="form-control col-lg-8" placeholder="Search {{search.name}}" 
-                name="{{search.param}}" ng-model="search.input" ng-change="search.change(search.input)" 
-                typeahead="shortcut for shortcut in search.shortcuts_typeahead | filter:$viewValue | limitTo:8" 
-                typeahead-on-select="search.onselect($item, $model, $label)"><span class="material-input"></span>
+                name="{{search.param}}" ng-model="search.input" ng-change="search_change(search.input)" 
+                typeahead="option for option in search_get_options($viewValue) | filter:$viewValue | limitTo:8" 
+                typeahead-on-select="search_onselect($item, $model, $label)" autocomplete="off"><span class="material-input"></span>
             </div>
         </form>
         <ul class="nav navbar-nav navbar-left">

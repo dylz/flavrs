@@ -293,8 +293,11 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     });
     
     // Get the route based off of object.route name
-    $scope.get_route = function(route){
+    $scope.get_route = function(route,module){
         var output = null;
+        if(!angular.isDefined(module)){
+            module = $scope.module;
+        }
         angular.forEach($scope.routes,function(value,key){
             if(value.name == route){
                 output = value.route;
@@ -304,7 +307,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         if(output !== null){
             // route is found. We need to remember to append the current module
             // the user is in to prevent routing conflicts.
-            return $scope.module+'/'+output;
+            return module+'/'+output;
         }
         else{
             throw new Error(route+' does not exist.')   
@@ -968,17 +971,21 @@ app.controller('searchCtrl',['$scope','$http','$sce','$timeout',
         name: '',
         input: '',
         param: '',
-        change: change_search,
-        onselect: onselect
+        object: null,
     };
     
-    // private
-    
-    function onselect($item, $model, $label){
-        console.log('hey')
+    $scope.search_onselect = function($item, $model, $label){
+        // format of $item example = Google (@gg)
+        // strip out whats in the brackets and use it as if the user just
+        // typed "@gg"
+        var input = $item.substring($item.indexOf('(')+1,$item.indexOf(')'));
+        $scope.search_change(input);
     }
     
-    function change_search(input){
+    
+    $scope.search_change = function(input){
+        // ensure that the dropdown is to its default state
+        angular.element("#search .dropdown-menu").removeClass('hide-me');
         // compare user input to search-changing-keybinds
         // ... oh ya only do this if the input starts with an @ symbol
         if(input.indexOf('@') === 0){
@@ -988,9 +995,37 @@ app.controller('searchCtrl',['$scope','$http','$sce','$timeout',
             if(input in $scope.search.shortcuts){
                 // valid shortcut, load new search data
                 generate_search_scope($scope.search.shortcuts[input]);
+                // ensure that the typeahead dropdown is no longer showing
+                angular.element("#search .dropdown-menu").addClass('hide-me');
             }
         }
     }
+    
+    $scope.search_get_options = function(input){
+        var output = $scope.search.shortcuts_typeahead;
+        // we need to return the typeahead options based on user input
+        // the only thing is, since search works across modules,
+        // we don't know if the active module for search is loaded via
+        // controllers, so we cannot rely on just requesting the data that
+        // way.
+        
+        // solution, check if active search module has a typeahead url
+        var search_obj = $scope.search.object;
+        
+        if(angular.isDefined(search_obj.url_for_typeahead)){
+            // get data from this url
+            var parent_scope = $scope.$$nextSibling.$parent,
+                route = parent_scope.get_route(search_obj.url_for_typeahead,search_obj.module);
+            $http.post(route,{data:input})
+             .success(function(response,status){
+                output.concat(response.data);
+             });
+        }
+        
+        return output;
+    }
+    
+    // private
     
     function load_search(search_engines,module,delay){
         // if module is undefined, use the currently active module
@@ -1021,15 +1056,15 @@ app.controller('searchCtrl',['$scope','$http','$sce','$timeout',
             if(value.module == module){
                 // it is very possible that a module can have more than one engine
                 // so we look for the primary (aka default) one
-               if((!angular.isDefined(value.primary) || value.primary == true)){
+                if((!angular.isDefined(value.primary) || value.primary == true)){
                    generate_search_scope(value,delay);
-               } 
+                }
             }
             
             // map the shortcut to value
             $scope.search.shortcuts[value.shortcut] = value;
             // this is for typeahead purposes only
-            $scope.search.shortcuts_typeahead.push(value.name+" (@"+value.shortcut+")");
+            $scope.search.shortcuts_typeahead.push("Search:"+value.name+" (@"+value.shortcut+")");
             
         });
     }
@@ -1073,7 +1108,7 @@ app.controller('searchCtrl',['$scope','$http','$sce','$timeout',
             }
             
             $scope.search.param = value.param;
-            
+            $scope.search.object = value;
         },delay);
     }
     

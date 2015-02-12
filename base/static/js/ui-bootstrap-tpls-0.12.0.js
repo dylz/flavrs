@@ -2,11 +2,11 @@
  * angular-ui-bootstrap
  * http://angular-ui.github.io/bootstrap/
 
- * Version: 0.11.2 - 2014-09-26
+ * Version: 0.12.0 - 2014-11-16
  * License: MIT
  */
 angular.module("ui.bootstrap", ["ui.bootstrap.tpls", "ui.bootstrap.transition","ui.bootstrap.collapse","ui.bootstrap.accordion","ui.bootstrap.alert","ui.bootstrap.bindHtml","ui.bootstrap.buttons","ui.bootstrap.carousel","ui.bootstrap.dateparser","ui.bootstrap.position","ui.bootstrap.datepicker","ui.bootstrap.dropdown","ui.bootstrap.modal","ui.bootstrap.pagination","ui.bootstrap.tooltip","ui.bootstrap.popover","ui.bootstrap.progressbar","ui.bootstrap.rating","ui.bootstrap.tabs","ui.bootstrap.timepicker","ui.bootstrap.typeahead"]);
-angular.module("ui.bootstrap.tpls", ["static/template/accordion/accordion-group.html","static/template/accordion/accordion.html","static/template/alert/alert.html","static/template/carousel/carousel.html","static/template/carousel/slide.html","static/template/datepicker/datepicker.html","static/template/datepicker/day.html","static/template/datepicker/month.html","static/template/datepicker/popup.html","static/template/datepicker/year.html","static/template/modal/backdrop.html","static/template/modal/window.html","static/template/pagination/pager.html","static/template/pagination/pagination.html","static/template/tooltip/tooltip-html-unsafe-popup.html","static/template/tooltip/tooltip-popup.html","static/template/popover/popover.html","static/template/progressbar/bar.html","static/template/progressbar/progress.html","static/template/progressbar/progressbar.html","static/template/rating/rating.html","static/template/tabs/tab.html","static/template/tabs/tabset.html","static/template/timepicker/timepicker.html","static/template/typeahead/typeahead-match.html","static/template/typeahead/typeahead-popup.html"]);
+angular.module("ui.bootstrap.tpls", ["template/accordion/accordion-group.html","template/accordion/accordion.html","template/alert/alert.html","template/carousel/carousel.html","template/carousel/slide.html","template/datepicker/datepicker.html","template/datepicker/day.html","template/datepicker/month.html","template/datepicker/popup.html","template/datepicker/year.html","template/modal/backdrop.html","template/modal/window.html","template/pagination/pager.html","template/pagination/pagination.html","template/tooltip/tooltip-html-unsafe-popup.html","template/tooltip/tooltip-popup.html","template/popover/popover.html","template/progressbar/bar.html","template/progressbar/progress.html","template/progressbar/progressbar.html","template/rating/rating.html","template/tabs/tab.html","template/tabs/tabset.html","template/timepicker/timepicker.html","template/typeahead/typeahead-match.html","template/typeahead/typeahead-popup.html"]);
 angular.module('ui.bootstrap.transition', [])
 
 /**
@@ -217,7 +217,7 @@ angular.module('ui.bootstrap.accordion', ['ui.bootstrap.collapse'])
     controller:'AccordionController',
     transclude: true,
     replace: false,
-    templateUrl: 'static/template/accordion/accordion.html'
+    templateUrl: 'template/accordion/accordion.html'
   };
 })
 
@@ -228,7 +228,7 @@ angular.module('ui.bootstrap.accordion', ['ui.bootstrap.collapse'])
     restrict:'EA',
     transclude:true,              // It transcludes the contents of the directive into the template
     replace: true,                // The element containing the directive will be replaced with the template
-    templateUrl:'static/template/accordion/accordion-group.html',
+    templateUrl:'template/accordion/accordion-group.html',
     scope: {
       heading: '@',               // Interpolate the heading attribute onto this scope
       isOpen: '=?',
@@ -301,13 +301,14 @@ angular.module('ui.bootstrap.alert', [])
 
 .controller('AlertController', ['$scope', '$attrs', function ($scope, $attrs) {
   $scope.closeable = 'close' in $attrs;
+  this.close = $scope.close;
 }])
 
 .directive('alert', function () {
   return {
     restrict:'EA',
     controller:'AlertController',
-    templateUrl:'static/template/alert/alert.html',
+    templateUrl:'template/alert/alert.html',
     transclude:true,
     replace:true,
     scope: {
@@ -315,7 +316,18 @@ angular.module('ui.bootstrap.alert', [])
       close: '&'
     }
   };
-});
+})
+
+.directive('dismissOnTimeout', ['$timeout', function($timeout) {
+  return {
+    require: 'alert',
+    link: function(scope, element, attrs, alertCtrl) {
+      $timeout(function(){
+        alertCtrl.close();
+      }, parseInt(attrs.dismissOnTimeout, 10));
+    }
+  };
+}]);
 
 angular.module('ui.bootstrap.bindHtml', [])
 
@@ -411,11 +423,11 @@ angular.module('ui.bootstrap.buttons', [])
 *
 */
 angular.module('ui.bootstrap.carousel', ['ui.bootstrap.transition'])
-.controller('CarouselController', ['$scope', '$timeout', '$transition', function ($scope, $timeout, $transition) {
+.controller('CarouselController', ['$scope', '$timeout', '$interval', '$transition', function ($scope, $timeout, $interval, $transition) {
   var self = this,
     slides = self.slides = $scope.slides = [],
     currentIndex = -1,
-    currentTimeout, isPlaying;
+    currentInterval, isPlaying;
   self.currentSlide = null;
 
   var destroyed = false;
@@ -510,22 +522,22 @@ angular.module('ui.bootstrap.carousel', ['ui.bootstrap.transition'])
   function restartTimer() {
     resetTimer();
     var interval = +$scope.interval;
-    if (!isNaN(interval) && interval>=0) {
-      currentTimeout = $timeout(timerFn, interval);
+    if (!isNaN(interval) && interval > 0) {
+      currentInterval = $interval(timerFn, interval);
     }
   }
 
   function resetTimer() {
-    if (currentTimeout) {
-      $timeout.cancel(currentTimeout);
-      currentTimeout = null;
+    if (currentInterval) {
+      $interval.cancel(currentInterval);
+      currentInterval = null;
     }
   }
 
   function timerFn() {
-    if (isPlaying) {
+    var interval = +$scope.interval;
+    if (isPlaying && !isNaN(interval) && interval > 0) {
       $scope.next();
-      restartTimer();
     } else {
       $scope.pause();
     }
@@ -620,7 +632,7 @@ angular.module('ui.bootstrap.carousel', ['ui.bootstrap.transition'])
     replace: true,
     controller: 'CarouselController',
     require: 'carousel',
-    templateUrl: 'static/template/carousel/carousel.html',
+    templateUrl: 'template/carousel/carousel.html',
     scope: {
       interval: '=',
       noTransition: '=',
@@ -676,7 +688,7 @@ function CarouselDemoCtrl($scope) {
     restrict: 'EA',
     transclude: true,
     replace: true,
-    templateUrl: 'static/template/carousel/slide.html',
+    templateUrl: 'template/carousel/slide.html',
     scope: {
       active: '=?'
     },
@@ -1159,7 +1171,7 @@ angular.module('ui.bootstrap.datepicker', ['ui.bootstrap.dateparser', 'ui.bootst
   return {
     restrict: 'EA',
     replace: true,
-    templateUrl: 'static/template/datepicker/datepicker.html',
+    templateUrl: 'template/datepicker/datepicker.html',
     scope: {
       datepickerMode: '=?',
       dateDisabled: '&'
@@ -1180,7 +1192,7 @@ angular.module('ui.bootstrap.datepicker', ['ui.bootstrap.dateparser', 'ui.bootst
   return {
     restrict: 'EA',
     replace: true,
-    templateUrl: 'static/template/datepicker/day.html',
+    templateUrl: 'template/datepicker/day.html',
     require: '^datepicker',
     link: function(scope, element, attrs, ctrl) {
       scope.showWeeks = ctrl.showWeeks;
@@ -1288,7 +1300,7 @@ angular.module('ui.bootstrap.datepicker', ['ui.bootstrap.dateparser', 'ui.bootst
   return {
     restrict: 'EA',
     replace: true,
-    templateUrl: 'static/template/datepicker/month.html',
+    templateUrl: 'template/datepicker/month.html',
     require: '^datepicker',
     link: function(scope, element, attrs, ctrl) {
       ctrl.step = { years: 1 };
@@ -1343,7 +1355,7 @@ angular.module('ui.bootstrap.datepicker', ['ui.bootstrap.dateparser', 'ui.bootst
   return {
     restrict: 'EA',
     replace: true,
-    templateUrl: 'static/template/datepicker/year.html',
+    templateUrl: 'template/datepicker/year.html',
     require: '^datepicker',
     link: function(scope, element, attrs, ctrl) {
       var range = ctrl.yearRange;
@@ -1606,7 +1618,7 @@ function ($compile, $parse, $document, $position, dateFilter, dateParser, datepi
     restrict:'EA',
     replace: true,
     transclude: true,
-    templateUrl: 'static/template/datepicker/popup.html',
+    templateUrl: 'template/datepicker/popup.html',
     link:function (scope, element, attrs) {
       element.bind('click', function(event) {
         event.preventDefault();
@@ -1647,6 +1659,10 @@ angular.module('ui.bootstrap.dropdown', [])
   };
 
   var closeDropdown = function( evt ) {
+    // This method may still be called during the same mouse event that
+    // unbound this event handler. So check openScope before proceeding.
+    if (!openScope) { return; }
+
     var toggleElement = openScope.getToggleElement();
     if ( evt && toggleElement && toggleElement[0].contains(evt.target) ) {
         return;
@@ -1732,7 +1748,6 @@ angular.module('ui.bootstrap.dropdown', [])
 
 .directive('dropdown', function() {
   return {
-    restrict: 'CA',
     controller: 'DropdownController',
     link: function(scope, element, attrs, dropdownCtrl) {
       dropdownCtrl.init( element );
@@ -1742,7 +1757,6 @@ angular.module('ui.bootstrap.dropdown', [])
 
 .directive('dropdownToggle', function() {
   return {
-    restrict: 'CA',
     require: '?^dropdown',
     link: function(scope, element, attrs, dropdownCtrl) {
       if ( !dropdownCtrl ) {
@@ -1839,7 +1853,7 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
     return {
       restrict: 'EA',
       replace: true,
-      templateUrl: 'static/template/modal/backdrop.html',
+      templateUrl: 'template/modal/backdrop.html',
       link: function (scope, element, attrs) {
         scope.backdropClass = attrs.backdropClass || '';
 
@@ -1863,7 +1877,7 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
       replace: true,
       transclude: true,
       templateUrl: function(tElement, tAttrs) {
-        return tAttrs.templateUrl || 'static/template/modal/window.html';
+        return tAttrs.templateUrl || 'template/modal/window.html';
       },
       link: function (scope, element, attrs) {
         element.addClass(attrs.windowClass || '');
@@ -1875,7 +1889,7 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
 
           /**
            * Auto-focusing of a freshly-opened modal element causes any child elements
-           * with the autofocus attribute to loose focus. This is an issue on touch
+           * with the autofocus attribute to lose focus. This is an issue on touch
            * based devices which will show and then hide the onscreen keyboard.
            * Attempts to refocus the autofocus element via JavaScript will not reopen
            * the onscreen keyboard. Fixed by updated the focusing logic to only autofocus
@@ -2281,7 +2295,7 @@ angular.module('ui.bootstrap.pagination', [])
     },
     require: ['pagination', '?ngModel'],
     controller: 'PaginationController',
-    templateUrl: 'static/template/pagination/pagination.html',
+    templateUrl: 'template/pagination/pagination.html',
     replace: true,
     link: function(scope, element, attrs, ctrls) {
       var paginationCtrl = ctrls[0], ngModelCtrl = ctrls[1];
@@ -2392,7 +2406,7 @@ angular.module('ui.bootstrap.pagination', [])
     },
     require: ['pager', '?ngModel'],
     controller: 'PaginationController',
-    templateUrl: 'static/template/pagination/pager.html',
+    templateUrl: 'template/pagination/pager.html',
     replace: true,
     link: function(scope, element, attrs, ctrls) {
       var paginationCtrl = ctrls[0], ngModelCtrl = ctrls[1];
@@ -2473,7 +2487,7 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
    * Returns the actual instance of the $tooltip service.
    * TODO support multiple triggers
    */
-  this.$get = [ '$window', '$compile', '$timeout', '$parse', '$document', '$position', '$interpolate', function ( $window, $compile, $timeout, $parse, $document, $position, $interpolate ) {
+  this.$get = [ '$window', '$compile', '$timeout', '$document', '$position', '$interpolate', function ( $window, $compile, $timeout, $document, $position, $interpolate ) {
     return function $tooltip ( type, prefix, defaultTriggerShow ) {
       var options = angular.extend( {}, defaultOptions, globalOptions );
 
@@ -2506,31 +2520,32 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
       var endSym = $interpolate.endSymbol();
       var template =
         '<div '+ directiveName +'-popup '+
-          'title="'+startSym+'tt_title'+endSym+'" '+
-          'content="'+startSym+'tt_content'+endSym+'" '+
-          'placement="'+startSym+'tt_placement'+endSym+'" '+
-          'animation="tt_animation" '+
-          'is-open="tt_isOpen"'+
+          'title="'+startSym+'title'+endSym+'" '+
+          'content="'+startSym+'content'+endSym+'" '+
+          'placement="'+startSym+'placement'+endSym+'" '+
+          'animation="animation" '+
+          'is-open="isOpen"'+
           '>'+
         '</div>';
 
       return {
         restrict: 'EA',
-        scope: true,
         compile: function (tElem, tAttrs) {
           var tooltipLinker = $compile( template );
 
           return function link ( scope, element, attrs ) {
             var tooltip;
+            var tooltipLinkedScope;
             var transitionTimeout;
             var popupTimeout;
             var appendToBody = angular.isDefined( options.appendToBody ) ? options.appendToBody : false;
             var triggers = getTriggers( undefined );
             var hasEnableExp = angular.isDefined(attrs[prefix+'Enable']);
+            var ttScope = scope.$new(true);
 
             var positionTooltip = function () {
 
-              var ttPosition = $position.positionElements(element, tooltip, scope.tt_placement, appendToBody);
+              var ttPosition = $position.positionElements(element, tooltip, ttScope.placement, appendToBody);
               ttPosition.top += 'px';
               ttPosition.left += 'px';
 
@@ -2540,10 +2555,10 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
 
             // By default, the tooltip is not open.
             // TODO add ability to start tooltip opened
-            scope.tt_isOpen = false;
+            ttScope.isOpen = false;
 
             function toggleTooltipBind () {
-              if ( ! scope.tt_isOpen ) {
+              if ( ! ttScope.isOpen ) {
                 showTooltipBind();
               } else {
                 hideTooltipBind();
@@ -2555,11 +2570,14 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
               if(hasEnableExp && !scope.$eval(attrs[prefix+'Enable'])) {
                 return;
               }
-              if ( scope.tt_popupDelay ) {
+
+              prepareTooltip();
+
+              if ( ttScope.popupDelay ) {
                 // Do nothing if the tooltip was already scheduled to pop-up.
                 // This happens if show is triggered multiple times before any hide is triggered.
                 if (!popupTimeout) {
-                  popupTimeout = $timeout( show, scope.tt_popupDelay, false );
+                  popupTimeout = $timeout( show, ttScope.popupDelay, false );
                   popupTimeout.then(function(reposition){reposition();});
                 }
               } else {
@@ -2586,7 +2604,7 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
               }
 
               // Don't show empty tooltips.
-              if ( ! scope.tt_content ) {
+              if ( ! ttScope.content ) {
                 return angular.noop;
               }
 
@@ -2595,7 +2613,7 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
               // Set the initial positioning.
               tooltip.css({ top: 0, left: 0, display: 'block' });
 
-              // Now we add it to the DOM because need some info about it. But it's not 
+              // Now we add it to the DOM because need some info about it. But it's not
               // visible yet anyway.
               if ( appendToBody ) {
                   $document.find( 'body' ).append( tooltip );
@@ -2606,8 +2624,8 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
               positionTooltip();
 
               // And show the tooltip.
-              scope.tt_isOpen = true;
-              scope.$digest(); // digest required as $apply is not called
+              ttScope.isOpen = true;
+              ttScope.$digest(); // digest required as $apply is not called
 
               // Return positioning function as promise callback for correct
               // positioning after draw.
@@ -2617,16 +2635,16 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
             // Hide the tooltip popup element.
             function hide() {
               // First things first: we don't show it anymore.
-              scope.tt_isOpen = false;
+              ttScope.isOpen = false;
 
               //if tooltip is going to be shown after delay, we must cancel this
               $timeout.cancel( popupTimeout );
               popupTimeout = null;
 
-              // And now we remove it from the DOM. However, if we have animation, we 
+              // And now we remove it from the DOM. However, if we have animation, we
               // need to wait for it to expire beforehand.
               // FIXME: this is a placeholder for a port of the transitions library.
-              if ( scope.tt_animation ) {
+              if ( ttScope.animation ) {
                 if (!transitionTimeout) {
                   transitionTimeout = $timeout(removeTooltip, 500);
                 }
@@ -2640,10 +2658,8 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
               if (tooltip) {
                 removeTooltip();
               }
-              tooltip = tooltipLinker(scope, function () {});
-
-              // Get contents rendered into the tooltip
-              scope.$digest();
+              tooltipLinkedScope = ttScope.$new();
+              tooltip = tooltipLinker(tooltipLinkedScope, angular.noop);
             }
 
             function removeTooltip() {
@@ -2652,38 +2668,50 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
                 tooltip.remove();
                 tooltip = null;
               }
+              if (tooltipLinkedScope) {
+                tooltipLinkedScope.$destroy();
+                tooltipLinkedScope = null;
+              }
+            }
+
+            function prepareTooltip() {
+              prepPlacement();
+              prepPopupDelay();
             }
 
             /**
              * Observe the relevant attributes.
              */
             attrs.$observe( type, function ( val ) {
-              scope.tt_content = val;
+              ttScope.content = val;
 
-              if (!val && scope.tt_isOpen ) {
+              if (!val && ttScope.isOpen ) {
                 hide();
               }
             });
 
             attrs.$observe( prefix+'Title', function ( val ) {
-              scope.tt_title = val;
+              ttScope.title = val;
             });
 
-            attrs.$observe( prefix+'Placement', function ( val ) {
-              scope.tt_placement = angular.isDefined( val ) ? val : options.placement;
-            });
+            function prepPlacement() {
+              var val = attrs[ prefix + 'Placement' ];
+              ttScope.placement = angular.isDefined( val ) ? val : options.placement;
+            }
 
-            attrs.$observe( prefix+'PopupDelay', function ( val ) {
+            function prepPopupDelay() {
+              var val = attrs[ prefix + 'PopupDelay' ];
               var delay = parseInt( val, 10 );
-              scope.tt_popupDelay = ! isNaN(delay) ? delay : options.popupDelay;
-            });
+              ttScope.popupDelay = ! isNaN(delay) ? delay : options.popupDelay;
+            }
 
             var unregisterTriggers = function () {
               element.unbind(triggers.show, showTooltipBind);
               element.unbind(triggers.hide, hideTooltipBind);
             };
 
-            attrs.$observe( prefix+'Trigger', function ( val ) {
+            function prepTriggers() {
+              var val = attrs[ prefix + 'Trigger' ];
               unregisterTriggers();
 
               triggers = getTriggers( val );
@@ -2694,21 +2722,21 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
                 element.bind( triggers.show, showTooltipBind );
                 element.bind( triggers.hide, hideTooltipBind );
               }
-            });
+            }
+            prepTriggers();
 
             var animation = scope.$eval(attrs[prefix + 'Animation']);
-            scope.tt_animation = angular.isDefined(animation) ? !!animation : options.animation;
+            ttScope.animation = angular.isDefined(animation) ? !!animation : options.animation;
 
-            attrs.$observe( prefix+'AppendToBody', function ( val ) {
-              appendToBody = angular.isDefined( val ) ? $parse( val )( scope ) : appendToBody;
-            });
+            var appendToBodyVal = scope.$eval(attrs[prefix + 'AppendToBody']);
+            appendToBody = angular.isDefined(appendToBodyVal) ? appendToBodyVal : appendToBody;
 
             // if a tooltip is attached to <body> we need to remove it on
             // location change as its parent scope will probably not be destroyed
             // by the change.
             if ( appendToBody ) {
               scope.$on('$locationChangeSuccess', function closeTooltipOnLocationChangeSuccess () {
-              if ( scope.tt_isOpen ) {
+              if ( ttScope.isOpen ) {
                 hide();
               }
             });
@@ -2720,6 +2748,7 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
               $timeout.cancel( popupTimeout );
               unregisterTriggers();
               removeTooltip();
+              ttScope = null;
             });
           };
         }
@@ -2733,7 +2762,7 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
     restrict: 'EA',
     replace: true,
     scope: { content: '@', placement: '@', animation: '&', isOpen: '&' },
-    templateUrl: 'static/template/tooltip/tooltip-popup.html'
+    templateUrl: 'template/tooltip/tooltip-popup.html'
   };
 })
 
@@ -2746,7 +2775,7 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
     restrict: 'EA',
     replace: true,
     scope: { content: '@', placement: '@', animation: '&', isOpen: '&' },
-    templateUrl: 'static/template/tooltip/tooltip-html-unsafe-popup.html'
+    templateUrl: 'template/tooltip/tooltip-html-unsafe-popup.html'
   };
 })
 
@@ -2766,7 +2795,7 @@ angular.module( 'ui.bootstrap.popover', [ 'ui.bootstrap.tooltip' ] )
     restrict: 'EA',
     replace: true,
     scope: { title: '@', content: '@', placement: '@', animation: '&', isOpen: '&' },
-    templateUrl: 'static/template/popover/popover.html'
+    templateUrl: 'template/popover/popover.html'
   };
 })
 
@@ -2818,7 +2847,7 @@ angular.module('ui.bootstrap.progressbar', [])
         controller: 'ProgressController',
         require: 'progress',
         scope: {},
-        templateUrl: 'static/template/progressbar/progress.html'
+        templateUrl: 'template/progressbar/progress.html'
     };
 })
 
@@ -2832,7 +2861,7 @@ angular.module('ui.bootstrap.progressbar', [])
             value: '=',
             type: '@'
         },
-        templateUrl: 'static/template/progressbar/bar.html',
+        templateUrl: 'template/progressbar/bar.html',
         link: function(scope, element, attrs, progressCtrl) {
             progressCtrl.addBar(scope, element);
         }
@@ -2849,7 +2878,7 @@ angular.module('ui.bootstrap.progressbar', [])
             value: '=',
             type: '@'
         },
-        templateUrl: 'static/template/progressbar/progressbar.html',
+        templateUrl: 'template/progressbar/progressbar.html',
         link: function(scope, element, attrs, progressCtrl) {
             progressCtrl.addBar(scope, angular.element(element.children()[0]));
         }
@@ -2927,7 +2956,7 @@ angular.module('ui.bootstrap.rating', [])
       onLeave: '&'
     },
     controller: 'RatingController',
-    templateUrl: 'static/template/rating/rating.html',
+    templateUrl: 'template/rating/rating.html',
     replace: true,
     link: function(scope, element, attrs, ctrls) {
       var ratingCtrl = ctrls[0], ngModelCtrl = ctrls[1];
@@ -2977,14 +3006,19 @@ angular.module('ui.bootstrap.tabs', [])
 
   ctrl.removeTab = function removeTab(tab) {
     var index = tabs.indexOf(tab);
-    //Select a new tab if the tab to be removed is selected
-    if (tab.active && tabs.length > 1) {
+    //Select a new tab if the tab to be removed is selected and not destroyed
+    if (tab.active && tabs.length > 1 && !destroyed) {
       //If this is the last tab, select the previous tab. else, the next tab.
       var newActiveIndex = index == tabs.length - 1 ? index - 1 : index + 1;
       ctrl.select(tabs[newActiveIndex]);
     }
     tabs.splice(index, 1);
   };
+
+  var destroyed;
+  $scope.$on('$destroy', function() {
+    destroyed = true;
+  });
 }])
 
 /**
@@ -3026,7 +3060,7 @@ angular.module('ui.bootstrap.tabs', [])
       type: '@'
     },
     controller: 'TabsetController',
-    templateUrl: 'static/template/tabs/tabset.html',
+    templateUrl: 'template/tabs/tabset.html',
     link: function(scope, element, attrs) {
       scope.vertical = angular.isDefined(attrs.vertical) ? scope.$parent.$eval(attrs.vertical) : false;
       scope.justified = angular.isDefined(attrs.justified) ? scope.$parent.$eval(attrs.justified) : false;
@@ -3119,7 +3153,7 @@ angular.module('ui.bootstrap.tabs', [])
     require: '^tabset',
     restrict: 'EA',
     replace: true,
-    templateUrl: 'static/template/tabs/tab.html',
+    templateUrl: 'template/tabs/tab.html',
     transclude: true,
     scope: {
       active: '=?',
@@ -3457,7 +3491,7 @@ angular.module('ui.bootstrap.timepicker', [])
     controller:'TimepickerController',
     replace: true,
     scope: {},
-    templateUrl: 'static/template/timepicker/timepicker.html',
+    templateUrl: 'template/timepicker/timepicker.html',
     link: function(scope, element, attrs, ctrls) {
       var timepickerCtrl = ctrls[0], ngModelCtrl = ctrls[1];
 
@@ -3528,6 +3562,8 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
       var inputFormatter = attrs.typeaheadInputFormatter ? $parse(attrs.typeaheadInputFormatter) : undefined;
 
       var appendToBody =  attrs.typeaheadAppendToBody ? originalScope.$eval(attrs.typeaheadAppendToBody) : false;
+
+      var focusFirst = originalScope.$eval(attrs.typeaheadFocusFirst) !== false;
 
       //INTERNAL VARIABLES
 
@@ -3601,7 +3637,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
           if (onCurrentRequest && hasFocus) {
             if (matches.length > 0) {
 
-              scope.activeIdx = 0;
+              scope.activeIdx = focusFirst ? 0 : -1;
               scope.matches.length = 0;
 
               //transform labels
@@ -3695,7 +3731,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
 
         if (inputFormatter) {
 
-          locals['$model'] = modelValue;
+          locals.$model = modelValue;
           return inputFormatter(originalScope, locals);
 
         } else {
@@ -3742,6 +3778,11 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
           return;
         }
 
+        // if there's nothing selected (i.e. focusFirst) and enter is hit, don't do anything
+        if (scope.activeIdx == -1 && (evt.which === 13 || evt.which === 9)) {
+          return;
+        }
+
         evt.preventDefault();
 
         if (evt.which === 40) {
@@ -3749,7 +3790,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
           scope.$digest();
 
         } else if (evt.which === 38) {
-          scope.activeIdx = (scope.activeIdx ? scope.activeIdx : scope.matches.length) - 1;
+          scope.activeIdx = (scope.activeIdx > 0 ? scope.activeIdx : scope.matches.length) - 1;
           scope.$digest();
 
         } else if (evt.which === 13 || evt.which === 9) {
@@ -3781,10 +3822,13 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
 
       originalScope.$on('$destroy', function(){
         $document.unbind('click', dismissClickHandler);
+        if (appendToBody) {
+          $popup.remove();
+        }
       });
 
       var $popup = $compile(popUpEl)(scope);
-      if ( appendToBody ) {
+      if (appendToBody) {
         $document.find('body').append($popup);
       } else {
         element.after($popup);
@@ -3805,7 +3849,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         select:'&'
       },
       replace:true,
-      templateUrl:'static/template/typeahead/typeahead-popup.html',
+      templateUrl:'template/typeahead/typeahead-popup.html',
       link:function (scope, element, attrs) {
 
         scope.templateUrl = attrs.templateUrl;
@@ -3838,7 +3882,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         query:'='
       },
       link:function (scope, element, attrs) {
-        var tplUrl = $parse(attrs.templateUrl)(scope.$parent) || 'static/template/typeahead/typeahead-match.html';
+        var tplUrl = $parse(attrs.templateUrl)(scope.$parent) || 'template/typeahead/typeahead-match.html';
         $http.get(tplUrl, {cache: $templateCache}).success(function(tplContent){
            element.replaceWith($compile(tplContent.trim())(scope));
         });
@@ -3857,27 +3901,28 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
     };
   });
 
-angular.module("static/template/accordion/accordion-group.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/accordion/accordion-group.html",
+angular.module("template/accordion/accordion-group.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/accordion/accordion-group.html",
     "<div class=\"panel panel-default\">\n" +
     "  <div class=\"panel-heading\">\n" +
     "    <h4 class=\"panel-title\">\n" +
-    "      <a class=\"accordion-toggle\" ng-click=\"toggleOpen()\" accordion-transclude=\"heading\"><span ng-class=\"{'text-muted': isDisabled}\">{{heading}}</span></a>\n" +
+    "      <a href class=\"accordion-toggle\" ng-click=\"toggleOpen()\" accordion-transclude=\"heading\"><span ng-class=\"{'text-muted': isDisabled}\">{{heading}}</span></a>\n" +
     "    </h4>\n" +
     "  </div>\n" +
     "  <div class=\"panel-collapse\" collapse=\"!isOpen\">\n" +
     "	  <div class=\"panel-body\" ng-transclude></div>\n" +
     "  </div>\n" +
-    "</div>");
+    "</div>\n" +
+    "");
 }]);
 
-angular.module("static/template/accordion/accordion.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/accordion/accordion.html",
+angular.module("template/accordion/accordion.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/accordion/accordion.html",
     "<div class=\"panel-group\" ng-transclude></div>");
 }]);
 
-angular.module("static/template/alert/alert.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/alert/alert.html",
+angular.module("template/alert/alert.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/alert/alert.html",
     "<div class=\"alert\" ng-class=\"['alert-' + (type || 'warning'), closeable ? 'alert-dismissable' : null]\" role=\"alert\">\n" +
     "    <button ng-show=\"closeable\" type=\"button\" class=\"close\" ng-click=\"close()\">\n" +
     "        <span aria-hidden=\"true\">&times;</span>\n" +
@@ -3888,8 +3933,8 @@ angular.module("static/template/alert/alert.html", []).run(["$templateCache", fu
     "");
 }]);
 
-angular.module("static/template/carousel/carousel.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/carousel/carousel.html",
+angular.module("template/carousel/carousel.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/carousel/carousel.html",
     "<div ng-mouseenter=\"pause()\" ng-mouseleave=\"play()\" class=\"carousel\" ng-swipe-right=\"prev()\" ng-swipe-left=\"next()\">\n" +
     "    <ol class=\"carousel-indicators\" ng-show=\"slides.length > 1\">\n" +
     "        <li ng-repeat=\"slide in slides track by $index\" ng-class=\"{active: isActive(slide)}\" ng-click=\"select(slide)\"></li>\n" +
@@ -3901,8 +3946,8 @@ angular.module("static/template/carousel/carousel.html", []).run(["$templateCach
     "");
 }]);
 
-angular.module("static/template/carousel/slide.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/carousel/slide.html",
+angular.module("template/carousel/slide.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/carousel/slide.html",
     "<div ng-class=\"{\n" +
     "    'active': leaving || (active && !entering),\n" +
     "    'prev': (next || active) && direction=='prev',\n" +
@@ -3913,8 +3958,8 @@ angular.module("static/template/carousel/slide.html", []).run(["$templateCache",
     "");
 }]);
 
-angular.module("static/template/datepicker/datepicker.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/datepicker/datepicker.html",
+angular.module("template/datepicker/datepicker.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/datepicker/datepicker.html",
     "<div ng-switch=\"datepickerMode\" role=\"application\" ng-keydown=\"keydown($event)\">\n" +
     "  <daypicker ng-switch-when=\"day\" tabindex=\"0\"></daypicker>\n" +
     "  <monthpicker ng-switch-when=\"month\" tabindex=\"0\"></monthpicker>\n" +
@@ -3922,8 +3967,8 @@ angular.module("static/template/datepicker/datepicker.html", []).run(["$template
     "</div>");
 }]);
 
-angular.module("static/template/datepicker/day.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/datepicker/day.html",
+angular.module("template/datepicker/day.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/datepicker/day.html",
     "<table role=\"grid\" aria-labelledby=\"{{uniqueId}}-title\" aria-activedescendant=\"{{activeDateId}}\">\n" +
     "  <thead>\n" +
     "    <tr>\n" +
@@ -3948,8 +3993,8 @@ angular.module("static/template/datepicker/day.html", []).run(["$templateCache",
     "");
 }]);
 
-angular.module("static/template/datepicker/month.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/datepicker/month.html",
+angular.module("template/datepicker/month.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/datepicker/month.html",
     "<table role=\"grid\" aria-labelledby=\"{{uniqueId}}-title\" aria-activedescendant=\"{{activeDateId}}\">\n" +
     "  <thead>\n" +
     "    <tr>\n" +
@@ -3969,12 +4014,12 @@ angular.module("static/template/datepicker/month.html", []).run(["$templateCache
     "");
 }]);
 
-angular.module("static/template/datepicker/popup.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/datepicker/popup.html",
+angular.module("template/datepicker/popup.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/datepicker/popup.html",
     "<ul class=\"dropdown-menu\" ng-style=\"{display: (isOpen && 'block') || 'none', top: position.top+'px', left: position.left+'px'}\" ng-keydown=\"keydown($event)\">\n" +
     "	<li ng-transclude></li>\n" +
     "	<li ng-if=\"showButtonBar\" style=\"padding:10px 9px 2px\">\n" +
-    "		<span class=\"btn-group\">\n" +
+    "		<span class=\"btn-group pull-left\">\n" +
     "			<button type=\"button\" class=\"btn btn-sm btn-info\" ng-click=\"select('today')\">{{ getText('current') }}</button>\n" +
     "			<button type=\"button\" class=\"btn btn-sm btn-danger\" ng-click=\"select(null)\">{{ getText('clear') }}</button>\n" +
     "		</span>\n" +
@@ -3984,8 +4029,8 @@ angular.module("static/template/datepicker/popup.html", []).run(["$templateCache
     "");
 }]);
 
-angular.module("static/template/datepicker/year.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/datepicker/year.html",
+angular.module("template/datepicker/year.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/datepicker/year.html",
     "<table role=\"grid\" aria-labelledby=\"{{uniqueId}}-title\" aria-activedescendant=\"{{activeDateId}}\">\n" +
     "  <thead>\n" +
     "    <tr>\n" +
@@ -4005,8 +4050,8 @@ angular.module("static/template/datepicker/year.html", []).run(["$templateCache"
     "");
 }]);
 
-angular.module("static/template/modal/backdrop.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/modal/backdrop.html",
+angular.module("template/modal/backdrop.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/modal/backdrop.html",
     "<div class=\"modal-backdrop fade {{ backdropClass }}\"\n" +
     "     ng-class=\"{in: animate}\"\n" +
     "     ng-style=\"{'z-index': 1040 + (index && 1 || 0) + index*10}\"\n" +
@@ -4014,23 +4059,23 @@ angular.module("static/template/modal/backdrop.html", []).run(["$templateCache",
     "");
 }]);
 
-angular.module("static/template/modal/window.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/modal/window.html",
+angular.module("template/modal/window.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/modal/window.html",
     "<div tabindex=\"-1\" role=\"dialog\" class=\"modal fade\" ng-class=\"{in: animate}\" ng-style=\"{'z-index': 1050 + index*10, display: 'block'}\" ng-click=\"close($event)\">\n" +
     "    <div class=\"modal-dialog\" ng-class=\"{'modal-sm': size == 'sm', 'modal-lg': size == 'lg'}\"><div class=\"modal-content\" modal-transclude></div></div>\n" +
     "</div>");
 }]);
 
-angular.module("static/template/pagination/pager.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/pagination/pager.html",
+angular.module("template/pagination/pager.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/pagination/pager.html",
     "<ul class=\"pager\">\n" +
     "  <li ng-class=\"{disabled: noPrevious(), previous: align}\"><a href ng-click=\"selectPage(page - 1)\">{{getText('previous')}}</a></li>\n" +
     "  <li ng-class=\"{disabled: noNext(), next: align}\"><a href ng-click=\"selectPage(page + 1)\">{{getText('next')}}</a></li>\n" +
     "</ul>");
 }]);
 
-angular.module("static/template/pagination/pagination.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/pagination/pagination.html",
+angular.module("template/pagination/pagination.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/pagination/pagination.html",
     "<ul class=\"pagination\">\n" +
     "  <li ng-if=\"boundaryLinks\" ng-class=\"{disabled: noPrevious()}\"><a href ng-click=\"selectPage(1)\">{{getText('first')}}</a></li>\n" +
     "  <li ng-if=\"directionLinks\" ng-class=\"{disabled: noPrevious()}\"><a href ng-click=\"selectPage(page - 1)\">{{getText('previous')}}</a></li>\n" +
@@ -4040,8 +4085,8 @@ angular.module("static/template/pagination/pagination.html", []).run(["$template
     "</ul>");
 }]);
 
-angular.module("static/template/tooltip/tooltip-html-unsafe-popup.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/tooltip/tooltip-html-unsafe-popup.html",
+angular.module("template/tooltip/tooltip-html-unsafe-popup.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/tooltip/tooltip-html-unsafe-popup.html",
     "<div class=\"tooltip {{placement}}\" ng-class=\"{ in: isOpen(), fade: animation() }\">\n" +
     "  <div class=\"tooltip-arrow\"></div>\n" +
     "  <div class=\"tooltip-inner\" bind-html-unsafe=\"content\"></div>\n" +
@@ -4049,8 +4094,8 @@ angular.module("static/template/tooltip/tooltip-html-unsafe-popup.html", []).run
     "");
 }]);
 
-angular.module("static/template/tooltip/tooltip-popup.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/tooltip/tooltip-popup.html",
+angular.module("template/tooltip/tooltip-popup.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/tooltip/tooltip-popup.html",
     "<div class=\"tooltip {{placement}}\" ng-class=\"{ in: isOpen(), fade: animation() }\">\n" +
     "  <div class=\"tooltip-arrow\"></div>\n" +
     "  <div class=\"tooltip-inner\" ng-bind=\"content\"></div>\n" +
@@ -4058,8 +4103,8 @@ angular.module("static/template/tooltip/tooltip-popup.html", []).run(["$template
     "");
 }]);
 
-angular.module("static/template/popover/popover.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/popover/popover.html",
+angular.module("template/popover/popover.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/popover/popover.html",
     "<div class=\"popover {{placement}}\" ng-class=\"{ in: isOpen(), fade: animation() }\">\n" +
     "  <div class=\"arrow\"></div>\n" +
     "\n" +
@@ -4071,25 +4116,25 @@ angular.module("static/template/popover/popover.html", []).run(["$templateCache"
     "");
 }]);
 
-angular.module("static/template/progressbar/bar.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/progressbar/bar.html",
+angular.module("template/progressbar/bar.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/progressbar/bar.html",
     "<div class=\"progress-bar\" ng-class=\"type && 'progress-bar-' + type\" role=\"progressbar\" aria-valuenow=\"{{value}}\" aria-valuemin=\"0\" aria-valuemax=\"{{max}}\" ng-style=\"{width: percent + '%'}\" aria-valuetext=\"{{percent | number:0}}%\" ng-transclude></div>");
 }]);
 
-angular.module("static/template/progressbar/progress.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/progressbar/progress.html",
+angular.module("template/progressbar/progress.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/progressbar/progress.html",
     "<div class=\"progress\" ng-transclude></div>");
 }]);
 
-angular.module("static/template/progressbar/progressbar.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/progressbar/progressbar.html",
+angular.module("template/progressbar/progressbar.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/progressbar/progressbar.html",
     "<div class=\"progress\">\n" +
     "  <div class=\"progress-bar\" ng-class=\"type && 'progress-bar-' + type\" role=\"progressbar\" aria-valuenow=\"{{value}}\" aria-valuemin=\"0\" aria-valuemax=\"{{max}}\" ng-style=\"{width: percent + '%'}\" aria-valuetext=\"{{percent | number:0}}%\" ng-transclude></div>\n" +
     "</div>");
 }]);
 
-angular.module("static/template/rating/rating.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/rating/rating.html",
+angular.module("template/rating/rating.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/rating/rating.html",
     "<span ng-mouseleave=\"reset()\" ng-keydown=\"onKeydown($event)\" tabindex=\"0\" role=\"slider\" aria-valuemin=\"0\" aria-valuemax=\"{{range.length}}\" aria-valuenow=\"{{value}}\">\n" +
     "    <i ng-repeat=\"r in range track by $index\" ng-mouseenter=\"enter($index + 1)\" ng-click=\"rate($index + 1)\" class=\"glyphicon\" ng-class=\"$index < value && (r.stateOn || 'glyphicon-star') || (r.stateOff || 'glyphicon-star-empty')\">\n" +
     "        <span class=\"sr-only\">({{ $index < value ? '*' : ' ' }})</span>\n" +
@@ -4097,16 +4142,16 @@ angular.module("static/template/rating/rating.html", []).run(["$templateCache", 
     "</span>");
 }]);
 
-angular.module("static/template/tabs/tab.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/tabs/tab.html",
+angular.module("template/tabs/tab.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/tabs/tab.html",
     "<li ng-class=\"{active: active, disabled: disabled}\">\n" +
-    "  <a ng-click=\"select()\" tab-heading-transclude>{{heading}}</a>\n" +
+    "  <a href ng-click=\"select()\" tab-heading-transclude>{{heading}}</a>\n" +
     "</li>\n" +
     "");
 }]);
 
-angular.module("static/template/tabs/tabset.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/tabs/tabset.html",
+angular.module("template/tabs/tabset.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/tabs/tabset.html",
     "<div>\n" +
     "  <ul class=\"nav nav-{{type || 'tabs'}}\" ng-class=\"{'nav-stacked': vertical, 'nav-justified': justified}\" ng-transclude></ul>\n" +
     "  <div class=\"tab-content\">\n" +
@@ -4120,8 +4165,8 @@ angular.module("static/template/tabs/tabset.html", []).run(["$templateCache", fu
     "");
 }]);
 
-angular.module("static/template/timepicker/timepicker.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/timepicker/timepicker.html",
+angular.module("template/timepicker/timepicker.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/timepicker/timepicker.html",
     "<table>\n" +
     "	<tbody>\n" +
     "		<tr class=\"text-center\">\n" +
@@ -4151,13 +4196,13 @@ angular.module("static/template/timepicker/timepicker.html", []).run(["$template
     "");
 }]);
 
-angular.module("static/template/typeahead/typeahead-match.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/typeahead/typeahead-match.html",
+angular.module("template/typeahead/typeahead-match.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/typeahead/typeahead-match.html",
     "<a tabindex=\"-1\" bind-html-unsafe=\"match.label | typeaheadHighlight:query\"></a>");
 }]);
 
-angular.module("static/template/typeahead/typeahead-popup.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("static/template/typeahead/typeahead-popup.html",
+angular.module("template/typeahead/typeahead-popup.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("template/typeahead/typeahead-popup.html",
     "<ul class=\"dropdown-menu\" ng-show=\"isOpen()\" ng-style=\"{top: position.top+'px', left: position.left+'px'}\" style=\"display: block;\" role=\"listbox\" aria-hidden=\"{{!isOpen()}}\">\n" +
     "    <li ng-repeat=\"match in matches track by $index\" ng-class=\"{active: isActive($index) }\" ng-mouseenter=\"selectActive($index)\" ng-click=\"selectMatch($index)\" role=\"option\" id=\"{{match.id}}\">\n" +
     "        <div typeahead-match index=\"$index\" match=\"match\" query=\"query\" template-url=\"templateUrl\"></div>\n" +
