@@ -30,6 +30,11 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     $scope.module_is_loaded = false;
     $scope.carry_on = true;
     
+    // menu settings
+    $scope.menu = {
+        open: false
+    }
+    
     //Attempt to log the user in
 
     $scope.login = function(is_valid){
@@ -166,6 +171,18 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         
         // update the command bar logic by broadcasting to the command controller
         $scope.$broadcast('update_commands',response.commands);
+    }
+    
+    // toggle the menu
+    $scope.toggle_menu = function(){
+        var open = $scope.menu.open;
+        
+        if(open){
+            // lets close it..
+            $scope.menu.open = false;
+        } else{
+            $scope.menu.open = true;  
+        }
     }
     
     //Get the tab content for the selected tab

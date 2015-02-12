@@ -29,6 +29,18 @@ body{
 .menu-bar.navbar{
   margin-bottom:0;
 }
+.menu-toggle {
+  float: left;
+  padding-left: 20px;
+  padding-right: 3px;
+  margin-top: 15px;
+  font-size: 17px;
+  cursor: pointer;
+}
+.menu-toggle.open {
+  color: black;
+}
+
 /*
 Navbar For Lightgrey mode
 */
