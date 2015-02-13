@@ -1,170 +1,58 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    
+
 {% verbatim %}
+
 <!-- Menu Bar -->
-<div class="menu-bar navbar navbar-material-lightgrey">
-    <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-        </button>
-        <div class="menu-toggle" ng-click="toggle_menu()" ng-class={open:menu.open}>
+<md-toolbar class="menu-bar" layout="row">
+    <div class="md-toolbar-tools">
+        <md-button class="menu-bar-toggle" ng-click="toggle_menu();">
             <i class="fa fa-bars"></i>
-        </div>
-        <a class="navbar-brand" href="javascript:void(0)">Flavrs</a>
+        </md-button>
+        <span class="menu-bar-brand">Flavrs</span>
+        <!-- fill up the space between left and right area -->
+        <span flex="15"></span>
+        <span flex="50">
+            <form ng-controller="searchCtrl" class="search" id="search" method="get" action="{{search.action}}">
+                <md-autocomplete 
+                    class="autocomplete"
+                    md-selected-item="search.selected_item"
+                    md-search-text="search.input" 
+                    md-items="item in search_get_options(search.input)" 
+                    md-item-text="display" 
+                    placeholder="Search {{search.name}}"
+                    ng-model="search.input" 
+                    ng-change="search_change(search.input)">
+                    <span md-highlight-text="search.input">
+                      {{item}}
+                    </span>
+                </md-autocomplete>
+                <input type="hidden" name="{{search.param}}" value="{{search.input}}" >
+            </form>
+        </span>
+        <span flex="15"></span>
+        <md-button>
+            Right Bar Button
+        </md-button>
     </div>
-    <div class="navbar-collapse collapse navbar-responsive-collapse">
-        <form class="navbar-form navbar-left" id="search" ng-controller="searchCtrl" method="get" action="{{search.action}}">
-            <div class="form-control-wrapper">
-                <input type="text" class="form-control col-lg-8" placeholder="Search {{search.name}}" 
-                name="{{search.param}}" ng-model="search.input" ng-change="search_change(search.input)" 
-                typeahead="option for option in search_get_options($viewValue) | filter:$viewValue | limitTo:8" 
-                typeahead-on-select="search_onselect($item, $model, $label)" autocomplete="off"><span class="material-input"></span>
-            </div>
-        </form>
-        <ul class="nav navbar-nav navbar-left">
-            <li class="dropdown">
-                <a href="javascript:void(0)" class="dropdown-toggle title-me" data-toggle="dropdown">
-                    {{ module | module }}
-                    <b class="caret"></b>
-                </a>
-                <ul class="dropdown-menu">
-                    <li ng-repeat="mod in get_modules()" class="title-me" ng-hide="mod==module">
-                        <a href="{{api}}{{mod | module}}/">
-                            {{ mod | module }}
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            <li class="dropdown">
-                <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">
-                    Category 
-                    <b class="caret"></b>
-                </a>
-                <ul class="dropdown-menu">
-                    <li><a href="javascript:void(0)">Action</a></li>
-                    <li><a href="javascript:void(0)">Another action</a></li>
-                    <li><a href="javascript:void(0)">Something else here</a></li>
-                    <li class="divider"></li>
-                    <li><a href="javascript:void(0)">Separated link</a></li>
-                </ul>
-            </li>
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    <img src="https://avatars0.githubusercontent.com/u/3157312?v=2&s=40" class="profile-image">
-                    Dylan <b class="caret"></b>
-                </a>
-                <ul class="dropdown-menu">
-                    <li><a href="#"><i class="fa fa-cog"></i> Account</a></li>
-                    <li class="divider"></li>
-                    <li><a href="#"><i class="fa fa-sign-out"></i> Sign-out</a></li>
-                </ul>
-            </li>
-        </ul>
-        <div class="clearfix"></div>
-    </div>
-</div>
+</md-toolbar>
 <!-- Menu Bar : End -->
-<!-- Tab Bar -->
-<div class="tab-bar material-tabs-cyan">
-    <material-tabs selected="selectedTab" center>
-        <material-tab ng-repeat="tab in tabs" label="{{tab.title}}" ng-click="load_tab_content(tab.id)"></material-tab>
-    </material-tabs>
-    <div class="material-tabs-plus withripple" ng-click="open_tab_management()">
-        <i class="fa fa-bars"></i>
-    </div>
-    <div class="clearfix"></div>
-    <div id="tab-content" class="animate-switch-container">
-        <div class="animate-switch tab1 js-masonry" ng-show="selectedTab==0"
-        data-masonry-options='{ "columnWidth": 300, "itemSelector": ".tab-inner-wrapper" }'>
-            <card ng-repeat="content in tab_content" content="content"></card>
-        </div>
-        <div class="clearfix"></div>
-        <!-- END SHIT -->
-        <div class="animate-switch tab2" ng-show="selectedTab==1">
-            View for Item #2<br/>
-            Selection index = 1
-        </div>
-        <div class="animate-switch tab3" ng-show="selectedTab==2">
-            View for Item #3<br/>
-            Selection index = 2
-        </div>
-        <div class="animate-switch tab4" ng-show="selectedTab==3">
-            View for Item #4<br/>
-            Selection index = 3
-        </div>
-    </div>
-    <!-- Button Bar -->
-    <div class="button-bar">
-        <section layout="vertical" layout-sm="vertical" layout-align="center center">
-            <material-button ng-repeat="action in actions" 
-                class="material-button-fab material-btn-{{action.colour}}"
-                ng-click="location(action.route)" title="{{action.name}}">
-                <material-icon icon="fa-{{action.icon}}"></material-icon>
-            </material-button>
-        </section>
-    </div>
-    <!-- Button Bar : End -->
-</div>
-<!-- Tab Bar : End -->
-<!-- Command Bar -->
-<div ng-controller="commandCtrl" class="command-bar well col-lg-12 col-sm-12" ng-show="command_bar" ng-class="{'has-error':command_bar_error}">
-    <a href="javascript:;" class="pull-right" ng-click="close_command_bar()">
-        close
-    </a>
-    
-    <input type="text" class="col-lg-12 input" ng-model="command"
-    typeahead="command for command in command_options | filter:$viewValue | limitTo:8"
-    ng-enter="execute_command(command)" ng-keyup="remove_command_errors($event)">
-    
-    <input ng-repeat="cs in command_syntax" type="text" class="hide hidden-command-input" ng-model="command_syntax_model[cs]"
-    typeahead="command for command in command_syntax_options[cs] | filter:$viewValue | limitTo:8"
-    data-name="{{cs}}" typeahead-trigger typeahead-text="typeaheadInput.text" trigger-flag="typeaheadInput.trigger">
-    
-    <button id="command-popover" class="command-popover" popover="{{dynamic_popover}}" popover-title="{{dynamic_popover_title}}">
-        click
-    </button>
-    
-</div>
-<!-- Command Bar : End -->
-<!-- Modal Window -->
-<script type="text/ng-template" id="modal.html">
-    <div class="{{ modal.class }}">
-        <div class="modal-header">
-            <h3 class="modal-title">{{ modal.title }}</h3>
-        </div>
-        <div class="modal-body">
-            <div ng-if="modal.body" compile="modal.body">
-            
-            </div>
-            <div class="{{ modal.form.class }}">
-                <h3>{{ modal.form.header }}</h3>
-                <form
-                    novalidate
-                    id="modal_form"
-                    name="modal_form"
-                    sf-schema="schema" 
-                    sf-form="form" 
-                    sf-model="model">
-                </form>
-            </div>
-        </div>
-        <div class="modal-footer ng-cloak">
-            <button ng-repeat="button in buttons" class="btn btn-{{ button.colour }}" 
-                ng-click="broadcast(button.ngclick,modal_form)"
-                ng-disabled="button.disabled" ng-cloak>
-                <i ng-show="button.icon" class="fa fa-{{ button.icon }}"></i>
-                {{ button.name }}
-            </button>
-        </div>
-    </div>
-</script>
-<!-- Modal Window : End -->
+
+<!-- Side Nav -->
+<md-sidenav md-component-id="left" class="md-sidenav-left md-whiteframe-z2">
+    <md-toolbar class="md-theme-indigo" layout="row">
+        <h1 flex="80" class="md-toolbar-tools">Navigation</h1>
+        <md-button flex ng-click="toggle_menu();">
+            <i class="fa fa-remove"></i>
+        </md-button>
+    </md-toolbar>
+    <md-content class="md-padding" >
+        <p></p>
+    </md-content>
+</md-sidenav>
+<!-- Side Nav : End -->
+
 {% endverbatim %}
 
 {% endblock %}

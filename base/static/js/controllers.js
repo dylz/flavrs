@@ -9,9 +9,11 @@ user is logged in or not.
 
 app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                             '$cookies','$q','$location','$controller',
-                            '$rootScope','$modal','$timeout','$route',function(
+                            '$rootScope','$modal','$timeout','$route',
+                            '$mdSidenav',
+                            function(
     $scope,$http,$localStorage,$sessionStorage,$cookies,$q,$location,
-    $controller, $rootScope,$modal,$timeout,$route) {
+    $controller, $rootScope,$modal,$timeout,$route,$mdSidenav) {
     
     $scope.api = '/';
     $scope.ready = false;
@@ -175,14 +177,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     
     // toggle the menu
     $scope.toggle_menu = function(){
-        var open = $scope.menu.open;
-        
-        if(open){
-            // lets close it..
-            $scope.menu.open = false;
-        } else{
-            $scope.menu.open = true;  
-        }
+        $mdSidenav('left').toggle();
     }
     
     //Get the tab content for the selected tab
@@ -1019,7 +1014,15 @@ app.controller('searchCtrl',['$scope','$http','$sce','$timeout',
     }
     
     $scope.search_get_options = function(input){
-        var output = $scope.search.shortcuts_typeahead;
+        // ensure input is lowercase
+        input = input.toLowerCase();
+        var output = [];
+        // check if the typeahead shortcuts should be shown in this search
+        angular.forEach($scope.search.shortcuts_typeahead,function(value,key){
+            if(value.toLowerCase().indexOf(input) > -1){
+                output.push(value);
+            }
+        });
         // we need to return the typeahead options based on user input
         // the only thing is, since search works across modules,
         // we don't know if the active module for search is loaded via
@@ -1041,7 +1044,7 @@ app.controller('searchCtrl',['$scope','$http','$sce','$timeout',
         
         return output;
     }
-    
+
     // private
     
     function load_search(search_engines,module,delay){
@@ -1126,6 +1129,22 @@ app.controller('searchCtrl',['$scope','$http','$sce','$timeout',
             
             $scope.search.param = value.param;
             $scope.search.object = value;
+            
+            // since the backbone of this is the md-autocomplete directive,
+            // we have to add a slight workaround to ensure that forms
+            // can be submitted properly.
+            // add 'name' to input
+            angular.element('#search input').attr({'autocomplete':'off'})
+            .keyup(function(e){
+                // bind the 'enter' key pressed event
+                if(e.keyCode == 13){
+                    // enter has been clicked
+                    angular.element('#search').submit();
+                }
+                else{
+                    $scope.search_change($scope.search.input); 
+                }
+            });
         },delay);
     }
     

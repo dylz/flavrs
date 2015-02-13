@@ -25,20 +25,19 @@ body{
 .ready{
   height: 100%;
 }
-/* Navbar */
-.menu-bar.navbar{
-  margin-bottom:0;
+/* Menu Bar */
+
+.menu-bar-brand{
+  margin-left: 10px;
 }
-.menu-toggle {
-  float: left;
-  padding-left: 20px;
-  padding-right: 3px;
-  margin-top: 15px;
-  font-size: 17px;
-  cursor: pointer;
+
+/* Search */
+.search .autocomplete {
+  background: rgba(255,255,255,.15);
 }
-.menu-toggle.open {
-  color: black;
+
+.search .autocomplete input{
+  color: rgb(255,255,255);
 }
 
 /*
