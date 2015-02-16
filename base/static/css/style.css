@@ -97,8 +97,14 @@ Navbar For Lightgrey mode
 }
 
 /* Tabs */
-.tab-bar{
-  
+.tab-bar .md-tile-content.link {
+  color: rgba(0, 0, 0, 0.87);
+  text-decoration: none;
+}
+
+.tab-bar .md-tile-content.link:hover{
+  cursor: pointer;
+  background: rgb(238,238,238);
 }
 
 material-tabs{

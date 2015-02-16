@@ -167,7 +167,12 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         $scope.commands = response.commands;
         //load the first tab's content
         $scope.load_tab_content($scope.tabs[0].id);
-        
+        //add any special routes (ie. tabs)
+        $scope.routes.push({"name":"tab","route":"tab/:id","controller":"contentCtrl"});
+        // add urls to tabs object
+        angular.forEach($scope.tabs,function(value,key){
+            value.url = $scope.get_route('tab',{'id':value.id});
+        });
         //tell the app that this module is loaded so it does not try to load it again.
         $scope.module_is_loaded = true;
         
@@ -305,11 +310,16 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     });
     
     // Get the route based off of object.route name
-    $scope.get_route = function(route,module){
+    $scope.get_route = function(route,params,module){
         var output = null;
+        if(!angular.isDefined(params)){
+            params = {}
+        }
+        
         if(!angular.isDefined(module)){
             module = $scope.module;
         }
+        
         angular.forEach($scope.routes,function(value,key){
             if(value.name == route){
                 output = value.route;
@@ -317,7 +327,12 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         });
         
         if(output !== null){
-            // route is found. We need to remember to append the current module
+            // route is found. 
+            // next, add the params
+            angular.forEach(params,function(value,key){
+                output = output.replace(':'+key,value);
+            });
+            // We need to remember to append the current module
             // the user is in to prevent routing conflicts.
             return module+'/'+output;
         }
@@ -548,6 +563,16 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     });
 }]);
 
+app.controller('contentCtrl',['$scope','route', function($scope,route){
+    
+    // private
+    function init(){
+        console.log(route)
+    }
+    
+    init();
+    
+}]);
 
 app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
     
@@ -986,18 +1011,18 @@ app.controller('searchCtrl',['$scope','$http','$sce','$timeout',
         object: null,
     };
     
-    $scope.search_onselect = function($item, $model, $label){
-        // format of $item example = Google (@gg)
+    $scope.search_onselect = function(input){
+        // format of input example = Google (@gg)
         // strip out whats in the brackets and use it as if the user just
         // typed "@gg"
-        var input = $item.substring($item.indexOf('(')+1,$item.indexOf(')'));
-        $scope.search_change(input);
+        if(angular.isDefined(input)){
+            input = input.substring(input.indexOf('(')+1,input.indexOf(')'));
+            $scope.search_change(input);
+        }
     }
     
     
     $scope.search_change = function(input){
-        // ensure that the dropdown is to its default state
-        angular.element("#search .dropdown-menu").removeClass('hide-me');
         // compare user input to search-changing-keybinds
         // ... oh ya only do this if the input starts with an @ symbol
         if(input.indexOf('@') === 0){
@@ -1007,8 +1032,6 @@ app.controller('searchCtrl',['$scope','$http','$sce','$timeout',
             if(input in $scope.search.shortcuts){
                 // valid shortcut, load new search data
                 generate_search_scope($scope.search.shortcuts[input]);
-                // ensure that the typeahead dropdown is no longer showing
-                angular.element("#search .dropdown-menu").addClass('hide-me');
             }
         }
     }
@@ -1035,7 +1058,7 @@ app.controller('searchCtrl',['$scope','$http','$sce','$timeout',
         if(angular.isDefined(search_obj.url_for_typeahead)){
             // get data from this url
             var parent_scope = $scope.$$nextSibling.$parent,
-                route = parent_scope.get_route(search_obj.url_for_typeahead,search_obj.module);
+                route = parent_scope.get_route(search_obj.url_for_typeahead,undefined,search_obj.module);
             $http.post(route,{data:input})
              .success(function(response,status){
                 output.concat(response.data);
@@ -1044,6 +1067,14 @@ app.controller('searchCtrl',['$scope','$http','$sce','$timeout',
         
         return output;
     }
+    
+    // change search when user selected item from dropdown
+    $scope.$watch('search.selected_item',function(){
+        var input = $scope.search.selected_item;
+        if(angular.isDefined(input)){
+            $scope.search_onselect(input);   
+        }
+    });
 
     // private
     
@@ -1139,7 +1170,10 @@ app.controller('searchCtrl',['$scope','$http','$sce','$timeout',
                 // bind the 'enter' key pressed event
                 if(e.keyCode == 13){
                     // enter has been clicked
-                    angular.element('#search').submit();
+                    // check if user was just trying to select an dropdown option
+                    if(angular.element('#search ul .selected').length == 0){
+                        angular.element('#search').submit();
+                    }
                 }
                 else{
                     $scope.search_change($scope.search.input); 

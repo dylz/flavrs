@@ -24,7 +24,7 @@
                     placeholder="Search {{search.name}}"
                     ng-model="search.input" 
                     ng-change="search_change(search.input)">
-                    <span md-highlight-text="search.input">
+                    <span md-highlight-text="search.input" ng-click="search_onselect(item)">
                       {{item}}
                     </span>
                 </md-autocomplete>
@@ -40,18 +40,34 @@
 <!-- Menu Bar : End -->
 
 <!-- Side Nav -->
-<md-sidenav md-component-id="left" class="md-sidenav-left md-whiteframe-z2">
+<md-sidenav md-component-id="left" class="md-sidenav-left md-whiteframe-z2 tab-bar">
     <md-toolbar class="md-theme-indigo" layout="row">
         <h1 flex="80" class="md-toolbar-tools">Navigation</h1>
         <md-button flex ng-click="toggle_menu();">
             <i class="fa fa-remove"></i>
         </md-button>
     </md-toolbar>
-    <md-content class="md-padding" >
-        <p></p>
+    <md-content>
+        <md-list>
+            <md-item ng-repeat="tab in tabs">
+                <md-item-content>
+                    <a href="{{tab.url}}" class="md-tile-content link">
+                        {{tab.title}}
+                    </a>
+                </md-item-content>
+                <md-divider ng-if="!$last"></md-divider>
+            </md-item>
+        </md-list>
     </md-content>
 </md-sidenav>
 <!-- Side Nav : End -->
+
+<!-- Content -->
+<div class="content">
+    
+</div>
+
+<!-- Content : End -->
 
 {% endverbatim %}
 
