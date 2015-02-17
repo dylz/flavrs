@@ -165,8 +165,6 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         $scope.actions = response.actions;
         $scope.routes = response.routes;
         $scope.commands = response.commands;
-        //load the first tab's content
-        $scope.load_tab_content($scope.tabs[0].id);
         //add any special routes (ie. tabs)
         $scope.routes.push({"name":"tab","route":"tab/:id","controller":"contentCtrl"});
         // add urls to tabs object
@@ -183,21 +181,6 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     // toggle the menu
     $scope.toggle_menu = function(){
         $mdSidenav('left').toggle();
-    }
-    
-    //Get the tab content for the selected tab
-    $scope.load_tab_content = function(id){
-        var data = {};
-        if($scope.module != "base"){
-            var module_path = '/'+$scope.module;
-        }
-        else{
-            var module_path = '';
-        }
-        $http.post($scope.meta.root+'static'+module_path+'/json/'+id+'.json',data)
-             .success(function(response,status){
-                $scope.tab_content = response;
-             });
     }
     
     //generic share function
@@ -391,6 +374,10 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     
     //update the view after the module is registered
     $scope.$watch("module_is_loaded", function(){
+        // check if content will be rendered right from view or do we need
+        // to load the default stuff
+        $controller('contentCtrl',{$scope:$scope,route:{}});
+        
         update_view();
     });
     
@@ -398,10 +385,9 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         
     function update_view(){
         //check the rest of the route and determine what controller to load
-        
         var route_arr = $location.path().split('/'),
             route_value = route_arr.length-2,
-            route_params = $location.search();
+            route_params = $location.search(),
             found_route = null;
         
         
@@ -539,16 +525,15 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     //check if user is logged or not
     $scope.check_if_logged();
     //Fix height of tab content to match document size
-    fix_height();
+    //fix_height();
     //Bind this to a scroll event so the height gets fixed whenever the user scrolls
     window.onresize = function(event) {
-        fix_height();
+        //fix_height();
     };
     
     window.onscroll = function(event){
-        fix_height();
+        //fix_height();
     };
-    
     // Check when user clicks '/' on their keyboard, then show the command bar
     $(document).keyup(function(e){
         //only trigger then if user is not typing in an input
@@ -561,13 +546,92 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             $scope.$broadcast('manage_command_bar','reset');
         }
     });
+    
+    // check localstorage every min to take care of any garbage cleanup
+    $timeout(function(){
+        angular.forEach($scope.$storage,function(value,key){
+            // TAB DATA CLEAN UP
+            if(key.indexOf('tab_') > -1){
+               if(new Date().getTime() >= value.expires){
+                   delete $scope.$storage[key];
+               }
+            }
+        });
+    },(1000*60));
+    
 }]);
 
-app.controller('contentCtrl',['$scope','route', function($scope,route){
+app.controller('contentCtrl',['$scope','$location','$http','$localStorage','route',
+    function($scope,$location,$http,$localStorage,route){
+    
+    $scope.$storage = $localStorage;
+    
+    $scope.load_tab_content = function(id,refresh){
+        
+        if(!angular.isDefined(refresh)){
+            refresh = false;
+        }
+        
+        var key = 'tab_'+id
+        // if data is cached and hard reload is not request, return
+        // data from localstorage
+        
+        if((!refresh) && (angular.isDefined($scope.$storage[key]))){
+            return $scope.$storage[key].data;
+        }
+        
+        var data = {};
+        if($scope.module != "base"){
+            var module_path = '/'+$scope.module;
+        }
+        else{
+            var module_path = '';
+        }
+        $http.post($scope.meta.root+'static'+module_path+'/json/'+id+'.json',data)
+             .success(function(response,status){
+                $scope.tab_content = response;
+                // store this result in local storage for later use
+                // BTW we will only use the data for 5 mins, after that we request new data
+                $scope.$storage[key] = {
+                    expires: new Date().getTime()+300000,
+                    data: response
+                };
+             });
+    }
     
     // private
     function init(){
-        console.log(route)
+        var id = null,
+            tab = null;
+        if(($location.path().indexOf('/tab/') == -1) && (!angular.isDefined(route.args))){
+            // user is on 'home' and not selected a tab, so lets load the first
+            // tab as the default
+            
+            // make sure we have some tabs to work with in the first place
+            if((angular.isDefined($scope.tabs)) && $scope.tabs.length > 0){
+                tab = $scope.tabs[0];
+                id = tab.id;
+            }
+        }
+        else if(angular.isDefined(route.args)){
+            id = route.args.id;
+        }
+        
+        if(id){
+            // validate this id
+            angular.forEach($scope.tabs,function(value,key){
+                if(value.id == id){
+                    tab = value;
+                } 
+            });
+            if(tab){
+                // load this content
+                $scope.load_tab_content(id);   
+            }
+        }
+        
+        // define the active tab's id for UI purposes
+        $scope.active_tab = tab;
     }
     
     init();

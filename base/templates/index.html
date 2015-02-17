@@ -51,9 +51,14 @@
         <md-list>
             <md-item ng-repeat="tab in tabs">
                 <md-item-content>
-                    <a href="{{tab.url}}" class="md-tile-content link">
+                    <a href="{{tab.url}}" class="md-tile-content link"
+                        ng-if="active_tab.id!=tab.id">
                         {{tab.title}}
                     </a>
+                    <div class="md-tile-content selected"
+                        ng-if="active_tab.id==tab.id">
+                        {{tab.title}}
+                    </div>
                 </md-item-content>
                 <md-divider ng-if="!$last"></md-divider>
             </md-item>

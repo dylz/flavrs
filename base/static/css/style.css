@@ -102,8 +102,8 @@ Navbar For Lightgrey mode
   text-decoration: none;
 }
 
+.tab-bar md-item-content .selected,
 .tab-bar .md-tile-content.link:hover{
-  cursor: pointer;
   background: rgb(238,238,238);
 }
 
