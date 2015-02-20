@@ -10,10 +10,10 @@ user is logged in or not.
 app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                             '$cookies','$q','$location','$controller',
                             '$rootScope','$modal','$timeout','$route',
-                            '$mdSidenav',
+                            '$mdSidenav','$interval',
                             function(
     $scope,$http,$localStorage,$sessionStorage,$cookies,$q,$location,
-    $controller, $rootScope,$modal,$timeout,$route,$mdSidenav) {
+    $controller, $rootScope,$modal,$timeout,$route,$mdSidenav,$interval) {
     
     $scope.api = '/';
     $scope.ready = false;
@@ -303,11 +303,18 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             module = $scope.module;
         }
         
-        angular.forEach($scope.routes,function(value,key){
-            if(value.name == route){
-                output = value.route;
-            }
-        });
+        // switch case so we can have special cases for routing
+        switch(route){
+            case 'home':
+                output = "";
+            break;
+            default:
+                angular.forEach($scope.routes,function(value,key){
+                    if(value.name == route){
+                        output = value.route;
+                    }
+                });
+        }
         
         if(output !== null){
             // route is found. 
@@ -548,16 +555,16 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     });
     
     // check localstorage every min to take care of any garbage cleanup
-    $timeout(function(){
+    $interval(function(){
         angular.forEach($scope.$storage,function(value,key){
             // TAB DATA CLEAN UP
             if(key.indexOf('tab_') > -1){
-               if(new Date().getTime() >= value.expires){
-                   delete $scope.$storage[key];
-               }
+                if(new Date().getTime() >= value.expires){
+                    delete $scope.$storage[key];
+                }
             }
         });
-    },(1000*60));
+    },1000*60);
     
 }]);
 
@@ -577,7 +584,8 @@ app.controller('contentCtrl',['$scope','$location','$http','$localStorage','rout
         // data from localstorage
         
         if((!refresh) && (angular.isDefined($scope.$storage[key]))){
-            return $scope.$storage[key].data;
+            $scope.tab_content = $scope.$storage[key].data;
+            return ;
         }
         
         var data = {};
@@ -616,7 +624,7 @@ app.controller('contentCtrl',['$scope','$location','$http','$localStorage','rout
         else if(angular.isDefined(route.args)){
             id = route.args.id;
         }
-        
+
         if(id){
             // validate this id
             angular.forEach($scope.tabs,function(value,key){
@@ -628,10 +636,17 @@ app.controller('contentCtrl',['$scope','$location','$http','$localStorage','rout
                 // load this content
                 $scope.load_tab_content(id);   
             }
+            else{
+                // id is not valid, send user to home
+                // this should not happen often, but when it does we want
+                // to do a hard reload on the home to ensure all routing logic
+                // is rendered successfully
+                window.location.href = $scope.get_route("home");
+            }
+            
+            // define the active tab's id for UI purposes
+            $scope.active_tab = tab;
         }
-        
-        // define the active tab's id for UI purposes
-        $scope.active_tab = tab;
     }
     
     init();

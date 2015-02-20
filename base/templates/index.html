@@ -68,8 +68,9 @@
 <!-- Side Nav : End -->
 
 <!-- Content -->
-<div class="content">
-    
+<div class="content js-masonry" id="tab-content"
+    data-masonry-options='{ "columnWidth": 300, "itemSelector": ".tab-inner-wrapper" }'>
+    <card ng-repeat="content in tab_content" content="content"></card>
 </div>
 
 <!-- Content : End -->

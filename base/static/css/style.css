@@ -107,38 +107,6 @@ Navbar For Lightgrey mode
   background: rgb(238,238,238);
 }
 
-material-tabs{
-  width: 95%;
-  float:left;
-}
-.material-tabs-plus{
-  float: left;
-  font-size: 20px;
-  color: white;
-  background: #4285F4;
-  width: 5%;
-  height: 48px;
-  padding-top: 8px;
-  cursor: pointer;
-  text-align: center;
-}
-
-material-tab{
-  color: white;
-  opacity: 0.5;
-}
-
-material-tab.active{
-  opacity: 1;
-}
-
-.animate-switch-container{
-  width: 95%;
-  float: left;
-  -webkit-box-shadow: 5px 0 5px -4px rgba(0, 0, 0, 0.3);
-  box-shadow: 5px 0 5px -4px rgba(0, 0, 0, 0.3);
-}
-
 /* Tab Content */
 
 .tab-inner-wrapper{
