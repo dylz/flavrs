@@ -20,7 +20,10 @@
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
 /* Body */
 body{
-    background-color: #eee;
+  background-color: #eee;
+  font-size: 13px;
+  line-height: 1.846;
+  color: #666666;
 }
 .ready{
   height: 100%;
@@ -29,6 +32,7 @@ body{
 
 .menu-bar-brand{
   margin-left: 10px;
+  font-size: 20px;
 }
 
 /* Search */
