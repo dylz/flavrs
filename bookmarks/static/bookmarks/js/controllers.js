@@ -64,6 +64,7 @@ app.controller('bookmarksCtrl', ['$scope','$http',function(
 
 //Controller for modal window
 app.controller('openModalCtrl', ['$scope','route',function($scope,route) {
+    var self = this;
     
     if(route.initialized){
         route.initialized = false;
@@ -72,11 +73,20 @@ app.controller('openModalCtrl', ['$scope','route',function($scope,route) {
             $scope: $scope
         };
         $scope.open_modal('openModalCtrl',locals);
+        return;
+    }
+    
+     if($scope.loaded_controllers.indexOf('openModalCtrl') > -1){
+        self.loaded = true;
+    }
+    else{
+        self.loaded = false;
+        $scope.loaded_controllers.push('openModalCtrl');
     }
     
     $scope.buttons = [
-        {'name': 'Save', 'colour': 'primary','ngclick': 'save'},
-        {'name': 'Cancel', 'colour': 'warning','ngclick': 'close'}
+        {'name': 'Save', 'theme': 'md-primary md-default-theme','ngclick': 'save'},
+        {'name': 'Cancel', 'theme': '','ngclick': 'close'}
     ];
     
     //set modal
@@ -85,15 +95,20 @@ app.controller('openModalCtrl', ['$scope','route',function($scope,route) {
     }
     
     //validation
-    
-    
-    //button actions
+  
+    // save bookmark
+    // make sure process goes in correct order and does not call the same thing
+    // to make times.
+    self.save_counter = 0;
+    if(!self.loaded){
     $scope.$on('save', function(event, success) {
-        if(!angular.isDefined(success)){
+        
+        if(!angular.isDefined(success) && self.save_counter == 0){
             //try to save data
+            self.save_counter = 1;
             $scope.$emit('validate_modal_form','save');
         }
-        else if(success){
+        else if(success && self.save_counter == 1){
             //save was sucessful
             //add to tab's content
              var data =   {
@@ -116,9 +131,14 @@ app.controller('openModalCtrl', ['$scope','route',function($scope,route) {
             $scope.$emit('add_to_content',data);
             //close modal
             $scope.$emit('close_modal');
+
+            // reset process
+            self.save_counter = 0;
         }
         else{
             //not so successful
+            // reset process
+            self.save_counter = 0;
         }
        
         //enter 'saving' state
@@ -132,7 +152,7 @@ app.controller('openModalCtrl', ['$scope','route',function($scope,route) {
     $scope.$on('close', function(event, args) {
         $scope.$emit('close_modal');
     });
-    
+    }
     //form schema
     $scope.schema = {
         "type": "object",
@@ -153,9 +173,26 @@ app.controller('openModalCtrl', ['$scope','route',function($scope,route) {
         },
         "required": ["url"]
     };
-    $scope.form = [
-        "*"
-    ];
+    $scope.form = {
+        fields: [
+            {
+                type: "text",
+                minlength: 5,
+                required: true,
+                title: "URL",
+                name: "url",
+                change: function(){
+                    
+                }
+            },
+            {
+                type: "text",
+                title: "Name",
+                name: "name",
+                description: "If left blank, name will be determined from URL.",
+            }
+        ]
+    };
     // Check if 'id' is in args. If so, then we are in an 'edit' state.
     if(angular.isDefined(route.args.id)){
         // edit
@@ -189,7 +226,5 @@ app.controller('openModalCtrl', ['$scope','route',function($scope,route) {
         });
     }
     
-    
-    $scope.model = model;
-
+    $scope.form.model = model;
 }]);

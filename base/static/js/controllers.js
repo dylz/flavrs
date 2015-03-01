@@ -20,6 +20,8 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     $scope.logged = false;
     $scope.$storage = $localStorage;
     $scope.selectedTab = 0;
+    $scope.broadcast_monitor = {};
+    $scope.loaded_controllers = [];
 
     client_id = '2175e6706018c9472694';
     client_secret = '2eb3bf30aec9bed3226b7fc30728e8c26283910b';
@@ -213,7 +215,17 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     //wrapper for ngclicks outside of this scope
     
     $scope.broadcast = function(ngclick,arg){
-        $rootScope.$broadcast(ngclick,arg);
+        // place a delay on this to ensure that the same broadcast cannot
+        // happen in a very short period of time.
+        var bm = $scope.broadcast_monitor,
+            key = ngclick+'_'+arg;
+        if(!bm.hasOwnProperty(key)){
+            $scope.$broadcast(ngclick,arg);
+            $scope.broadcast_monitor[key] = true;
+            $timeout(function(){
+                delete $scope.broadcast_monitor[key];
+            },100);
+        }
     }
 
     //generic 'open modal window' function
@@ -268,18 +280,13 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     
     //validate modal form
     $scope.validate_modal = function(form,callback){
-        // First we broadcast an event so all fields validate themselves
-        $scope.$broadcast('schemaFormValidate');
-        // Then we check if the form is valid and broadcast the result
-        $timeout(function(){
-            $rootScope.$broadcast(callback,form.hasClass('ng-valid'));
-        },100);
+        $scope.$broadcast(callback,form.hasClass('ng-valid'));
     }
     
     
     //listen to validate the form on request
     $scope.$on('validate_modal_form', function(event, callback) {
-        return $scope.validate_modal($("#modal_form"),callback);
+        return $scope.validate_modal($("form[name=modal_form]"),callback);
     });
     
     //API usage to close a modal
@@ -383,9 +390,10 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     $scope.$watch("module_is_loaded", function(){
         // check if content will be rendered right from view or do we need
         // to load the default stuff
-        $controller('contentCtrl',{$scope:$scope,route:{}});
-        
-        update_view();
+        if($scope.module_is_loaded){
+            $controller('contentCtrl',{$scope:$scope,route:{}});
+            update_view();
+        }
     });
     
     //Private functions

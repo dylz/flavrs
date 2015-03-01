@@ -1,18 +1,3 @@
-app.directive('ig', function() {
-  return {
-    restrict: 'E',
-    replace: true,
-    scope: {
-      fid: '@'
-    },
-    template: 
-      '<material-input-group>' +
-        '<label for="input-{{fid}}" class="title-me">{{fid}}</label>' +
-        '<material-input id="input-{{fid}}" type="text" ng-model="data.description">' +
-      '</material-input-group>'
-  };
-});
-
 app.directive('ellipsis', ['$timeout', '$window', function($timeout, $window) {
 
 	return {
@@ -393,28 +378,6 @@ app.directive('compile', ['$compile', function ($compile) {
         );
     };
 }])
-
-//directive to manually trigger typeahead suggestions
-.directive('typeaheadTrigger', function() {
-  return {
-    require: ["ngModel"],
-    scope: {
-      typeaheadText: '=',
-      triggerFlag: '='
-    },
-    link: function(scope, element, attr, ctrls) {
-      scope.$watch('triggerFlag', function(value) {
-        if (scope.triggerFlag) {
-            console.log(scope.typeaheadText)
-          //ctrls[0].$setViewValue(scope.typeaheadText);
-          scope.typeaheadText = '';
-          scope.triggerFlag = false;
-        }
-      });
-    }
-  };
-})
-
 
 //ng-enter
 .directive('ngEnter', function() {

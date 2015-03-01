@@ -75,6 +75,12 @@
 
 <!-- Content : End -->
 
+<!-- Buttons -->
+<div class="fab">
+    <md-button class="md-fab"><i class="fa fa-plus"></i></md-button>
+</div>
+<!-- Buttons : End -->
+
 <!-- Modal Window -->
 <script type="text/ng-template" id="modal.html">
     <div class="{{ modal.class }}">
@@ -87,30 +93,23 @@
             </div>
             <div class="{{ modal.form.class }}">
                 <h3>{{ modal.form.header }}</h3>
-                <form
-                    novalidate
-                    id="modal_form"
+                <md-form
                     name="modal_form"
-   ><div layout layout-sm="column">
-        <md-input-container flex>
-          <label>First Name</label>
-          <input ng-model="user.firstName" placeholder="Placeholder text">
-        </md-input-container>
-        <md-input-container flex>
-          <label>Last Name</label>
-          <input ng-model="theMax">
-        </md-input-container>
-      </div>
-                </form>
+                    method="post" 
+                    md-form-fields="form.fields" 
+                    md-form-model="form.model"
+                ></md-form>
             </div>
         </div>
         <div class="modal-footer ng-cloak">
-            <button ng-repeat="button in buttons" class="btn btn-{{ button.colour }}" 
-                ng-click="broadcast(button.ngclick,modal_form)"
-                ng-disabled="button.disabled" ng-cloak>
-                <i ng-show="button.icon" class="fa fa-{{ button.icon }}"></i>
-                {{ button.name }}
-            </button>
+            <section layout="row" layout-sm="column" layout-align="end center" layout-padding layout-margin>
+                <md-button ng-repeat="button in buttons" class="md-raised {{ button.theme }}" 
+                    ng-click="broadcast(button.ngclick,modal_form)"
+                    ng-disabled="button.disabled" ng-cloak flex>
+                    <i ng-show="button.icon" class="fa fa-{{ button.icon }}"></i>
+                    {{ button.name }}
+                </md-button>
+            </section>
         </div>
     </div>
 </script>
