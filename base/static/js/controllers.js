@@ -1310,20 +1310,41 @@ app.controller('baseCtrl', ['$scope','$http',function(
 }]);
 
 app.controller('fabCtrl', ['$scope', function($scope){
+    $scope.primary_action = {};
     $scope.actions = [
-            { "name": "Add Bookmark", "icon": "bookmark", "colour": "lightblue", "route": "add" },
+            {icon: "plus"},
+            { "name": "Add Bookmark", "icon": "bookmark", "route": "add" },
             { "name": "Do Things", "icon": "remove", "colour": "lightblue", "route": "add" },
             { "name": "Make Things!", "icon": "plane", "colour": "lightblue", "route": "add" }
         ]
     
+    $scope.special_actions = [];
+    
     $scope.toggle_fabs = function(state){
         if(state == 'show'){
+            $scope.primary_action = $scope.special_actions[1];
             $scope.show_actions = true;
         }
         else if(state == 'hide'){
             $scope.show_actions = false;
+            $scope.primary_action = $scope.special_actions[0];
         }
-        $scope.primary_rotate = true;
     };
+    
+    $scope.is_default = function(action){
+        if(action == $scope.primary_action)  {
+            return 'md-fab-default';
+        }
+    };
+    
+    
+    // first two actions are "special"
+    $scope.special_actions.push($scope.actions[0]);
+    $scope.special_actions.push($scope.actions[1]);
+    
+    $scope.actions.splice(0,2);
+    
+    // first special action is the default to show
+    $scope.primary_action = $scope.special_actions[0];
     
 }]);

@@ -250,16 +250,6 @@ md-fabs .md-fab-default {
   margin-top: 10px;
 }
 
-md-fabs .md-fab-default.rotate {
-  -webkit-transform: rotate(360deg);
-  -moz-transform: rotate(360deg);
-  -ms-transform: rotate(360deg);
-  -o-transform: rotate(360deg);
-  transform: rotate(360deg);
-  
-  animation-duration: 0.25s;
-}
-
 /* Cards */
 
 .tab-inner-wrapper .module{

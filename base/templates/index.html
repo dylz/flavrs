@@ -79,12 +79,12 @@
 <div class="fab" ng-controller="fabCtrl">
     <md-fabs md-actions="actions" ng-mouseover="toggle_fabs('show')" ng-mouseleave="toggle_fabs('hide')">
         <section layout="column">
-            <md-button ng-repeat="action in actions" 
+            <md-button ng-repeat="action in actions.slice().reverse()"
                 alt="{{action.name}}" class="md-fab {{action.colour}}" ng-show="show_actions">
                 <i class="fa fa-{{action.icon}}"></i>
             </md-button>
-            <md-button class="md-fab md-fab-primary md-fab-default" ng-class="{rotate:primary_rotate}">
-                <i class="fa fa-plus"></i>
+            <md-button class="md-fab md-default-theme md-fab-default" alt="{{primary_action.name}}">
+                <i class="fa fa-{{primary_action.icon}}"></i>
             </md-button>
         </section>
     </md-fabs>
