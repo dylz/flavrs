@@ -86,3 +86,21 @@ app.directive('mdForm', function($compile) {
         }
     }
 });
+
+app.directive('mdFabs', function($compile) {
+    return {
+        restrict: 'E',
+        scope: {
+            actions: '=mdActions'
+        },
+        controller: ['$scope',
+            function($scope) {
+                var self = this;
+              
+            }
+        ],
+        link: function(scope, element, attributes, controller, transcludeFn) {
+    
+        }
+    }
+});

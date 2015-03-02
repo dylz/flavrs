@@ -1308,3 +1308,22 @@ app.controller('baseCtrl', ['$scope','$http',function(
     init();
 
 }]);
+
+app.controller('fabCtrl', ['$scope', function($scope){
+    $scope.actions = [
+            { "name": "Add Bookmark", "icon": "bookmark", "colour": "lightblue", "route": "add" },
+            { "name": "Do Things", "icon": "remove", "colour": "lightblue", "route": "add" },
+            { "name": "Make Things!", "icon": "plane", "colour": "lightblue", "route": "add" }
+        ]
+    
+    $scope.toggle_fabs = function(state){
+        if(state == 'show'){
+            $scope.show_actions = true;
+        }
+        else if(state == 'hide'){
+            $scope.show_actions = false;
+        }
+        $scope.primary_rotate = true;
+    };
+    
+}]);

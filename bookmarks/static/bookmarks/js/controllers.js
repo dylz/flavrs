@@ -85,8 +85,8 @@ app.controller('openModalCtrl', ['$scope','route',function($scope,route) {
     }
     
     $scope.buttons = [
-        {'name': 'Save', 'theme': 'md-primary md-default-theme','ngclick': 'save'},
-        {'name': 'Cancel', 'theme': '','ngclick': 'close'}
+        {'name': 'Save', 'colour': 'md-primary md-default-theme','ngclick': 'save'},
+        {'name': 'Cancel', 'colour': '','ngclick': 'close'}
     ];
     
     //set modal
