@@ -93,14 +93,54 @@ app.directive('mdFabs', function($compile) {
         scope: {
             actions: '=mdActions'
         },
+        template:   '<section ng-cloak layout="column" ng-hide="actions.length==0"' +
+                    '   ng-mouseover="toggle_fabs(\'show\')"' + 
+                    '   ng-mouseleave="toggle_fabs(\'hide\')">' +
+                    '   <md-button ng-repeat="action in actions.slice().reverse()"' +
+                    '       title="{{action.name}}"' +
+                    '       class="md-fab {{action.colour}}" ng-show="show_actions">' +
+                    '       <i class="fa fa-{{action.icon}}"></i>' +
+                    '   </md-button>' +
+                    '   <md-button class="md-fab md-default-theme md-fab-default"' +
+                    '       title="{{primary_action.name}}">' +
+                    '       <i class="fa fa-{{primary_action.icon}}"></i>' +
+                    '   </md-button>' +
+                    '</section>',
         controller: ['$scope',
             function($scope) {
+                
                 var self = this;
-              
+                $scope.primary_action = {};
+                $scope.special_actions = [];
+                
+                $scope.toggle_fabs = function(state){
+                    if(state == 'show'){
+                        $scope.primary_action = $scope.special_actions[1];
+                        $scope.show_actions = true;
+                    }
+                    else if(state == 'hide'){
+                        $scope.show_actions = false;
+                        $scope.primary_action = $scope.special_actions[0];
+                    }
+                };
+                
+                $scope.init = function(){
+                    if(angular.isDefined($scope.actions)){
+                        $scope.special_actions.push({icon:'plus'});
+                        $scope.special_actions.push($scope.actions[0]);
+                        
+                        $scope.actions.splice(0,1);
+                        
+                        // first special action is the default to show
+                        $scope.primary_action = $scope.special_actions[0];
+                    }
+                }
             }
         ],
         link: function(scope, element, attributes, controller, transcludeFn) {
-    
+            scope.$watch('actions',function(){
+                scope.init();
+            });
         }
     }
 });
