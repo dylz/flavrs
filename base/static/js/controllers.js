@@ -10,10 +10,10 @@ user is logged in or not.
 app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                             '$cookies','$q','$location','$controller',
                             '$rootScope','$modal','$timeout','$route',
-                            '$mdSidenav','$interval',
+                            '$mdSidenav','$interval', '$flavrs',
                             function(
     $scope,$http,$localStorage,$sessionStorage,$cookies,$q,$location,
-    $controller, $rootScope,$modal,$timeout,$route,$mdSidenav,$interval) {
+    $controller, $rootScope,$modal,$timeout,$route,$mdSidenav,$interval,$flavrs) {
     
     $scope.api = '/';
     $scope.ready = false;
@@ -162,22 +162,28 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     //register a modules "init". Basically just save time by making sure all
     //required scopes are updated so data is not crosedd between modules
     $scope.register_init = function(response){
+        
+        //add any special routes (ie. tabs)
+        response.routes.push({"name":"tab","route":"tab/:id","controller":"contentCtrl"});
+        // add urls to tabs object
+        angular.forEach(response.tabs,function(value,key){
+            value.url = $scope.get_route('tab',{'id':value.id});
+        });
+        
         $scope.tabs = response.tabs;
         $scope.meta = response.meta;
         $scope.actions = response.actions;
         $scope.routes = response.routes;
         $scope.commands = response.commands;
-        //add any special routes (ie. tabs)
-        $scope.routes.push({"name":"tab","route":"tab/:id","controller":"contentCtrl"});
-        // add urls to tabs object
-        angular.forEach($scope.tabs,function(value,key){
-            value.url = $scope.get_route('tab',{'id':value.id});
-        });
+        
         //tell the app that this module is loaded so it does not try to load it again.
         $scope.module_is_loaded = true;
         
         // update the command bar logic by broadcasting to the command controller
         $scope.$broadcast('update_commands',response.commands);
+        
+        // add to service
+        $flavrs.modules.add(response);
     }
     
     // toggle the menu
@@ -951,11 +957,16 @@ app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
 }]);
 
 //Tab management controller
-app.controller('tabCtrl', ['$scope', function($scope){
+app.controller('tabCtrl', ['$scope','$flavrs', function($scope,$flavrs){
+    
+    var tabs = $flavrs.modules.current.tabs;
+    
     $scope.status = "create";
+
     //we are going to create a deepcopy of the tabs so we can mess with them
     //as much as possible without effecting the front end and the "true" copy
     //of what the user sees
+    
     $scope.tabs_copy = angular.copy($scope.tabs);
     $scope.buttons = [
         {'name': 'Save', 'colour': 'primary','ngclick': 'save'},

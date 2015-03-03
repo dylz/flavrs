@@ -40,31 +40,44 @@
 <!-- Menu Bar : End -->
 
 <!-- Side Nav -->
-<md-sidenav md-component-id="left" class="md-sidenav-left md-whiteframe-z2 tab-bar">
-    <md-toolbar class="md-theme-indigo" layout="row">
-        <h1 flex="80" class="md-toolbar-tools">Navigation</h1>
-        <md-button flex ng-click="toggle_menu();">
-            <i class="fa fa-remove"></i>
-        </md-button>
-    </md-toolbar>
-    <md-content>
-        <md-list>
-            <md-item ng-repeat="tab in tabs">
-                <md-item-content>
-                    <a href="{{tab.url}}" class="md-tile-content link"
-                        ng-if="active_tab.id!=tab.id">
-                        {{tab.title}}
-                    </a>
-                    <div class="md-tile-content selected"
-                        ng-if="active_tab.id==tab.id">
-                        {{tab.title}}
+
+    <md-sidenav md-component-id="left" 
+        class="md-sidenav-left md-whiteframe-z2 tab-bar">
+        <md-toolbar class="md-theme-indigo" layout="row">
+            <h1 flex="80" class="md-toolbar-tools">Navigation</h1>
+            <md-button flex ng-click="toggle_menu();">
+                <i class="fa fa-remove"></i>
+            </md-button>
+        </md-toolbar>
+        <md-content>
+            <md-list as-sortable="sortableTabs" ng-model="tabs">
+                <md-item ng-repeat="tab in tabs">
+                    <div as-sortable-item>
+                    <md-item-content>
+                        <div as-sortable-item-handle></div>
+                        <a href="{{tab.url}}" class="md-tile-content link"
+                            ng-if="active_tab.id!=tab.id">
+                            {{tab.title}}
+                        </a>
+                        <div class="md-tile-content selected"
+                            ng-if="active_tab.id==tab.id">
+                            {{tab.title}}
+                        </div>
+                    </md-item-content>
                     </div>
-                </md-item-content>
-                <md-divider ng-if="!$last"></md-divider>
-            </md-item>
-        </md-list>
-    </md-content>
-</md-sidenav>
+                    <md-divider ng-if="!$last"></md-divider>
+                </md-item>
+            </md-list>
+        </md-content>
+    </md-sidenav>
+<div ng-controller="tabCtrl">
+    <ul as-sortable="sortableTabs" ng-model="tabs_copy">
+                        <li ng-repeat="tab in tabs_copy" as-sortable-item>
+                        <div as-sortable-item-handle></div>
+                        {{tab}}
+                   </li>
+                </ul>
+</div>
 <!-- Side Nav : End -->
 
 <!-- Content -->

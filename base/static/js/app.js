@@ -70,3 +70,58 @@ app.filter('module', function() {
         return input;
     };
 });
+
+// Main Flavrs service
+app.service('$flavrs', function($http,$location){
+    
+    var self = this;
+    
+    self.meta = {
+        api: '/'
+    };
+    
+    self.modules = {
+        all: [],
+        current: function(){
+            var module = $location.path().split('/')[1];
+            
+            if((module == "") || (module == "home")){
+                module = 'base';
+            }
+            
+            return this.get(module);
+        },
+        add: function(obj){
+            this.all.push(obj);
+            this._loaded.push(name);
+        },
+        get: function(name){
+            
+            // return the requested obj for a module
+            
+            // if module is already loaded, return that, otherwise get info from
+            // backend
+            if(_loaded.indexOf(name) > -1){
+                this.all.forEach(function(module){
+                    if(name == module.name){
+                        return module;
+                    }
+                });
+            }
+            else{
+                $http.post(self.meta.api+name,{data:{}})
+                     .success(function(response,status){
+                        obj.routes.push({"name":"tab","route":"tab/:id","controller":"contentCtrl"});
+                        // add urls to tabs object
+                        //angular.forEach($scope.tabs,function(value,key){
+                        //    value.url = $scope.get_route('tab',{'id':value.id});
+                        //});
+                        this.add(obj);
+                     });
+            }
+            
+        },
+        // private
+        _loaded: []
+    };
+});
