@@ -93,7 +93,9 @@ app.service('$flavrs', function($http,$location){
         },
         add: function(obj){
             this.all.push(obj);
-            this._loaded.push(name);
+            this._loaded.push(obj.name);
+            
+            return obj;
         },
         get: function(name){
             

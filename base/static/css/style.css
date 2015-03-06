@@ -435,3 +435,16 @@ body .command-bar {
 .command-bar .popover.top > .arrow {
   left: 10%;
 }
+
+/* Tab Modal Form */
+
+.tab-modal-form md-item-content:hover {
+  cursor: pointer;
+  background-color: #ddd;
+}
+
+.tab-modal-form .as-sortable-placeholder {
+  height: 55px;
+  background-color: #ddd;
+  border: none;
+}

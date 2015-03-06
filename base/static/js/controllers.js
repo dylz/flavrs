@@ -165,16 +165,18 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         
         //add any special routes (ie. tabs)
         response.routes.push({"name":"tab","route":"tab/:id","controller":"contentCtrl"});
+        
+        $scope.meta = response.meta;
+        $scope.actions = response.actions;
+        $scope.routes = response.routes;
+        $scope.commands = response.commands;
+        
         // add urls to tabs object
         angular.forEach(response.tabs,function(value,key){
             value.url = $scope.get_route('tab',{'id':value.id});
         });
         
         $scope.tabs = response.tabs;
-        $scope.meta = response.meta;
-        $scope.actions = response.actions;
-        $scope.routes = response.routes;
-        $scope.commands = response.commands;
         
         //tell the app that this module is loaded so it does not try to load it again.
         $scope.module_is_loaded = true;
@@ -959,8 +961,6 @@ app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
 //Tab management controller
 app.controller('tabCtrl', ['$scope','$flavrs', function($scope,$flavrs){
     
-    var tabs = $flavrs.modules.current.tabs;
-    
     $scope.status = "create";
 
     //we are going to create a deepcopy of the tabs so we can mess with them
@@ -969,26 +969,25 @@ app.controller('tabCtrl', ['$scope','$flavrs', function($scope,$flavrs){
     
     $scope.tabs_copy = angular.copy($scope.tabs);
     $scope.buttons = [
-        {'name': 'Save', 'colour': 'primary','ngclick': 'save'},
-        {'name': 'Save & Close', 'colour': 'info','ngclick': 'saveClose'},
-        {'name': 'Close', 'colour': 'warning','ngclick': 'close'}
+        {'name': 'Save', 'colour': 'md-primary','ngclick': 'save'},
+        {'name': 'Save & Close', 'colour': 'md-accent','ngclick': 'saveClose'},
+        {'name': 'Cancel', 'colour': 'md-warn','ngclick': 'close'}
     ];
-    
-    var body = '<div class="col-md-6"><table class="table table-striped">'+
-                    '<thead>'+
-                        '<tr>'+
-                            '<th>Name</th>'+
-                            '<th></th>'+
-                        '</tr>'+
-                    '</thead>' +
-                    '<tbody as-sortable="sortableTabs" ng-model="tabs_copy">'+
-                        '<tr ng-repeat="tab in tabs_copy" ng-click="edit_tab(tab)" as-sortable-item>'+
-                            '<td>{{tab.title}}</td>'+
-                            '<td as-sortable-item-handle class="col-md-1">'+
-                            '<i class="fa fa-arrows"></i></td>'+
-                        '</tr>'+
-                    '</tbody>'+
-                '</table></div>';
+                
+    var body = '<md-content class="tab-modal-form">' +
+                '<md-list as-sortable="sortableTabs" ng-model="tabs_copy">' +
+                    '<div ng-repeat="tab in tabs_copy" as-sortable-item>' +
+                        '<md-item ng-click="edit_tab(tab)">' +
+                            '<md-item-content as-sortable-item-handle>' +
+                                '<div class="md-tile-content">' +
+                                    '{{tab.title}}' +
+                                '</div>' +
+                            '</md-item-content>' +
+                            '<md-divider ng-if="!$last"></md-divider>' +
+                        '</md-item>' +
+                    '</div>' +
+                '</md-list>' +
+            '</md-content>';
     
     $scope.modal = {
         "class": "tab-management",
@@ -1022,18 +1021,27 @@ app.controller('tabCtrl', ['$scope','$flavrs', function($scope,$flavrs){
                 }
             }
         ];
+        
+    $scope.form = {
+        fields: [
+            {
+                type: 'text',
+                title: 'Title',
+                name: 'title'
+            }
+        ],
+        model: {}
+    };
+    
     $scope.model = {};
     
     // Edit a tab by clicking that tab's row in the table
     $scope.edit_tab = function(tab){
         $scope.tab_to_edit = tab;
         //auto fill title
-        $scope.model.title = tab.title;
-        //enable "cancel" link (done thru jquery cause we do not have access)
-        //to ng-if
-        $('.tab-management .form-group:last button').show();
+        $scope.form.model.title = tab.title;
         //update form header
-        $scope.modal.form.header = "Edit Tab";
+        $scope.modal.form.header = 'Edit Tab <a href="javascript:;" ng-click="create_tab()">cancel</a>';
         //set 'edit' status
         $scope.status = "edit";
     }
@@ -1041,9 +1049,7 @@ app.controller('tabCtrl', ['$scope','$flavrs', function($scope,$flavrs){
     //set "create" state
     $scope.create_tab = function(){
         //reset model inputs
-        $scope.model.title = "";
-        //hide cancel btn
-        $('.tab-management .form-group:last button').hide();
+        $scope.form.model.title = "";
         //update form header
         $scope.modal.form.header = "Add Tab";
         //auto focus the first input
@@ -1053,22 +1059,22 @@ app.controller('tabCtrl', ['$scope','$flavrs', function($scope,$flavrs){
     }
     
     //button actions
-    
+    var listeners = [];
     //close - close the model
-    $scope.$on('close',function(){
+    listeners.push($scope.$on('close',function(){
         $scope.$emit('close_modal');
-    });
+    }));
     
     //save - update if edit status or create tab
-    $scope.$on('save',function(){
+    listeners.push($scope.$on('save',function(){
         $scope.save();
-    });
+    }));
     
     //save it, then if successful, close the modal
-    $scope.$on('saveClose',function(){
+    listeners.push($scope.$on('saveClose',function(){
         $scope.close_modal = true;
         $scope.save();
-    });
+    }));
     
     // Save function
     $scope.save = function(){
@@ -1090,10 +1096,26 @@ app.controller('tabCtrl', ['$scope','$flavrs', function($scope,$flavrs){
     
     //sortable
     $scope.sortableTabs = {
-        accept: function (sourceItemHandleScope, destSortableScope) {return true},
+        accept: function (sourceItemHandleScope, destSortableScope) {
+            return true
+        },
         itemMoved: function (event) {},
         orderChanged: function(event) {},
+        dragStart: function(event){
+            var index = event.source.index;
+            // hide the divider
+            angular.element('.as-sortable-drag md-divider').hide();
+        }
     };
+    
+    $scope.modalInstance.result.then(function () {
+
+    },function(){
+        // remove listeners when modal is closed
+        angular.forEach(listeners,function(value,key){
+            value();
+        });
+    });
     
 }]);
 

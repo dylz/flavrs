@@ -85,8 +85,8 @@ app.controller('openModalCtrl', ['$scope','route',function($scope,route) {
     }
     
     $scope.buttons = [
-        {'name': 'Save', 'colour': 'md-primary md-default-theme','ngclick': 'save'},
-        {'name': 'Cancel', 'colour': '','ngclick': 'close'}
+        {'name': 'Save', 'colour': 'md-primary','ngclick': 'save'},
+        {'name': 'Cancel', 'colour': 'md-warn','ngclick': 'close'}
     ];
     
     //set modal
@@ -101,57 +101,57 @@ app.controller('openModalCtrl', ['$scope','route',function($scope,route) {
     // to make times.
     self.save_counter = 0;
     if(!self.loaded){
-    $scope.$on('save', function(event, success) {
-        
-        if(!angular.isDefined(success) && self.save_counter == 0){
-            //try to save data
-            self.save_counter = 1;
-            $scope.$emit('validate_modal_form','save');
-        }
-        else if(success && self.save_counter == 1){
-            //save was sucessful
-            //add to tab's content
-             var data =   {
-                "card_type": "link",
-                "card_url": "http://mail.google.com",
-                "header": {
-                    "text": "Gmail"
-                },
-                "body": {
-                    "img16": "http://www.google.com/s2/favicons?domain=mail.google.com",
-                    "text": "mail.google.com"
-                },
-                "footer": {
-                    "options": [
-                        {"name": "Edit","icon":"edit", "link": "details"},
-                        {"name": "Share","icon":"share", "ngclick": "share"}
-                    ]
-                }
+        $scope.$on('save', function(event, success) {
+            
+            if(!angular.isDefined(success) && self.save_counter == 0){
+                //try to save data
+                self.save_counter = 1;
+                $scope.$emit('validate_modal_form','save');
             }
-            $scope.$emit('add_to_content',data);
-            //close modal
-            $scope.$emit('close_modal');
-
-            // reset process
-            self.save_counter = 0;
-        }
-        else{
-            //not so successful
-            // reset process
-            self.save_counter = 0;
-        }
-       
-        //enter 'saving' state
-        //var save_button = $scope.buttons[0];
-        //save_button.disabled = true;
-        //save_button.icon = "spinner fa-spin";
-        //save_button.name = 'Saving...';
-        //attempt to save
-    });
+            else if(success && self.save_counter == 1){
+                //save was sucessful
+                //add to tab's content
+                 var data =   {
+                    "card_type": "link",
+                    "card_url": "http://mail.google.com",
+                    "header": {
+                        "text": "Gmail"
+                    },
+                    "body": {
+                        "img16": "http://www.google.com/s2/favicons?domain=mail.google.com",
+                        "text": "mail.google.com"
+                    },
+                    "footer": {
+                        "options": [
+                            {"name": "Edit","icon":"edit", "link": "details"},
+                            {"name": "Share","icon":"share", "ngclick": "share"}
+                        ]
+                    }
+                }
+                $scope.$emit('add_to_content',data);
+                //close modal
+                $scope.$emit('close_modal');
     
-    $scope.$on('close', function(event, args) {
-        $scope.$emit('close_modal');
-    });
+                // reset process
+                self.save_counter = 0;
+            }
+            else{
+                //not so successful
+                // reset process
+                self.save_counter = 0;
+            }
+           
+            //enter 'saving' state
+            //var save_button = $scope.buttons[0];
+            //save_button.disabled = true;
+            //save_button.icon = "spinner fa-spin";
+            //save_button.name = 'Saving...';
+            //attempt to save
+        });
+        
+        $scope.$on('close', function(event, args) {
+            $scope.$emit('close_modal');
+        });
     }
     //form schema
     $scope.schema = {
