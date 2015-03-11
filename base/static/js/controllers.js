@@ -342,7 +342,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             return module+'/'+output;
         }
         else{
-            throw new Error(route+' does not exist.')   
+            //throw new Error(route+' does not exist.')   
         }
     };
     
@@ -381,7 +381,12 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
 
         //only init the controller if it is there and not loaded yet
         if((foundit) && (different)){
-            load_ctrl();
+            //load_ctrl();
+            //update_view();
+            $flavrs.modules.initialize($scope.module).then(function(){
+                $scope = $flavrs.modules.update_scope($scope);
+            });
+            
         }
         else{
             //module is the same but the route is different.
@@ -411,10 +416,10 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         var route_arr = $location.path().split('/'),
             route_value = route_arr.length-2,
             route_params = $location.search(),
-            found_route = null;
+            found_route = null,
+            routes = $flavrs.modules.current().routes;
         
-        
-        angular.forEach($scope.routes,function(value,key){
+        angular.forEach(routes,function(value,key){
             var loop_route_arr = value.route.split('/');
             if(route_value == loop_route_arr.length){
                 // This *could* be the correct route. But lets double check.
@@ -449,7 +454,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                         locals = {
                             $scope:$scope,
                             route: {'initialized': true, 'args': {}, 
-                                    'params': route_params}
+                                    'params': route_params, 'route': value}
                         };
 
                     if(angular.isDefined(value.controller_locals)){
@@ -479,7 +484,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                     // running this controller
                     $scope.queued_controller = {
                         'controller': value.controller,
-                        'locals': locals
+                        'locals': locals // dep
                     };
                     if(angular.isDefined(value.dependencies)){
                         var listener = $scope.$watchGroup(value.dependencies, function(newValues,oldValues){
@@ -518,16 +523,37 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                                 
                                 
                                 listener(); //this kills the watchGroup
-                                $controller(value.controller,locals);
+                                load_controller(value.controller,locals);
                             }
                         });
                     }
                     else{
-                        $controller(value.controller,locals);
+                        load_controller(value.controller,locals);
                     }
                 }
             }
         });
+    }
+    
+    function load_controller(ctrl,locals){
+        // locals is dep to prevent random locals being injected into a controller
+        
+        // add the locals object to the flavrs service to name space data properly
+        // reorganize the object before setting it
+        var route = {};
+        angular.forEach(locals.route,function(value,key){
+            if(key != 'route'){
+                route[key] = value;
+            }
+            else{
+                angular.forEach(value,function(value2,key2){
+                    route[key2] = value2;
+                });
+            }
+        });
+        
+        $flavrs.routes.current = route;
+        $controller(ctrl,locals);
     }
     
     function fix_height(){

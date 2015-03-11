@@ -2,8 +2,8 @@
     Controllers for the Bookmarks module
 */
 
-app.controller('bookmarksCtrl', ['$scope','$http',function(
-    $scope,$http) {
+app.controller('bookmarksCtrl', ['$scope','$http','$flavrs',function(
+    $scope,$http,$flavrs) {
     
     $scope.open_link_modal = function(){
         $scope.open_modal('openModalCtrl');   
@@ -58,7 +58,17 @@ app.controller('bookmarksCtrl', ['$scope','$http',function(
     }
     
     //init
-    init();
+    //init();
+    
+    
+    // do things depending on route
+    var route = $flavrs.routes.current;
+    console.log(route)
+    switch(route.name) {
+        case 'index':
+            init();
+        break;
+    }
 
 }]);
 

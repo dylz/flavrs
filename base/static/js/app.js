@@ -77,7 +77,8 @@ app.service('$flavrs', function($http,$location){
     var self = this;
     
     self.meta = {
-        api: '/'
+        api: '/',
+        version: '0.1'
     };
     
     self.modules = {
@@ -88,42 +89,114 @@ app.service('$flavrs', function($http,$location){
             if((module == "") || (module == "home")){
                 module = 'base';
             }
-            
             return this.get(module);
         },
         add: function(obj){
-            this.all.push(obj);
-            this._loaded.push(obj.name);
+            if(this._loaded.indexOf(obj.meta.code) == -1){
+                
+                // add shortcuts
+                obj.name = obj.meta.code;
+                
+                this.all.push(obj);
+                this._loaded.push(obj.meta.code);
+            }
             
             return obj;
         },
         get: function(name){
-            
+            var output = {},
+                modules = this;
             // return the requested obj for a module
             
             // if module is already loaded, return that, otherwise get info from
             // backend
-            if(_loaded.indexOf(name) > -1){
+            if(this._loaded.indexOf(name) > -1){
                 this.all.forEach(function(module){
-                    if(name == module.name){
-                        return module;
+                    if(name == module.meta.code){
+                        output = module;
                     }
                 });
             }
             else{
-                $http.post(self.meta.api+name,{data:{}})
-                     .success(function(response,status){
-                        obj.routes.push({"name":"tab","route":"tab/:id","controller":"contentCtrl"});
-                        // add urls to tabs object
-                        //angular.forEach($scope.tabs,function(value,key){
-                        //    value.url = $scope.get_route('tab',{'id':value.id});
-                        //});
-                        this.add(obj);
-                     });
+                this.initialize(name).then(function(){
+                    output = modules.get(name);
+                });
             }
             
+            return output;
+            
+        },
+        initialize: function(name){
+            var promise = $http.post(self.meta.api+'static/'+name+'/json/main.json',{}),
+                modules = this;
+            
+            promise.success(function(response,status){
+                // add urls to tabs object
+                angular.forEach(response.tabs,function(value,key){
+                    value.url = self.routes.get('tab',{'id':value.id},name,response.routes);
+                });
+                modules.add(response);
+            });
+            
+            return promise;
+            
+        },
+        update_scope: function(scope){
+            // dep
+            // to save time and not having to redo a lot of code right now,
+            // this function updates the scope with the init values
+            // remove this later as the controller using this function shouldn't
+            // need it anymore.
+            var current = this.current();
+            scope.meta = current.meta;
+            scope.actions = current.actions;
+            scope.routes = current.routes;
+            scope.commands = current.commands;
+            scope.tabs = current.tabs;
+            
+            return scope;
         },
         // private
         _loaded: []
     };
+    
+    self.routes = {
+        current: {},
+        get: function(route,params,module,routes){
+            var output = null;
+            if(!angular.isDefined(params)){
+                params = {}
+            }
+            
+            if(!angular.isDefined(module)){
+                module = self.modules.current().name;
+            }
+            
+            if(!angular.isDefined(routes)){
+                routes = self.modules.current().routes;
+            }
+            
+            angular.forEach(routes,function(value,key){
+                if(value.name == route){
+                    output = value.route;
+                }
+            });
+            
+            if(output !== null){
+                // route is found. 
+                // next, add the params
+                angular.forEach(params,function(value,key){
+                    output = output.replace(':'+key,value);
+                });
+                // We need to remember to append the current module
+                // the user is in to prevent routing conflicts.
+                return module+'/'+output;
+            }
+            else{
+                //throw new Error(route+' does not exist.')
+                console.log(route+' does not exist.');
+            }
+        }
+    };
+    
 });
