@@ -10,10 +10,11 @@ user is logged in or not.
 app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                             '$cookies','$q','$location','$controller',
                             '$rootScope','$modal','$timeout','$route',
-                            '$mdSidenav','$interval', '$flavrs',
+                            '$mdSidenav','$interval', '$flavrs','$compile',
                             function(
     $scope,$http,$localStorage,$sessionStorage,$cookies,$q,$location,
-    $controller, $rootScope,$modal,$timeout,$route,$mdSidenav,$interval,$flavrs) {
+    $controller, $rootScope,$modal,$timeout,$route,$mdSidenav,$interval,$flavrs,
+    $compile) {
     
     $scope.api = '/';
     $scope.ready = false;
@@ -198,7 +199,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         console.log('HEY')
     }
 
-    $scope.location = function(route,params){
+    $scope.location = function(route,params,args){
         
         // params is optional, if not defined, set a default
         if(!angular.isDefined(params)){
@@ -210,11 +211,11 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         switch (route) {
             case '/':
                 //if route is empty, load the 'root' path (this is the module root)
-                route = $scope.module;
+                route = $scope.module+'/';
                 break;
             default:
                 //get the actual path
-                route = $scope.get_route(route)
+                route = $scope.get_route(route,args)
         }
         
         $location.path(route).search(params);
@@ -269,8 +270,15 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         $scope.modalInstance.result.then(function () {
 
         },function(){
-            //modal is closed.. update route to module root
-            $scope.location('/');
+            //modal is closed.. update route to the old route
+            var previous = $flavrs.routes.previous;
+            // if there is no previous, send user to module root
+            if(angular.isDefined(previous.name)){
+                $scope.location(previous.name,undefined,previous.args);
+            }
+            else{
+                $scope.location('/');
+            }
         });
     }
     
@@ -348,11 +356,8 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     
     $rootScope.$on("$locationChangeStart", function(event, current) {
         //Get the path, and use it to determine the module
-        var path_split = $location.path().split('/'),
-            load_ctrl = function(){
-                $controller(ctrl_name,{$scope:$scope});
-            }
-        
+        var path_split = $location.path().split('/');
+
         if(path_split[1] != $scope.module){
             var different = true;
         }
@@ -381,10 +386,9 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
 
         //only init the controller if it is there and not loaded yet
         if((foundit) && (different)){
-            //load_ctrl();
-            //update_view();
             $flavrs.modules.initialize($scope.module).then(function(){
                 $scope = $flavrs.modules.update_scope($scope);
+                update_view();
             });
             
         }
@@ -404,8 +408,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         // check if content will be rendered right from view or do we need
         // to load the default stuff
         if($scope.module_is_loaded){
-            $controller('contentCtrl',{$scope:$scope,route:{}});
-            update_view();
+            //update_view();
         }
     });
     
@@ -445,7 +448,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                 // If the matched indexes matches the indexes, then this is the route.
                 if(indexes.length == matched_indexes.length){
                     // BAM, load the controller for this route.
-                
+
                     // For the locals of this controller, pass scope regardless
                     // and then check if the controller has any 'locals' that wish
                     // to be passed as well.
@@ -523,24 +526,30 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                                 
                                 
                                 listener(); //this kills the watchGroup
-                                load_controller(value.controller,locals);
+                                load_controller(value.controller,locals,value.template);
                             }
                         });
                     }
                     else{
-                        load_controller(value.controller,locals);
+                        load_controller(value.controller,locals,value.template);
                     }
                 }
             }
         });
     }
     
-    function load_controller(ctrl,locals){
+    function load_controller(ctrl,locals,template){
         // locals is dep to prevent random locals being injected into a controller
         
         // add the locals object to the flavrs service to name space data properly
         // reorganize the object before setting it
-        var route = {};
+        var route = {},
+            load = function(){
+                $flavrs.routes.previous = angular.copy($flavrs.routes.current);
+                $flavrs.routes.current = route;
+                $controller(ctrl,locals);
+            };
+            
         angular.forEach(locals.route,function(value,key){
             if(key != 'route'){
                 route[key] = value;
@@ -552,8 +561,31 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             }
         });
         
-        $flavrs.routes.current = route;
-        $controller(ctrl,locals);
+        if(!angular.isDefined(template)){
+            template = 'base/card.html';
+        }
+        
+        $http.get(check_template(template),{cache: true})
+             .then(function(response){
+                var ele = angular.element('#tab-content');
+                ele.html(response.data);
+                $compile(ele)($scope);
+                load();
+             });
+    }
+    
+    function check_template(template){
+        // some templates are special!
+        
+        switch(template){
+            case 'base/card.html':
+                template = $scope.api+'static/templates/card.html';
+            break;
+            default:
+                template = $scope.api+'static/'+$scope.module+'/templates/'+template;
+        }
+        
+        return template;
     }
     
     function fix_height(){

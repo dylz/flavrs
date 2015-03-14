@@ -161,6 +161,7 @@ app.service('$flavrs', function($http,$location){
     };
     
     self.routes = {
+        previous: {},
         current: {},
         get: function(route,params,module,routes){
             var output = null;
@@ -198,5 +199,26 @@ app.service('$flavrs', function($http,$location){
             }
         }
     };
+    
+    self.validators = {
+        is_valid: function(propery_name,property_value,data){
+            // check if id is fail
+            var good_to_go = false;
+            angular.forEach(data,function(value,key){
+                if(value[propery_name] == property_value){
+                    good_to_go = true;
+                }
+            });
+
+            if(good_to_go){
+                // id is valid, so let the process carry on
+                return true;
+            }
+            else{
+                // id is not valid, throw 404 and end routing process
+                return false;
+            }
+        }
+    }
     
 });

@@ -2,8 +2,12 @@
     Controllers for the Bookmarks module
 */
 
-app.controller('bookmarksCtrl', ['$scope','$http','$flavrs',function(
-    $scope,$http,$flavrs) {
+app.service('bookmarks', function(){
+    this.content = [];
+});
+
+app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'bookmarks',
+    function($scope,$http,$flavrs, $controller,bookmarks) {
     
     $scope.open_link_modal = function(){
         $scope.open_modal('openModalCtrl');   
@@ -11,11 +15,11 @@ app.controller('bookmarksCtrl', ['$scope','$http','$flavrs',function(
     
     //validators
     $scope.validators = {
-        check_id: function(path,params){
+        check_id: function(id){
             // check if id is fail
             var good_to_go = false;
             angular.forEach($scope.tab_content,function(value,key){
-                if(value.id == params.id){
+                if(value.id == id){
                     good_to_go = true;
                 }
             });
@@ -49,31 +53,62 @@ app.controller('bookmarksCtrl', ['$scope','$http','$flavrs',function(
         }
     });
     
-    //private
-    function init(){
-        $http.post($scope.api+'static/bookmarks/json/main.json',{})
+    function get_content(id){
+        // id = tab_id
+        $http.post($scope.meta.root+'static/bookmarks/json/'+id+'.json',{})
              .success(function(response,status){
-                $scope.register_init(response);
+                $scope.tab_content = response;
+                // store in service for modal window
+                bookmarks.content = response;
+                // store this result in local storage for later use
+                // BTW we will only use the data for 5 mins, after that we request new data
+                //$scope.$storage[key] = {
+                //    expires: new Date().getTime()+300000,
+                //    data: response
+                //};
              });
     }
     
-    //init
-    //init();
-    
-    
-    // do things depending on route
-    var route = $flavrs.routes.current;
-    console.log(route)
-    switch(route.name) {
-        case 'index':
-            init();
-        break;
+    function init(){
+        var route = $flavrs.routes.current,
+            tabs = $flavrs.modules.current().tabs,
+            id = null;
+        
+        switch(route.name){
+            case 'index':
+                // "home" of bookmarks, for now just load the first tabs
+                // content until all logistics get figured out
+                if(tabs.length > 0){
+                    id = tabs[0].id;
+                }
+            break;
+            case 'tab':
+                // check if id is valid
+                if($flavrs.validators.is_valid('id',route.args.id,tabs)){
+                    id = route.args.id;
+                }
+            break;
+        };
+        
+        if(id){
+            // id is valid, load the content for it
+            get_content(id);    
+        }
+        else{
+            // id was not valid, send user to "home"
+            // this really should not happen if the user is navigating properly
+            window.location.href = $flavrs.routes.get("home");
+        }
+        
     }
+    
+    init();
 
 }]);
 
 //Controller for modal window
-app.controller('openModalCtrl', ['$scope','route',function($scope,route) {
+app.controller('openModalCtrl', ['$scope','route','bookmarks', '$http', '$flavrs',
+    function($scope,route,bookmarks,$http,$flavrs) {
     var self = this;
     
     if(route.initialized){
@@ -121,7 +156,7 @@ app.controller('openModalCtrl', ['$scope','route',function($scope,route) {
             else if(success && self.save_counter == 1){
                 //save was sucessful
                 //add to tab's content
-                 var data =   {
+                var data =   {
                     "card_type": "link",
                     "card_url": "http://mail.google.com",
                     "header": {
@@ -209,11 +244,44 @@ app.controller('openModalCtrl', ['$scope','route',function($scope,route) {
         // Get the content with this id
         
         var content = null;
-        angular.forEach($scope.tab_content,function(value,key){
-           if(value.id == route.args.id){
-               content = value;
-           } 
-        });
+        
+        // check if there is content loaded (from the service)
+        if(bookmarks.content.length > 0){
+        
+            angular.forEach(bookmarks.content,function(value,key){
+               if(value.id == route.args.id){
+                   content = value;
+               } 
+            });
+            
+        }
+        else{
+            // no content is loaded, lets try to get this data from server
+            var data = {
+                id: route.args.id
+            }
+            content = {
+                    "card_type": "link",
+                    "card_url": "http://mail.google.com",
+                    "header": {
+                        "text": "Gmail"
+                    },
+                    "body": {
+                        "img16": "http://www.google.com/s2/favicons?domain=mail.google.com",
+                        "text": "mail.google.com"
+                    },
+                    "footer": {
+                        "options": [
+                            {"name": "Edit","icon":"edit", "link": "details"},
+                            {"name": "Share","icon":"share", "ngclick": "share"}
+                        ]
+                    }
+                }
+            //$http.post('',data)
+                 //.success(function(data,status){
+                     //content = data;
+                 //})
+        }
         
         if(content !== null){
             var model = {
@@ -223,8 +291,8 @@ app.controller('openModalCtrl', ['$scope','route',function($scope,route) {
         }
         else{
             // this should never get here.. as no id is found
-            // the 404 handler should of taken care of this for us.
-            var model = {};
+            $scope.emit('close_modal');
+            return;
         }
     }
     else{ 
