@@ -18,7 +18,6 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     
     $scope.api = '/';
     $scope.ready = false;
-    $scope.logged = false;
     $scope.$storage = $localStorage;
     $scope.selectedTab = 0;
     $scope.broadcast_monitor = {};
@@ -38,7 +37,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     $scope.menu = {
         open: false
     }
-
+    
     //Load module requirements in background
     $scope.load_module = function(module,callback){
         //only try to load the module if it is in the list of approved
@@ -311,7 +310,63 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     });
     
     //Private functions
-        
+    
+    // Check if the user is logged in or not
+    function check_if_logged(){
+        var logged = true,
+            required_localStorage = ['access_token','expires','logged'],
+            check_login = function(){
+                $http.post($scope.api+'controllers/auth/check/',{})
+                     .success(function(data,status){
+                        logged = data.logged;
+                        final_step();
+                      });
+            },
+            final_step = function(){
+                if(!logged){
+                    // not logged in, but lets make sure sessions and storage is clean
+                    // for when the user logs in
+                    required_localStorage.forEach(function(ele){
+                        //delete all localStorage here
+                        delete $localStorage[ele];
+                    });
+                    delete $cookies['sessionid'];
+                    // send user to homepage
+                    //window.location.href = '/';
+                }
+
+                //we are ready to show the page!
+                $scope.ready = true;
+            };
+
+        // Local storage check 
+        required_localStorage.forEach(function(ele){
+            if(!$localStorage[ele]){
+                //no go, user is not logged in
+                logged = false;
+            }
+        });
+
+        if(logged){
+            //All local storage keys are here!
+            //now check if expire date is still in ranged
+            if((new Date().getTime() / 1000) > $localStorage.expires){
+                logged = false;
+            }
+        }
+
+        if(logged){
+            //Client side says the user is logged in, lets confirm with the 
+            //server!
+            check_login();
+        }
+        else{
+            //Not logged in, go to final step for clean up process.
+            final_step();
+        }
+
+    }
+    
     function update_view(){
         //check the rest of the route and determine what controller to load
         var route_arr = $location.path().split('/'),
@@ -477,7 +532,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         
         switch(template){
             case 'base/card.html':
-                template = $scope.api+'static/templates/card.html';
+                template = $scope.api+'static/base/templates/card.html';
             break;
             default:
                 template = $scope.api+'static/'+$scope.module+'/templates/'+template;
@@ -502,7 +557,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     
     //Init functions
     //check if user is logged or not
-    $scope.check_if_logged();
+    check_if_logged();
     //Fix height of tab content to match document size
     //fix_height();
     //Bind this to a scroll event so the height gets fixed whenever the user scrolls
@@ -1261,7 +1316,7 @@ app.controller('searchCtrl',['$scope','$http','$sce','$timeout',
     function init(){
         // each module should allow easy access to each piece of meta information
         // seperately from eachother. 
-        $http.post($scope.api+'static/json/search_engines.json',{})
+        $http.post($scope.api+'static/base/json/search_engines.json',{})
              .success(function(response,status){
                 $scope.search_engines = response.searches;
                 load_search($scope.search_engines,undefined,true);
