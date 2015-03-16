@@ -81,6 +81,8 @@ app.service('$flavrs', function($http,$location){
         version: '0.1'
     };
     
+    self.logged = false;
+    
     self.modules = {
         all: [],
         current: function(){
