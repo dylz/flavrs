@@ -39,7 +39,7 @@ DOMAIN = 'localhost:8000'
 
 # Application definition
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -52,7 +52,14 @@ INSTALLED_APPS = (
     'requests',
     'auth_remember',
     'compressor'
-)
+]
+
+# Dynamically add modules as installed apps
+ignore = ['.git']
+for name in os.listdir(BASE_DIR):
+    if name not in ignore and os.path.isdir(BASE_DIR+'/'+name):
+        # add module to installed apps
+        INSTALLED_APPS.append(name)
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',

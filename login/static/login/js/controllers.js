@@ -20,7 +20,7 @@ app.controller('loginCtrl', ['$scope','$flavrs','$http','$localStorage','$cookie
                 grant_type: grant_type
             };
 
-        $http.post($scope.api+'controllers/base/login/',data)
+        $http.post($scope.api+'controllers/login/auth/',data)
              .success(function(data,status){
                 //Get current seconds, and add the expired time to them
                 var seconds = new Date().getTime() / 1000;
@@ -43,7 +43,7 @@ app.controller('loginCtrl', ['$scope','$flavrs','$http','$localStorage','$cookie
         var logged = true,
             required_localStorage = ['access_token','expires','logged'],
             check_login = function(){
-                $http.post($scope.api+'controllers/base/check_login/',{})
+                $http.post($scope.api+'controllers/login/check/',{})
                      .success(function(data,status){
                         logged = data.logged;
                         final_step();
@@ -98,7 +98,7 @@ app.controller('loginCtrl', ['$scope','$flavrs','$http','$localStorage','$cookie
 
     $scope.logout = function(){
         //log the user out
-        $http.post($scope.api+'controllers/base/logout/',{})
+        $http.post($scope.api+'controllers/login/logout/',{})
              .success(function(data,status){
                 //logged out of back end, lets clear the localStorage
                 //and other cookies
