@@ -3,13 +3,14 @@ from django.conf import settings
 from django.conf.urls import patterns, include, url, static
 from django.contrib import admin
 
-from base.views import generic_view
+from base.views import generic_view, logout_view
 
 admin.autodiscover()
 
 urls = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^oauth2/', include('provider.oauth2.urls', namespace = 'oauth2')),
+    url(r'^logout/$', logout_view, name='logout'),
     url(r'^$', generic_view, {"module":"index"}, name='index')
 ]
 

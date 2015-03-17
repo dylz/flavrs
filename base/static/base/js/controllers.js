@@ -17,7 +17,6 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     $compile) {
     
     $scope.api = '/';
-    $scope.ready = false;
     $scope.$storage = $localStorage;
     $scope.selectedTab = 0;
     $scope.broadcast_monitor = {};
@@ -36,6 +35,13 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     // menu settings
     $scope.menu = {
         open: false
+    }
+    
+    $scope.logout = function(){
+        //log the user out
+        $localStorage.$reset();
+        delete $cookies['remember_token'];
+        window.location.href = $scope.api+'logout/';
     }
     
     //Load module requirements in background
@@ -312,7 +318,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     //Private functions
     
     // Check if the user is logged in or not
-    function check_if_logged(){
+    function check_if_logged_oauth(){
         var logged = true,
             required_localStorage = ['access_token','expires','logged'],
             check_login = function(){
@@ -334,9 +340,6 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                     // send user to homepage
                     //window.location.href = '/';
                 }
-
-                //we are ready to show the page!
-                $scope.ready = true;
             };
 
         // Local storage check 
@@ -556,8 +559,6 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     }
     
     //Init functions
-    //check if user is logged or not
-    check_if_logged();
     //Fix height of tab content to match document size
     //fix_height();
     //Bind this to a scroll event so the height gets fixed whenever the user scrolls
