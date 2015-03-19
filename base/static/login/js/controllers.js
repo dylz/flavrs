@@ -1,12 +1,12 @@
 /*
-    Controllers for the Events module
+    Controller for Logging a user in
 */
 
 app.controller('loginCtrl', ['$scope','$flavrs','$http','$localStorage','$cookies',
     function($scope,$flavrs,$http,$localStorage,$cookies) {
     
     //Attempt to log the user in
-
+    
     $scope.normal_login = function(username,password,remember_me){
         var data = {
                 username: username,
@@ -46,7 +46,7 @@ app.controller('loginCtrl', ['$scope','$flavrs','$http','$localStorage','$cookie
     
     
     function login(data){
-        var promise = $http.post($scope.api+'controllers/login/auth/',data);
+        var promise = $http.post($flavrs.meta.api+'login/',data);
         promise.error(function(data,status){
                 console.log('this is an error')
             

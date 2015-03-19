@@ -65,7 +65,7 @@ class Emailbackend(ModelBackend):
                 % (len(authenticated_users), clean_email))
         return None
 
-class Login(object):
+class Auth(object):
     
     def is_access_token_valid(access_token,user):
         """
@@ -83,7 +83,7 @@ class Login(object):
             else:
                 return False
                 
-    def _check_login(self):
+    def check_login(self):
         """
         Just checking if the user is logged in or not, and gets passed to the
         front end to determine the scope from there.
@@ -94,7 +94,7 @@ class Login(object):
         user = self.request.user
         access_token = self.data.get('access_token',None)
 
-        if user.is_authenticated() and is_access_token_valid(access_token,user):
+        if user.is_authenticated() and self.is_access_token_valid(access_token,user):
             logged = True
 
         self._set_log({
@@ -104,7 +104,7 @@ class Login(object):
             }
         })
 
-    def _login(self):
+    def login(self):
         """
         Attempt to log a user in.
         Currently, Flavrs uses Oauth2 to do this process. The main reason for
@@ -164,7 +164,7 @@ class Login(object):
 
         return response
 
-    def _logout(self):
+    def logout(self):
         """
         Log the user out.
         """

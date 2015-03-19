@@ -24,7 +24,6 @@ app.factory('httpRequestInterceptor', function ($cookies,$localStorage,$q) {
                 }
             }
         }
-
         config.headers['X-CSRFToken'] = $cookies.csrftoken;
         return config;
     },
@@ -55,6 +54,7 @@ app.factory('httpRequestInterceptor', function ($cookies,$localStorage,$q) {
 
 app.config(function ($httpProvider) {
   $httpProvider.interceptors.push('httpRequestInterceptor');
+  $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
 });
 
 app.config(function($locationProvider) {

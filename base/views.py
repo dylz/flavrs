@@ -1,63 +1,53 @@
-import os
-import json
-import importlib
 from django.conf import settings
 from django.http import HttpResponse, Http404, HttpResponseRedirect
-from django.template import RequestContext
-from django.template import Context, loader
 from django.core.context_processors import csrf
-from django.middleware.csrf import get_token
 from django.contrib.auth import logout
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
+from django.views.generic import TemplateView, RedirectView, FormView
+from django.contrib.auth.forms import AuthenticationForm
 
-def generic_view(request,module):
+from base.auth import Auth
+from base.mixins import AjaxResponseMixin
+
+class IndexView(TemplateView):
     
-    """
-    This is just a generic view to load the correct template.
-    Since this project is front-end and JS heavy, most of the logic for
-    retrieving data is commanded there instead of on the back-end.
+    template_name = 'base/landing.html'
     
-    Use the `module` parameter to determine if a specific template needs to be loaded.
-    Otherwise, use the index.html and have the JS take care of the rest.
-    """
-    
-    templates = {
-        'default': 'base/index.html',
-        'index': 'base/index.html',
-        'landing': 'base/landing.html',
-        'login': 'login/index.html'
-    }
-    
-    """
-    If the user is not logged in but is requesting the index page, show the
-    'landing' page (that explains what Flavrs is).
-    We are going to switch the templates before they get rendered as having the
-    front-end do it with via JavaScript is an unnecessary overhead.
-    """
-    authenticated = request.user.is_authenticated()
-    if module == 'index' and not authenticated:
-        # mark 'module' as 'landing' and carry on with the templating logic
-        module = 'landing'
+    def get_template_names(self):
+        # If the user is logged in, change the template to the main
+        # application template and the front end take care of the rest
         
-    # If you are not logged in, then the only pages you can visit are the ones
-    # specified in the templates dict. Otherwise, redirect to homepage.
-    if module not in templates and not authenticated:
-        # module is not in dict, meaning that is an actual module (bookmarks,events, etc)
-        # and the user is not logged in.. make them go away
-        return HttpResponseRedirect(reverse('index'))
-    
-    # get template using the `module` parameter and the templates dictionary
-    # use the 'default' key as the template catch-all
-    template = templates.get(module,templates['default'])
-    
-    t = loader.get_template(template)
-    c = RequestContext(request, {})
-    
-    #Set csrf token
-    get_token(request)
-    
-    return HttpResponse(t.render(c))
+        if self.request.user.is_authenticated():
+            self.template_name = 'base/index.html'
+        
+        return [self.template_name]
+        
+    def get_context_data(self, **kwargs):
+        ctx = super(IndexView,self).get_context_data(**kwargs)
+        ctx.update(csrf(self.request))
+        return ctx
+        
+    def render_to_response(self, context, **response_kwargs):
+        
+        # If the user is not logged in, then we need to make sure they are
+        # on the homepage(index) page.. if they are not, redirect them there
+        request = self.request
+        index_path = reverse_lazy('index')
+        if not request.user.is_authenticated() and request.path != index_path:
+            return HttpResponseRedirect(index_path)
+        
+        return super(IndexView,self).render_to_response(context, **response_kwargs)
 
-def logout_view(request):
-    # simply log the user out using the built-in Django functions
-    logout(request)
+
+class LoginView(AjaxResponseMixin,FormView):
+    template_name = 'login/index.html'
+    form_class = AuthenticationForm
+    
+class LogoutView(RedirectView):
+    url = reverse_lazy('index')
+    permanent = False
+
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        response = super(LogoutView, self).get(request, *args, **kwargs)
+        return response
