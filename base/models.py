@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-from base.manager import BaseModel
+from base.manager import FrontEndModel
 
 class Reference(models.Model):
     """
@@ -15,7 +15,7 @@ class Reference(models.Model):
     def __unicode__(self):
         return self.reference
 
-class Profile(BaseModel):
+class Profile(FrontEndModel):
     """
     Extend the default Django auth model with custom fields.
     

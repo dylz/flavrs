@@ -2,7 +2,7 @@ from django.db import models
 
 from base.utils import generate_reference
 
-class BaseModel(models.Model):
+class FrontEndModel(models.Model):
 	
 	"""
 	System model that contains important fields required for other front-end
