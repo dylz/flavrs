@@ -8,6 +8,13 @@
 <link rel="stylesheet" href="{% static "base/css/style.css" %}" media="all">
 {% endblock %}
 
+{% block js %}
+<script src="{% static "base/js/controllers.js" %}"></script>
+<script src="{% static "bookmarks/js/controllers.js" %}"></script>
+<script src="{% static "events/js/controllers.js" %}"></script>
+<script src="{% static "twitter/js/controllers.js" %}"></script>
+{% endblock %}
+
 {% block content %}
 
 {% verbatim %}
@@ -20,8 +27,8 @@
         </md-button>
         <span class="menu-bar-brand">Flavrs</span>
         <!-- fill up the space between left and right area -->
-        <span flex="15"></span>
-        <span flex="50">
+        <span flex="20"></span>
+        <span flex="45">
             <form ng-controller="searchCtrl" class="search" id="search" method="get" action="{{search.action}}">
                 <md-autocomplete 
                     class="autocomplete"
@@ -39,10 +46,16 @@
                 <input type="hidden" name="{{search.param}}" value="{{search.input}}" >
             </form>
         </span>
-        <span flex="15"></span>
-        <md-button>
-            Right Bar Button
-        </md-button>
+        <span flex="20"></span>
+        <md-container ng-show="user" class="user">
+            <img ng-src="{{user.image}}?s=40">
+            <md-button>
+                {{ user.first_name }} {{ user.last_name }}
+            </md-button>
+            <a href="/logout/" ng-click="logout()">
+                <i class="fa fa-sign-out"></i>
+            </a>
+        </md-container>
     </div>
 </md-toolbar>
 <!-- Menu Bar : End -->

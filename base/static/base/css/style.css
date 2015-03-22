@@ -448,3 +448,9 @@ body .command-bar {
   background-color: #ddd;
   border: none;
 }
+
+/* User (top right in nav) */
+
+.user > img {
+  border-radius: 50%;
+}

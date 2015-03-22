@@ -5,14 +5,15 @@ var app = angular.module('flavrs', ['ngRoute','ngCookies','ngStorage',
     'ngSanitize','ngAnimate','ngMaterial','schemaForm','ui.bootstrap','ui.sortable']);
 
 //factory
-app.factory('httpRequestInterceptor', function ($cookies,$localStorage,$q) {
+app.factory('httpRequestInterceptor', function ($cookies,$localStorage,$q,$location) {
   return {
     request: function(config) {
+        /* OAUTH BEGINS */
         //check expire date if valid, append access token to request.
         //if invalid, send a "reauthenticate" signal
 
         //if requested url is to login, ignore this process
-        if(config.hasOwnProperty('data')){
+        /*if(config.hasOwnProperty('data')){
             if (config.url != '/controllers/base/login/'){
                 if ((new Date().getTime() / 1000) > $localStorage.expires){
                     //emit signal to reauthenticate
@@ -23,29 +24,48 @@ app.factory('httpRequestInterceptor', function ($cookies,$localStorage,$q) {
                     config.data.access_token = $localStorage.access_token;
                 }
             }
+        }*/
+        /* OAUTH ENDS */
+        // The server accepts Ajax posts the same way normal posts are done
+        // Using the JQuery param function, we can achieve the same data structure
+        
+        if(config.hasOwnProperty('data')){
+            config.data = $.param(config.data);
         }
+        
+        config.headers['Content-Type'] = 'application/x-www-form-urlencoded';
         config.headers['X-CSRFToken'] = $cookies.csrftoken;
         return config;
     },
     response: function(response){
-        //intercept the response object and rearrange the data
-        //so the app can use the data better
-
-        //generally, this is where we will do the msg handling to the user.
-        //since all requests should have this, we can handle it here, and just
-        //rearrange the data object to remove redundent code
-
-        //msg handling here...
         
-        //Lets handle 'error's
+        // trigger optional keys options
+        if(response.data.hasOwnProperty('_redirect_url')){
+            // redirect url
+            window.location.href = response.data._redirect_url;
+        }
         
-        if(response.data.status == 'error'){
-            //return $q.reject(response);
+        if(response.data.hasOwnProperty('_change_url')){
+            // change url
+            $location.path(response.data._change_url);
         }
-        if(response.data.hasOwnProperty('response')){
-            response.data = response.data.response;
+        console.log(response)
+        return response || $q.when(response);
+    },
+    responseError: function(rejection){
+        // Handle 500 server errors differently...
+        console.log(rejection)
+        if(rejection.status == 500){
+            
+        } 
+        else if(rejection.hasOwnProperty('data') && rejection.data.hasOwnProperty('syserr')){
+            // if 'syserr' in a key in the data, then this is a system error
+            // handle it differently (how?)
+            
         }
-        return response;
+        else{
+            return $q.reject(rejection);
+        }
     }
   };
 });
@@ -80,6 +100,8 @@ app.service('$flavrs', function($http,$location){
         api: '/',
         version: '0.1'
     };
+    
+    self.user = undefined;
     
     self.modules = {
         all: [],

@@ -1,58 +1,56 @@
-{
-    "response":[
-        {
-            "id": "dmqihd8qd",
-            "card_type": "link",
-            "card_url": "http://mail.google.com",
-            "header": {
-                "text": "Gmail"
-            },
-            "body": {
-                "img16": "http://www.google.com/s2/favicons?domain=mail.google.com",
-                "text": "mail.google.com"
-            },
-            "footer": {
-                "options": [
-                    {"name": "Edit","icon":"edit", "route":"edit"},
-                    {"name": "Share","icon":"share", "route": "share"}
-                ]
-            }
+[
+    {
+        "id": "dmqihd8qd",
+        "card_type": "link",
+        "card_url": "http://mail.google.com",
+        "header": {
+            "text": "Gmail"
         },
-        {
-            "id": "mlqduadll",
-            "card_type": "link",
-            "card_url": "http://reddit.com",
-            "header": {
-                "text": "Reddit"
-            },
-            "body": {
-                "img16": "http://www.google.com/s2/favicons?domain=reddit.com",
-                "text": "reddit.com"
-            },
-            "footer": {
-                "options": [
-                    {"name": "Edit","icon":"edit", "route":"edit"},
-                    {"name": "Share","icon":"share", "route": "share"}
-                ]
-            }
+        "body": {
+            "img16": "http://www.google.com/s2/favicons?domain=mail.google.com",
+            "text": "mail.google.com"
         },
-        {
-            "id": "123dj2",
-            "card_type": "link",
-            "card_url": "http://twitch.tv/directory/game/Hearthstone%3A Heroes of Warcraft",
-            "header": {
-                "text": "Twitch.tv - Hearthstone"
-            },
-            "body": {
-                "img16": "http://www.google.com/s2/favicons?domain=twitch.tv",
-                "text": "twitch.tv"
-            },
-            "footer": {
-                "options": [
-                    {"name": "Edit","icon":"edit", "route":"edit"},
-                    {"name": "Share","icon":"share", "route": "share"}
-                ]
-            }
+        "footer": {
+            "options": [
+                {"name": "Edit","icon":"edit", "route":"edit"},
+                {"name": "Share","icon":"share", "route": "share"}
+            ]
         }
-    ]
-}
+    },
+    {
+        "id": "mlqduadll",
+        "card_type": "link",
+        "card_url": "http://reddit.com",
+        "header": {
+            "text": "Reddit"
+        },
+        "body": {
+            "img16": "http://www.google.com/s2/favicons?domain=reddit.com",
+            "text": "reddit.com"
+        },
+        "footer": {
+            "options": [
+                {"name": "Edit","icon":"edit", "route":"edit"},
+                {"name": "Share","icon":"share", "route": "share"}
+            ]
+        }
+    },
+    {
+        "id": "123dj2",
+        "card_type": "link",
+        "card_url": "http://twitch.tv/directory/game/Hearthstone%3A Heroes of Warcraft",
+        "header": {
+            "text": "Twitch.tv - Hearthstone"
+        },
+        "body": {
+            "img16": "http://www.google.com/s2/favicons?domain=twitch.tv",
+            "text": "twitch.tv"
+        },
+        "footer": {
+            "options": [
+                {"name": "Edit","icon":"edit", "route":"edit"},
+                {"name": "Share","icon":"share", "route": "share"}
+            ]
+        }
+    }
+]

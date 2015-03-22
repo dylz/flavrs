@@ -1,60 +1,58 @@
 {
-    "response":{
-        "meta": {
-            "name": "Bookmarks",
-            "code": "bookmarks",
-            "version": "0.1",
-            "colour": "#0f6",
-            "root": "/"
+    "meta": {
+        "name": "Bookmarks",
+        "code": "bookmarks",
+        "version": "0.1",
+        "colour": "#0f6",
+        "root": "/"
+    },
+    "tabs": [
+        { "title": "Turtle", "editable": true, "id": "9f0wfjw732"},
+        { "title": "Cat", "editable": true, "id": "kndwfn38210"},
+        { "title": "Dog", "editable": true, "id": "1mf89qbqd"},
+        { "title": "Monkey", "editable": true, "id": "0ihmhduqid"}
+    ],
+    "actions": [
+        { "name": "Add Bookmark", "icon": "bookmark", "colour": "lightblue", "route": "add" },
+        { "name": "Do Things", "icon": "remove", "colour": "lightblue", "route": "add" },
+        { "name": "Make Things!", "icon": "plane", "colour": "lightblue", "route": "add" }
+    ],
+    "routes": [
+        {"name": "index", "route": "", "controller": "bookmarksCtrl",
+            "template": "base/card.html"
         },
-        "tabs": [
-            { "title": "Turtle", "editable": true, "id": "9f0wfjw732"},
-            { "title": "Cat", "editable": true, "id": "kndwfn38210"},
-            { "title": "Dog", "editable": true, "id": "1mf89qbqd"},
-            { "title": "Monkey", "editable": true, "id": "0ihmhduqid"}
-        ],
-        "actions": [
-            { "name": "Add Bookmark", "icon": "bookmark", "colour": "lightblue", "route": "add" },
-            { "name": "Do Things", "icon": "remove", "colour": "lightblue", "route": "add" },
-            { "name": "Make Things!", "icon": "plane", "colour": "lightblue", "route": "add" }
-        ],
-        "routes": [
-            {"name": "index", "route": "", "controller": "bookmarksCtrl",
-                "template": "base/card.html"
-            },
-            {"name":"tab","route":"tab/:id","controller":"bookmarksCtrl"},
-            {"name": "add","route": "add/", "controller": "openModalCtrl"},
-            {"name": "edit","route": "edit/:id/","controller": "openModalCtrl"},
-            {"name": "search","route": "search/", "controller": "openModalCtrl"}
-        ],
-        "commands": [
-            {
-                "syntax": "add",
-                "options": [
-                    {"option": "u", "key": "url", "position":2, "required": true},
-                    {"option": "n", "key": "name", "position":1, "required": true},
-                    {"option": "d", "key": "nocommit", "flag": true}
-                ]
-            },
-            {
-                "syntax": "edit", 
-                "options": [
-                    {"option": "i", "key": "id", "position": 2},
-                    {"option": "n", "key": "name", "position":1}
-                ]
-            }
-        ],
-        "searches": [
-            {
-                "name": "My Bookmarks",
-                "shortcut": "bm",
-                "route": "search"
-            },
-            {
-                "name": "Google",
-                "shortcut": "gg",
-                "url": "https://google.ca/search?q=:q"
-            }
-        ]
-    }
+        {"name":"tab","route":"tab/:id","controller":"bookmarksCtrl"},
+        {"name": "add","route": "add/", "controller": "openModalCtrl"},
+        {"name": "edit","route": "edit/:id/","controller": "openModalCtrl"},
+        {"name": "search","route": "search/", "controller": "openModalCtrl"}
+    ],
+    "commands": [
+        {
+            "syntax": "add",
+            "options": [
+                {"option": "u", "key": "url", "position":2, "required": true},
+                {"option": "n", "key": "name", "position":1, "required": true},
+                {"option": "d", "key": "nocommit", "flag": true}
+            ]
+        },
+        {
+            "syntax": "edit", 
+            "options": [
+                {"option": "i", "key": "id", "position": 2},
+                {"option": "n", "key": "name", "position":1}
+            ]
+        }
+    ],
+    "searches": [
+        {
+            "name": "My Bookmarks",
+            "shortcut": "bm",
+            "route": "search"
+        },
+        {
+            "name": "Google",
+            "shortcut": "gg",
+            "url": "https://google.ca/search?q=:q"
+        }
+    ]
 }

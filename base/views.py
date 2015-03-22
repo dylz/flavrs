@@ -4,10 +4,12 @@ from django.core.context_processors import csrf
 from django.contrib.auth import logout
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.views.generic import TemplateView, RedirectView, FormView
+from django.contrib.auth import login
 from django.contrib.auth.forms import AuthenticationForm
 
+from base.utils import generate_hash
 from base.auth import Auth
-from base.mixins import AjaxResponseMixin
+from base.mixins import AjaxResponseMixin, SystemView
 
 class IndexView(TemplateView):
     
@@ -42,6 +44,18 @@ class IndexView(TemplateView):
 class LoginView(AjaxResponseMixin,FormView):
     template_name = 'login/index.html'
     form_class = AuthenticationForm
+    #success_url = reverse_lazy('index') # production url
+    success_url = reverse_lazy('bookmarks') # test with bookmarks url
+    
+    def form_valid(self, form):
+        # log the user in
+        login(self.request,form.get_user())
+        return super(LoginView,self).form_valid(form)
+    
+    def get_json_data(self):
+        return {
+            '_redirect_url': unicode(self.success_url)
+        }
     
 class LogoutView(RedirectView):
     url = reverse_lazy('index')
@@ -51,3 +65,23 @@ class LogoutView(RedirectView):
         logout(request)
         response = super(LogoutView, self).get(request, *args, **kwargs)
         return response
+        
+class CurrentUserView(SystemView):
+    
+    def get_json_data(self):
+        # Get the current user's information
+        user = self.request.user
+        
+        if user.is_authenticated():
+            # only return the min about of data - no not expose too much
+            # user info for privacy reasons
+            return {
+                'id': user.profile.reference,
+                'image': 'http://www.gravatar.com/avatar/%s' % generate_hash(user.email),
+                'first_name': user.first_name,
+                'last_name': user.last_name
+            }
+        else:
+            # No user logged in - this is bad as this request should only
+            # happen when a user is logged in
+            return {'syserr': 'User is not logged in'}

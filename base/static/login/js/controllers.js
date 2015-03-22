@@ -5,19 +5,19 @@
 app.controller('loginCtrl', ['$scope','$flavrs','$http','$localStorage','$cookies',
     function($scope,$flavrs,$http,$localStorage,$cookies) {
     
+    $scope.error = false;
+    $scope.logging = false;
+    
     //Attempt to log the user in
     
     $scope.normal_login = function(username,password,remember_me){
+        $scope.logging = true;
         var data = {
                 username: username,
                 password: password,
                 remember_me: remember_me
             },
             promise = login(data);
-        
-        promise.success(function(){
-            
-        });
     }
 
     $scope.oauth_login = function(username,password,remember_me){
@@ -48,8 +48,8 @@ app.controller('loginCtrl', ['$scope','$flavrs','$http','$localStorage','$cookie
     function login(data){
         var promise = $http.post($flavrs.meta.api+'login/',data);
         promise.error(function(data,status){
-                console.log('this is an error')
-            
+            $scope.error = data;
+            $scope.logging = false; 
         });
         
         return promise;

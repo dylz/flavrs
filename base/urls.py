@@ -3,7 +3,7 @@ from django.conf import settings
 from django.conf.urls import patterns, include, url, static
 from django.contrib import admin
 
-from base.views import IndexView, LoginView, LogoutView
+from base.views import IndexView, LoginView, LogoutView, CurrentUserView
 
 admin.autodiscover()
 
@@ -14,9 +14,9 @@ urls = [
     url(r'^login/$', LoginView.as_view(), name='login'),
     url(r'^$', IndexView.as_view(), name='index'),
     
-    url(r'^login/', include([
-            
-        ], namespace='login')
+    url(r'^auth/', include([
+            url(r'^current_user/$', CurrentUserView.as_view(), name='current_user'),
+        ], namespace='auth')
     )
 ]
 

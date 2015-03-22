@@ -289,11 +289,13 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
 
         //only init the controller if it is there and not loaded yet
         if((foundit) && (different)){
-            $flavrs.modules.initialize($scope.module).then(function(){
-                $scope = $flavrs.modules.update_scope($scope);
-                update_view();
+            // make sure that the user info is loaded before loading the module
+            get_user_info().then(function(){
+                $flavrs.modules.initialize($scope.module).then(function(){
+                    $scope = $flavrs.modules.update_scope($scope);
+                    update_view();
+                });
             });
-            
         }
         else{
             //module is the same but the route is different.
@@ -316,6 +318,28 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     });
     
     //Private functions
+    
+    function get_user_info(){
+        // get current logged in user's information for API and display purposes
+        var promise = $http.post($scope.api+'auth/current_user/',{});
+        
+        promise.success(function(data,status){
+            // the main controller gets access to all returned user data
+            // but the actual $flavrs service only gets the id.
+            // this means that other modules can only use the id as well.
+            $scope.user = data;
+            $flavrs.user = data.id;
+        });
+        
+        promise.error(function(data,status){
+           // error most likely means that this function was called without
+           // the user actually being logged in.. redirect to index and hopefully
+           // the backend will take care of the rest.
+           //window.location.href = '/';
+        });
+        
+        return promise;
+    }
     
     // Check if the user is logged in or not
     function check_if_logged_oauth(){
