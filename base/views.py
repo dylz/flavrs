@@ -3,13 +3,17 @@ from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.core.context_processors import csrf
 from django.contrib.auth import logout
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.views.generic import TemplateView, RedirectView, FormView
+from django.views.generic import TemplateView, RedirectView, FormView, View
+from django.views.generic.edit import FormMixin
 from django.contrib.auth import login
 from django.contrib.auth.forms import AuthenticationForm
 
 from base.utils import generate_hash
-from base.auth import Auth
 from base.mixins import AjaxResponseMixin, SystemView
+
+class AjaxView(View,FormMixin,AjaxResponseMixin):
+    # Shortcut for views with forms without needing a template
+    pass
 
 class IndexView(TemplateView):
     

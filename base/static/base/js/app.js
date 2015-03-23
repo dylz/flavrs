@@ -1,7 +1,9 @@
 'use strict';
 
+var flavrs_modules = {},
+
 // APP is defined!
-var app = angular.module('flavrs', ['ngRoute','ngCookies','ngStorage',
+    app = angular.module('flavrs', ['ngRoute','ngCookies','ngStorage',
     'ngSanitize','ngAnimate','ngMaterial','schemaForm','ui.bootstrap','ui.sortable']);
 
 //factory
@@ -49,12 +51,12 @@ app.factory('httpRequestInterceptor', function ($cookies,$localStorage,$q,$locat
             // change url
             $location.path(response.data._change_url);
         }
-        console.log(response)
+        
         return response || $q.when(response);
     },
     responseError: function(rejection){
         // Handle 500 server errors differently...
-        console.log(rejection)
+        
         if(rejection.status == 500){
             
         } 
@@ -149,15 +151,19 @@ app.service('$flavrs', function($http,$location){
             
         },
         initialize: function(name){
-            var promise = $http.post(self.meta.api+'static/'+name+'/json/main.json',{}),
-                modules = this;
+            var modules = this,
+                data = flavrs_modules[name];
+            
+            var promise = $http.post(self.meta.api+data.meta.initialize_url,{});
             
             promise.success(function(response,status){
                 // add urls to tabs object
                 angular.forEach(response.tabs,function(value,key){
                     value.url = self.routes.get('tab',{'id':value.id},name,response.routes);
                 });
-                modules.add(response);
+                // add tabs to data
+                data.tabs = response.tabs;
+                modules.add(data);
             });
             
             return promise;
