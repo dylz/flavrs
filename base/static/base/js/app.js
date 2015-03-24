@@ -152,17 +152,18 @@ app.service('$flavrs', function($http,$location){
         },
         initialize: function(name){
             var modules = this,
-                data = flavrs_modules[name];
+                data = flavrs_modules[name],
+                url = self.meta.api+name+'/'+data.meta.initialize_url
             
-            var promise = $http.post(self.meta.api+data.meta.initialize_url,{});
+            var promise = $http.post(url,{});
             
             promise.success(function(response,status){
                 // add urls to tabs object
-                angular.forEach(response.tabs,function(value,key){
-                    value.url = self.routes.get('tab',{'id':value.id},name,response.routes);
+                angular.forEach(response.sidenav,function(value,key){
+                    value.url = self.routes.get('sidenav',{'id':value.id},name,data.routes);
                 });
                 // add tabs to data
-                data.tabs = response.tabs;
+                data.sidenav = response.sidenav;
                 modules.add(data);
             });
             
@@ -180,7 +181,7 @@ app.service('$flavrs', function($http,$location){
             scope.actions = current.actions;
             scope.routes = current.routes;
             scope.commands = current.commands;
-            scope.tabs = current.tabs;
+            scope.sidenav = current.sidenav;
             
             return scope;
         },
@@ -247,6 +248,14 @@ app.service('$flavrs', function($http,$location){
                 return false;
             }
         }
-    }
+    };
+    
+    self.sidenav = {
+        
+    };
+    
+    self.modal = {
+        
+    };
     
 });

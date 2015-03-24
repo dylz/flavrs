@@ -9,11 +9,28 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import AuthenticationForm
 
 from base.utils import generate_hash
-from base.mixins import AjaxResponseMixin, SystemView
+from base.mixins import AjaxResponseMixin, CustomViewMethodsMixin
 
 class AjaxView(View,FormMixin,AjaxResponseMixin):
     # Shortcut for views with forms without needing a template
     pass
+
+class SystemView(View,CustomViewMethodsMixin):
+    """
+    No form or user input required therefore we can get away with
+    the most simple view Django offers.
+    
+    No Ajax request with that required user input should use this view, it is
+    mostly used for system checks.
+    """
+    
+    def post(self, request, *args, **kwargs):
+        if request.is_ajax():
+            return self.json_response()
+        else:
+            return HttpResponseBadRequest()
+
+# Actual views
 
 class IndexView(TemplateView):
     
@@ -76,16 +93,11 @@ class CurrentUserView(SystemView):
         # Get the current user's information
         user = self.request.user
         
-        if user.is_authenticated():
-            # only return the min about of data - no not expose too much
-            # user info for privacy reasons
-            return {
-                'id': user.profile.reference,
-                'image': 'http://www.gravatar.com/avatar/%s' % generate_hash(user.email),
-                'first_name': user.first_name,
-                'last_name': user.last_name
-            }
-        else:
-            # No user logged in - this is bad as this request should only
-            # happen when a user is logged in
-            return {'syserr': 'User is not logged in'}
+        # only return the min about of data - no not expose too much
+        # user info for privacy reasons
+        return {
+            'id': user.profile.reference,
+            'image': 'http://www.gravatar.com/avatar/%s' % generate_hash(user.email),
+            'first_name': user.first_name,
+            'last_name': user.last_name
+        }

@@ -6,7 +6,7 @@
         "colour": "#0f6",
         "root": "/"
     },
-    "tabs": [
+    "sidenav": [
         { "title": "Turtle", "editable": true, "id": "9f0wfjw732"},
         { "title": "Cat", "editable": true, "id": "kndwfn38210"},
         { "title": "Dog", "editable": true, "id": "1mf89qbqd"},

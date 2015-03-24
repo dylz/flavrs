@@ -5,6 +5,7 @@ from base.manager import FrontEndModel
 
 class Tab(FrontEndModel):
     name = models.CharField(max_length=255,unique=True)
+    user = models.ForeignKey(User, related_name='user_to_bookmarks_tabs')
     
     @property
     def links(self):
@@ -20,8 +21,3 @@ class Link(FrontEndModel):
     
     def __unicode__(self):
         return self.url
-    
-
-class UserToLink(models.Model):
-    user = models.OneToOneField(User, related_name='bookmarks')
-    tabs = models.ManyToManyField(Tab)

@@ -19,9 +19,17 @@ class CustomViewMethodsMixin(object):
         return {}
     
     def json_response(self,data=None,force_error=False):
-        # You can pass your own data
-        if not data:
-            data = self.get_json_data()
+        
+        # User should be authenticated
+        if self.request.user.is_authenticated():
+            # You can pass your own data
+            if not data:
+                data = self.get_json_data()
+        else:
+            # No user logged in - this is bad as this request should only
+            # happen when a user is logged in
+            return {'syserr': 'User is not logged in'}
+            
         # if 'syserr' is in data, then something went, return a 400 with the
         # error message
         if 'syserr' in data or force_error:
@@ -51,21 +59,4 @@ class AjaxResponseMixin(CustomViewMethodsMixin):
             return self.json_response()
         else:
             return response
-            
-    
-        
-class SystemView(View,CustomViewMethodsMixin):
-    """
-    No form or user input required therefore we can get away with
-    the most simple view Django offers.
-    
-    No Ajax request with that required user input should use this view, it is
-    mostly used for system checks.
-    """
-    
-    def post(self, request, *args, **kwargs):
-        if request.is_ajax():
-            return self.json_response()
-        else:
-            return HttpResponseBadRequest()
             

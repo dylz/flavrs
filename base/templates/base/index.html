@@ -75,15 +75,15 @@
     </md-toolbar>
     <md-content>
         <md-list>
-            <md-item ng-repeat="tab in tabs">
+            <md-item ng-repeat="nav in sidenav">
                 <md-item-content>
-                    <a href="{{tab.url}}" class="md-tile-content link"
-                        ng-if="active_tab.id!=tab.id">
-                        {{tab.title}}
+                    <a href="{{nav.url}}" class="md-tile-content link"
+                        ng-if="active_nav.id!=nav.id">
+                        {{nav.title}}
                     </a>
                     <div class="md-tile-content selected"
-                        ng-if="active_tab.id==tab.id">
-                        {{tab.title}}
+                        ng-if="active_nav.id==nav.id">
+                        {{nav.title}}
                     </div>
                 </md-item-content>
                 <md-divider ng-if="!$last"></md-divider>

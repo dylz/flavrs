@@ -9,7 +9,11 @@ flavrs_modules.bookmarks = {
         "version": "0.1",
         "colour": "#0f6",
         "root": "/",
-        'initialize_url': 'static/bookmarks/json/main.json'
+        'initialize_url': 'initialize/',
+        'glossary': {
+            'sidenav': 'Tab',
+            'sidenav_plural': 'Tabs'
+        }
     },
     "actions": [
         { "name": "Add Bookmark", "icon": "bookmark", "colour": "lightblue", "route": "add" },
@@ -20,7 +24,9 @@ flavrs_modules.bookmarks = {
         {"name": "index", "route": "", "controller": "bookmarksCtrl",
             "template": "base/card.html"
         },
-        {"name":"tab","route":"tab/:id","controller":"bookmarksCtrl"},
+        {"name":"sidenav","route":"tab/:id/","controller":"bookmarksCtrl"},
+        {"name":"sidenav_add","route":"tab/add/","controller":"bookmarksCtrl"},
+        {"name":"sidenav_edit","route":"tab/edit/","controller":"bookmarksCtrl"},
         {"name": "add","route": "add/", "controller": "openModalCtrl"},
         {"name": "edit","route": "edit/:id/","controller": "openModalCtrl"},
         {"name": "search","route": "search/", "controller": "openModalCtrl"}
@@ -113,20 +119,20 @@ app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'book
     
     function init(){
         var route = $flavrs.routes.current,
-            tabs = $flavrs.modules.current().tabs,
+            sidenav = $flavrs.modules.current().sidenav,
             id = null;
         
         switch(route.name){
             case 'index':
-                // "home" of bookmarks, for now just load the first tabs
+                // "home" of bookmarks, for now just load the first sidenav
                 // content until all logistics get figured out
-                if(tabs.length > 0){
-                    id = tabs[0].id;
+                if(sidenav.length > 0){
+                    id = sidenav[0].id;
                 }
             break;
-            case 'tab':
+            case 'sidenav':
                 // check if id is valid
-                if($flavrs.validators.is_valid('id',route.args.id,tabs)){
+                if($flavrs.validators.is_valid('id',route.args.id,sidenav)){
                     id = route.args.id;
                 }
             break;
@@ -136,10 +142,13 @@ app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'book
             // id is valid, load the content for it
             get_content(id);    
         }
+        else if(sidenav.length == 0){
+            // no sidenavs, what should we show the user?
+        }
         else{
             // id was not valid, send user to "home"
             // this really should not happen if the user is navigating properly
-            window.location.href = $flavrs.routes.get("home");
+            //window.location.href = $flavrs.routes.get("home");
         }
         
     }

@@ -68,7 +68,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     $scope.register_init = function(response){
         
         //add any special routes (ie. tabs)
-        response.routes.push({"name":"tab","route":"tab/:id","controller":"contentCtrl"});
+        response.routes.push({"name":"sidenav","route":"tab/:id","controller":"contentCtrl"});
         
         $scope.meta = response.meta;
         $scope.actions = response.actions;
@@ -77,7 +77,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         
         // add urls to tabs object
         angular.forEach(response.tabs,function(value,key){
-            value.url = $scope.get_route('tab',{'id':value.id});
+            value.url = $scope.get_route('sidenav',{'id':value.id});
         });
         
         $scope.tabs = response.tabs;
@@ -693,7 +693,7 @@ app.controller('contentCtrl',['$scope','$location','$http','$localStorage','rout
                 // this should not happen often, but when it does we want
                 // to do a hard reload on the home to ensure all routing logic
                 // is rendered successfully
-                window.location.href = $scope.get_route("home");
+                //window.location.href = $scope.get_route("home");
             }
             
             // define the active tab's id for UI purposes
