@@ -25,7 +25,7 @@ flavrs_modules.bookmarks = {
             "template": "base/card.html"
         },
         {"name":"sidenav","route":"tab/:id/","controller":"bookmarksCtrl"},
-        {"name":"sidenav_add","route":"tab/add/","controller":"bookmarksCtrl"},
+        {"name":"sidenav_add","route":"tab/add/","controller":"tabCtrl","view":"modal"},
         {"name":"sidenav_edit","route":"tab/edit/","controller":"bookmarksCtrl"},
         {"name": "add","route": "add/", "controller": "openModalCtrl"},
         {"name": "edit","route": "edit/:id/","controller": "openModalCtrl"},
@@ -356,4 +356,57 @@ app.controller('openModalCtrl', ['$scope','route','bookmarks', '$http', '$flavrs
     }
     
     $scope.form.model = model;
+}]);
+
+//Tab management controller
+app.controller('tabCtrl', ['$scope','$flavrs', function($scope,$flavrs){
+    
+    var route = $flavrs.routes.current;
+    
+    switch(route.name){
+        case 'sidenav_add':
+            var model = {};
+        break;
+        case 'sidenav_edit':
+            var tabs = $flavrs.modules.current().sidenav,
+                tab = null;
+            // deepcopy - keep original data intacked
+            $scope.sidenav_copy = angular.copy(tabs);
+            var item = $flavrs.sidenav.get_by_id(route.args.id);
+            if(item){
+                var model = {title: item.title};
+            }
+            else{
+                // invalid tab to edit
+            }
+        break;
+    }
+    
+    $scope.actions = [
+        {
+            name: 'Save', 
+            colour: 'md-primary',
+            click: function(){
+                console.log($scope.form.model)
+            }
+        },
+    ];
+    
+    $scope.modal = {
+        title: "Manage Tabs",
+        form: {
+            header: "Add Tab",
+        }
+    }
+    
+    $scope.form = {
+        fields: [
+            {
+                type: 'text',
+                title: 'Title',
+                name: 'title'
+            }
+        ],
+        model: {}
+    };
 }]);

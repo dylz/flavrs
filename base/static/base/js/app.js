@@ -105,6 +105,8 @@ app.service('$flavrs', function($http,$location){
     
     self.user = undefined;
     
+    self.scope = undefined;
+    
     self.modules = {
         all: [],
         current: function(){
@@ -171,17 +173,18 @@ app.service('$flavrs', function($http,$location){
             
         },
         update_scope: function(scope){
-            // dep
-            // to save time and not having to redo a lot of code right now,
-            // this function updates the scope with the init values
-            // remove this later as the controller using this function shouldn't
-            // need it anymore.
+            
+            // update the scope of the main controller with the new data
+            // this is important to as some of the data bound to the controllers
+            // scope is used for displaying information to the user.
+            
             var current = this.current();
             scope.meta = current.meta;
             scope.actions = current.actions;
             scope.routes = current.routes;
             scope.commands = current.commands;
             scope.sidenav = current.sidenav;
+            scope.sidenav_title = current.meta.glossary.sidenav_plural;
             
             return scope;
         },
@@ -251,11 +254,23 @@ app.service('$flavrs', function($http,$location){
     };
     
     self.sidenav = {
-        
+        get_by_id: function(id,items){
+            if(!angular.isDefined(items)){
+                items = self.modules.current().sidenav;
+            }
+            
+            var item = null;
+            angular.forEach(function(value,key){
+                if(value.id == id){
+                    item = value;
+                }
+            });
+            
+            return item;
+        }
     };
     
     self.modal = {
-        
-    };
-    
+        instance: undefined
+    }
 });

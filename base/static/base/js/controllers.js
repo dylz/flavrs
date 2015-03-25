@@ -103,7 +103,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     }
 
     $scope.location = function(route,params,args){
-        
+        console.log(route)
         // params is optional, if not defined, set a default
         if(!angular.isDefined(params)){
             params = {};
@@ -183,6 +183,13 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                 $scope.location('/');
             }
         });
+        
+        $flavrs.modal.instance = $scope.modalInstance;
+        
+    }
+    
+    $scope.close_modal = function(){
+        $scope.modalInstance.dismiss('cancel');
     }
     
     //generic edit - open modal and pass content. let the modules' controller
@@ -201,7 +208,6 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     $scope.validate_modal = function(form,callback){
         $scope.$broadcast(callback,form.hasClass('ng-valid'));
     }
-    
     
     //listen to validate the form on request
     $scope.$on('validate_modal_form', function(event, callback) {
@@ -506,24 +512,27 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                                 
                                 
                                 listener(); //this kills the watchGroup
-                                load_controller(value.controller,locals,value.template);
+                                load_controller(value,locals);
                             }
                         });
                     }
                     else{
-                        load_controller(value.controller,locals,value.template);
+                        load_controller(value,locals);
                     }
                 }
             }
         });
     }
     
-    function load_controller(ctrl,locals,template){
+    function load_controller(route_obj,locals){
         // locals is dep to prevent random locals being injected into a controller
         
         // add the locals object to the flavrs service to name space data properly
         // reorganize the object before setting it
         var route = {},
+            ctrl = route_obj.controller,
+            template = route_obj.template,
+            view = route_obj.view,
             load = function(){
                 $flavrs.routes.previous = angular.copy($flavrs.routes.current);
                 $flavrs.routes.current = route;
@@ -541,17 +550,26 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             }
         });
         
-        if(!angular.isDefined(template)){
-            template = 'base/card.html';
+        // check the view - it can have specific actions
+        switch(view){
+            
+            case 'modal':
+                // open up a modal window and bind the given controller
+                $scope.open_modal(ctrl);
+            break;
+            default: 
+                if(!angular.isDefined(template)){
+                    template = 'base/card.html';
+                }
+                
+                $http.get(check_template(template),{cache: true})
+                     .then(function(response){
+                        var ele = angular.element('#tab-content');
+                        ele.html(response.data);
+                        $compile(ele)($scope);
+                        load();
+                     });
         }
-        
-        $http.get(check_template(template),{cache: true})
-             .then(function(response){
-                var ele = angular.element('#tab-content');
-                ele.html(response.data);
-                $compile(ele)($scope);
-                load();
-             });
     }
     
     function check_template(template){
@@ -618,6 +636,8 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         });
     },1000*60);
     
+    
+    $flavrs.scope = $scope;
 }]);
 
 app.controller('contentCtrl',['$scope','$location','$http','$localStorage','route',
@@ -992,167 +1012,6 @@ app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
             //$scope.triggerTypeahead(name);
         }
     });
-}]);
-
-//Tab management controller
-app.controller('tabCtrl', ['$scope','$flavrs', function($scope,$flavrs){
-    
-    $scope.status = "create";
-
-    //we are going to create a deepcopy of the tabs so we can mess with them
-    //as much as possible without effecting the front end and the "true" copy
-    //of what the user sees
-    
-    $scope.tabs_copy = angular.copy($scope.tabs);
-    $scope.buttons = [
-        {'name': 'Save', 'colour': 'md-primary','ngclick': 'save'},
-        {'name': 'Save & Close', 'colour': 'md-accent','ngclick': 'saveClose'},
-        {'name': 'Cancel', 'colour': 'md-warn','ngclick': 'close'}
-    ];
-                
-    var body = '<md-content class="tab-modal-form">' +
-                '<md-list as-sortable="sortableTabs" ng-model="tabs_copy">' +
-                    '<div ng-repeat="tab in tabs_copy" as-sortable-item>' +
-                        '<md-item ng-click="edit_tab(tab)">' +
-                            '<md-item-content as-sortable-item-handle>' +
-                                '<div class="md-tile-content">' +
-                                    '{{tab.title}}' +
-                                '</div>' +
-                            '</md-item-content>' +
-                            '<md-divider ng-if="!$last"></md-divider>' +
-                        '</md-item>' +
-                    '</div>' +
-                '</md-list>' +
-            '</md-content>';
-    
-    $scope.modal = {
-        "class": "tab-management",
-        title: "Manage Tabs",
-        body: body,
-        form: {
-            header: "Add Tab",
-            "class": "col-md-6",
-        }
-    }
-    
-     $scope.schema = {
-        "type": "object",
-        "properties": {
-            "title": {
-                "type": "string",
-                "title": "Title",
-                "description": "",
-                "required": true
-            }
-        },
-        "required": ["title"]
-    };
-    $scope.form = [
-            "*",
-            {
-                title:'cancel',
-                type:'button',
-                onClick: function(modelValue,form){
-                    $scope.create_tab();
-                }
-            }
-        ];
-        
-    $scope.form = {
-        fields: [
-            {
-                type: 'text',
-                title: 'Title',
-                name: 'title'
-            }
-        ],
-        model: {}
-    };
-    
-    $scope.model = {};
-    
-    // Edit a tab by clicking that tab's row in the table
-    $scope.edit_tab = function(tab){
-        $scope.tab_to_edit = tab;
-        //auto fill title
-        $scope.form.model.title = tab.title;
-        //update form header
-        $scope.modal.form.header = 'Edit Tab <a href="javascript:;" ng-click="create_tab()">cancel</a>';
-        //set 'edit' status
-        $scope.status = "edit";
-    }
-    
-    //set "create" state
-    $scope.create_tab = function(){
-        //reset model inputs
-        $scope.form.model.title = "";
-        //update form header
-        $scope.modal.form.header = "Add Tab";
-        //auto focus the first input
-        $('.tab-management form input:first').focus();
-        //set "create" status
-        $scope.status = "create";
-    }
-    
-    //button actions
-    var listeners = [];
-    //close - close the model
-    listeners.push($scope.$on('close',function(){
-        $scope.$emit('close_modal');
-    }));
-    
-    //save - update if edit status or create tab
-    listeners.push($scope.$on('save',function(){
-        $scope.save();
-    }));
-    
-    //save it, then if successful, close the modal
-    listeners.push($scope.$on('saveClose',function(){
-        $scope.close_modal = true;
-        $scope.save();
-    }));
-    
-    // Save function
-    $scope.save = function(){
-        console.log(' i am saving')
-        if($scope.status == 'create'){
-            
-        }
-        else{
-            //update tab info from what was set in the form
-            var tab = $scope.tab_to_edit;
-            tab.title = $scope.model.title;
-        }
-        
-        //if "close modal" is a thing, close the modal!
-        if($scope.close_modal){
-            $scope.$emit('close_modal');
-        }
-    }
-    
-    //sortable
-    $scope.sortableTabs = {
-        accept: function (sourceItemHandleScope, destSortableScope) {
-            return true
-        },
-        itemMoved: function (event) {},
-        orderChanged: function(event) {},
-        dragStart: function(event){
-            var index = event.source.index;
-            // hide the divider
-            angular.element('.as-sortable-drag md-divider').hide();
-        }
-    };
-    
-    $scope.modalInstance.result.then(function () {
-
-    },function(){
-        // remove listeners when modal is closed
-        angular.forEach(listeners,function(value,key){
-            value();
-        });
-    });
-    
 }]);
 
 app.controller('searchCtrl',['$scope','$http','$sce','$timeout',
