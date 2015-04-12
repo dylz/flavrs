@@ -3,17 +3,18 @@ from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.core.context_processors import csrf
 from django.contrib.auth import logout
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.views.generic import TemplateView, RedirectView, FormView, View
-from django.views.generic.edit import FormMixin
+from django.views.generic import TemplateView, RedirectView, View
 from django.contrib.auth import login
 from django.contrib.auth.forms import AuthenticationForm
 
 from base.utils import generate_hash
 from base.mixins import AjaxResponseMixin, CustomViewMethodsMixin
 
-class AjaxView(View,FormMixin,AjaxResponseMixin):
+class AjaxView(AjaxResponseMixin):
     # Shortcut for views with forms without needing a template
-    pass
+    template_name = 'base/index.html'
+    success_url = '/'
+        
 
 class SystemView(View,CustomViewMethodsMixin):
     """
@@ -62,7 +63,7 @@ class IndexView(TemplateView):
         return super(IndexView,self).render_to_response(context, **response_kwargs)
 
 
-class LoginView(AjaxResponseMixin,FormView):
+class LoginView(AjaxResponseMixin):
     template_name = 'login/index.html'
     form_class = AuthenticationForm
     #success_url = reverse_lazy('index') # production url

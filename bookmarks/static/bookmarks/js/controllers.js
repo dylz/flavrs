@@ -24,9 +24,9 @@ flavrs_modules.bookmarks = {
         {"name": "index", "route": "", "controller": "bookmarksCtrl",
             "template": "base/card.html"
         },
-        {"name":"sidenav","route":"tab/:id/","controller":"bookmarksCtrl"},
-        {"name":"sidenav_add","route":"tab/add/","controller":"tabCtrl","view":"modal"},
-        {"name":"sidenav_edit","route":"tab/edit/","controller":"bookmarksCtrl"},
+        {"name":"sidenav","route":"tabs/:id/","controller":"bookmarksCtrl"},
+        {"name":"sidenav_add","route":"tabs/add/","controller":"tabCtrl","view":"modal"},
+        {"name":"sidenav_edit","route":"tabs/edit/","controller":"bookmarksCtrl"},
         {"name": "add","route": "add/", "controller": "openModalCtrl"},
         {"name": "edit","route": "edit/:id/","controller": "openModalCtrl"},
         {"name": "search","route": "search/", "controller": "openModalCtrl"}
@@ -359,7 +359,7 @@ app.controller('openModalCtrl', ['$scope','route','bookmarks', '$http', '$flavrs
 }]);
 
 //Tab management controller
-app.controller('tabCtrl', ['$scope','$flavrs', function($scope,$flavrs){
+app.controller('tabCtrl', ['$scope','$flavrs','$http', function($scope,$flavrs,$http){
     
     var route = $flavrs.routes.current;
     
@@ -387,7 +387,17 @@ app.controller('tabCtrl', ['$scope','$flavrs', function($scope,$flavrs){
             name: 'Save', 
             colour: 'md-primary',
             click: function(){
-                console.log($scope.form.model)
+                if($flavrs.modal.form.is_valid()){
+                    // form is valid, lets try to save it!
+                    var url = $scope.meta.root+'bookmarks/tab/add/',
+                        data = $scope.form.model,
+                        promise = $http.post(url,data);
+                    
+                    promise.success(function(data,status){
+                        $scope.sidenav.push(data)
+                    });
+                    
+                }
             }
         },
     ];
@@ -403,10 +413,18 @@ app.controller('tabCtrl', ['$scope','$flavrs', function($scope,$flavrs){
         fields: [
             {
                 type: 'text',
-                title: 'Title',
-                name: 'title'
+                title: 'Name',
+                name: 'name',
+                required: true
+            },
+            {
+                type: 'hidden',
+                title: '',
+                name: 'id'
             }
         ],
-        model: {}
+        model: {
+            'id': '0'
+        }
     };
 }]);

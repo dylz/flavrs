@@ -22,8 +22,12 @@ class InitView(SystemView):
 
 class LinkAddView(AjaxView):
     form_class = LinkForm
-    success_url = None
+    success_url = ''
     
 class TabAddView(AjaxView):
     form_class = TabForm
-    success_url = None
+    
+    def form_valid(self, form):
+        # Save the form
+        form.save()
+        return super(TabAddView,self).form_valid(form)

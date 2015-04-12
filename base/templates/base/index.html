@@ -52,7 +52,7 @@
             <md-button>
                 {{ user.first_name }} {{ user.last_name }}
             </md-button>
-            <a href="/logout/" ng-click="logout()">
+            <a href="/logout/" ng-click="logout()" title="Sign Out">
                 <i class="fa fa-sign-out"></i>
             </a>
         </md-container>
@@ -79,11 +79,11 @@
                 <md-item-content>
                     <a href="{{nav.url}}" class="md-tile-content link"
                         ng-if="active_nav.id!=nav.id">
-                        {{nav.title}}
+                        {{nav.name}}
                     </a>
                     <div class="md-tile-content selected"
                         ng-if="active_nav.id==nav.id">
-                        {{nav.title}}
+                        {{nav.name}}
                     </div>
                 </md-item-content>
                 <md-divider ng-if="!$last"></md-divider>

@@ -103,7 +103,6 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     }
 
     $scope.location = function(route,params,args){
-        console.log(route)
         // params is optional, if not defined, set a default
         if(!angular.isDefined(params)){
             params = {};
@@ -334,7 +333,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             // but the actual $flavrs service only gets the id.
             // this means that other modules can only use the id as well.
             $scope.user = data;
-            $flavrs.user = data.id;
+            $flavrs.user.set(data.id);
         });
         
         promise.error(function(data,status){

@@ -32,6 +32,8 @@ app.factory('httpRequestInterceptor', function ($cookies,$localStorage,$q,$locat
         // Using the JQuery param function, we can achieve the same data structure
         
         if(config.hasOwnProperty('data')){
+            // add the user to the request data
+            config.data.user = $localStorage.user;
             config.data = $.param(config.data);
         }
         
@@ -52,13 +54,23 @@ app.factory('httpRequestInterceptor', function ($cookies,$localStorage,$q,$locat
             $location.path(response.data._change_url);
         }
         
+        // check if user is the same between the request and the response
+        if(response.data.hasOwnProperty('user')){
+            if(response.data.user != $localStorage.user){
+                // user from back-end and front-end do not match, cause an error!
+                $q.reject(response);
+            }
+            // remove user from data.. app doesn't need it in here
+            delete response.data['user'];
+        }
+        
         return response || $q.when(response);
     },
     responseError: function(rejection){
         // Handle 500 server errors differently...
         
         if(rejection.status == 500){
-            
+            return $q.reject(rejection);
         } 
         else if(rejection.hasOwnProperty('data') && rejection.data.hasOwnProperty('syserr')){
             // if 'syserr' in a key in the data, then this is a system error
@@ -94,7 +106,7 @@ app.filter('module', function() {
 });
 
 // Main Flavrs service
-app.service('$flavrs', function($http,$location){
+app.service('$flavrs', function($http,$location,$localStorage){
     
     var self = this;
     
@@ -103,7 +115,14 @@ app.service('$flavrs', function($http,$location){
         version: '0.1'
     };
     
-    self.user = undefined;
+    self.user = {
+        set: function(id){
+            $localStorage.user = id;
+        },
+        get: function(){
+            return $localStorage.user;
+        }
+    };
     
     self.scope = undefined;
     
@@ -161,6 +180,7 @@ app.service('$flavrs', function($http,$location){
             
             promise.success(function(response,status){
                 // add urls to tabs object
+                console.log(response)
                 angular.forEach(response.sidenav,function(value,key){
                     value.url = self.routes.get('sidenav',{'id':value.id},name,data.routes);
                 });
@@ -271,6 +291,12 @@ app.service('$flavrs', function($http,$location){
     };
     
     self.modal = {
-        instance: undefined
+        instance: undefined,
+        form: {
+            is_valid: function(){
+                return $('form[name=modal_form]').hasClass('ng-valid');
+            }
+        }
     }
+    
 });

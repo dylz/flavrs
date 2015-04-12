@@ -12,7 +12,7 @@ class Tab(FrontEndModel):
         return Link.objects.filter(tab=self)
     
     def __unicode__(self):
-        return self.tab.name
+        return self.name
 
 class Link(FrontEndModel):
     name = models.CharField(max_length=255)
