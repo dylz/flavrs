@@ -78,13 +78,29 @@
             <md-item ng-repeat="nav in sidenav">
                 <md-item-content>
                     <a href="{{nav.url}}" class="md-tile-content link"
-                        ng-if="active_nav.id!=nav.id">
+                        ng-if="active_nav_id!=nav.id" 
+                        ng-mouseenter="tabs_ui[$index]=true"
+                        ng-mouseleave="tabs_ui[$index]=false"
+                        flex="85">
                         {{nav.name}}
                     </a>
+                    <i 
+                        ng-show="tabs_ui[$index]" class="fa fa-cog"
+                        ng-if="active_nav_id!=nav.id" flex="15"
+                        ng-click="location('sidenav_edit',undefined,{id:nav.id})">
+                    </i>
                     <div class="md-tile-content selected"
-                        ng-if="active_nav.id==nav.id">
+                        ng-if="active_nav_id==nav.id"
+                        ng-mouseenter="tabs_ui[$index]=true"
+                        ng-mouseleave="tabs_ui[$index]=false"
+                        flex="85">
                         {{nav.name}}
                     </div>
+                    <i 
+                        ng-show="tabs_ui[$index]" class="fa fa-cog"
+                        ng-if="active_nav_id==nav.id" flex="15"
+                        ng-click="location('sidenav_edit',undefined,{id:nav.id})">
+                    </i>
                 </md-item-content>
                 <md-divider ng-if="!$last"></md-divider>
             </md-item>

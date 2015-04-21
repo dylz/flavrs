@@ -107,8 +107,22 @@ Navbar For Lightgrey mode
 }
 
 .tab-bar md-item-content .selected,
-.tab-bar .md-tile-content.link:hover{
+.tab-bar md-item-content:hover{
   background: rgb(238,238,238);
+}
+
+.tab-bar .fa-cog {
+  float: right;
+  font-size: 20px;
+  color: #666;
+  height: 55px;
+  padding: 16px;
+  cursor: pointer;
+}
+
+.tab-bar .fa-cog:hover{
+  color: black;
+  display: inline !important;
 }
 
 /* Tab Content */

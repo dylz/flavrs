@@ -180,7 +180,6 @@ app.service('$flavrs', function($http,$location,$localStorage){
             
             promise.success(function(response,status){
                 // add urls to tabs object
-                console.log(response)
                 angular.forEach(response.sidenav,function(value,key){
                     value.url = self.routes.get('sidenav',{'id':value.id},name,data.routes);
                 });
@@ -280,7 +279,7 @@ app.service('$flavrs', function($http,$location,$localStorage){
             }
             
             var item = null;
-            angular.forEach(function(value,key){
+            angular.forEach(items,function(value,key){
                 if(value.id == id){
                     item = value;
                 }

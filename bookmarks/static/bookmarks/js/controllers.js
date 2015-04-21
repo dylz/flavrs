@@ -24,9 +24,9 @@ flavrs_modules.bookmarks = {
         {"name": "index", "route": "", "controller": "bookmarksCtrl",
             "template": "base/card.html"
         },
-        {"name":"sidenav","route":"tabs/:id/","controller":"bookmarksCtrl"},
         {"name":"sidenav_add","route":"tabs/add/","controller":"tabCtrl","view":"modal"},
-        {"name":"sidenav_edit","route":"tabs/edit/","controller":"bookmarksCtrl"},
+        {"name":"sidenav_edit","route":"tabs/edit/:id/","controller":"tabCtrl","view":"modal"},
+        {"name":"sidenav","route":"tabs/:id/","controller":"bookmarksCtrl"},
         {"name": "add","route": "add/", "controller": "openModalCtrl"},
         {"name": "edit","route": "edit/:id/","controller": "openModalCtrl"},
         {"name": "search","route": "search/", "controller": "openModalCtrl"}
@@ -140,7 +140,9 @@ app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'book
         
         if(id){
             // id is valid, load the content for it
-            get_content(id);    
+            get_content(id);
+            // set the active tab
+            $scope.active_nav_id = id;
         }
         else if(sidenav.length == 0){
             // no sidenavs, what should we show the user?
@@ -363,25 +365,6 @@ app.controller('tabCtrl', ['$scope','$flavrs','$http', function($scope,$flavrs,$
     
     var route = $flavrs.routes.current;
     
-    switch(route.name){
-        case 'sidenav_add':
-            var model = {};
-        break;
-        case 'sidenav_edit':
-            var tabs = $flavrs.modules.current().sidenav,
-                tab = null;
-            // deepcopy - keep original data intacked
-            $scope.sidenav_copy = angular.copy(tabs);
-            var item = $flavrs.sidenav.get_by_id(route.args.id);
-            if(item){
-                var model = {title: item.title};
-            }
-            else{
-                // invalid tab to edit
-            }
-        break;
-    }
-    
     $scope.actions = [
         {
             name: 'Save', 
@@ -394,7 +377,11 @@ app.controller('tabCtrl', ['$scope','$flavrs','$http', function($scope,$flavrs,$
                         promise = $http.post(url,data);
                     
                     promise.success(function(data,status){
-                        $scope.sidenav.push(data)
+                        // set url
+                        data.url = $flavrs.routes.get('sidenav',{'id':data.id});
+                        $scope.sidenav.push(data);
+                        // close modal
+                        $flavrs.modal.instance.dismiss('success');
                     });
                     
                 }
@@ -427,4 +414,25 @@ app.controller('tabCtrl', ['$scope','$flavrs','$http', function($scope,$flavrs,$
             'id': '0'
         }
     };
+    
+    // check if add or edit and add data if required
+    switch(route.name){
+        case 'sidenav_add':
+            // no data needed.. do nothing.
+        break;
+        case 'sidenav_edit':
+            var tabs = $flavrs.modules.current().sidenav,
+                tab = null;
+            // deepcopy - keep original data intacked
+            $scope.sidenav_copy = angular.copy(tabs);
+            var item = $flavrs.sidenav.get_by_id(route.args.id);
+            if(item){
+                $scope.form.model.name = item.name;
+                $scope.form.model.id = item.id;
+            }
+            else{
+                // invalid tab to edit
+            }
+        break;
+    }
 }]);

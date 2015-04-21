@@ -21,7 +21,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     $scope.selectedTab = 0;
     $scope.broadcast_monitor = {};
     $scope.loaded_controllers = [];
-
+    $scope.tabs_ui = {};
 
     //modules.. this won't be hardcoded in the future.. so fix this kay!?
     $scope.modules = ['base','bookmarks','events','twitter','login'];
@@ -265,7 +265,6 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     $rootScope.$on("$locationChangeStart", function(event, current) {
         //Get the path, and use it to determine the module
         var path_split = $location.path().split('/');
-
         if(path_split[1] != $scope.module){
             var different = true;
         }
@@ -407,8 +406,9 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             found_route = null,
             routes = $flavrs.modules.current().routes;
         
-        angular.forEach(routes,function(value,key){
-            var loop_route_arr = value.route.split('/');
+        for (var i = 0; i < routes.length; i++){
+            var value = routes[i],
+                loop_route_arr = value.route.split('/');
             if(route_value == loop_route_arr.length){
                 // This *could* be the correct route. But lets double check.
                 // Any path with a colon is ambigous so ignore those.
@@ -512,15 +512,17 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                                 
                                 listener(); //this kills the watchGroup
                                 load_controller(value,locals);
+                                return false;
                             }
                         });
                     }
                     else{
                         load_controller(value,locals);
+                        return false;
                     }
                 }
             }
-        });
+        };
     }
     
     function load_controller(route_obj,locals){
@@ -533,11 +535,9 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             template = route_obj.template,
             view = route_obj.view,
             load = function(){
-                $flavrs.routes.previous = angular.copy($flavrs.routes.current);
-                $flavrs.routes.current = route;
                 $controller(ctrl,locals);
             };
-            
+        
         angular.forEach(locals.route,function(value,key){
             if(key != 'route'){
                 route[key] = value;
@@ -548,6 +548,10 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                 });
             }
         });
+        
+        // update the flavrs service for previous and (new) current route
+        $flavrs.routes.previous = angular.copy($flavrs.routes.current);
+        $flavrs.routes.current = route;
         
         // check the view - it can have specific actions
         switch(view){

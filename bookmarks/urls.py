@@ -15,5 +15,7 @@ urlpatterns = patterns('',
     
     # let the front-end deal with these urls
     url(r'^tabs/(?P<tag>\w+)/$', IndexView.as_view(), name='tabs'),
+    url(r'^tabs/add/$', IndexView.as_view(), name='tabs_index_add'),
+    url(r'^tabs/edit/(?P<id>\w+)/$', IndexView.as_view(), name='tabs_index_edit'),
     url(r'^link/(?P<link>\w+)/$', IndexView.as_view(), name='link')
 )

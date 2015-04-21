@@ -7,6 +7,9 @@ class Tab(FrontEndModel):
     name = models.CharField(max_length=255,unique=True)
     user = models.ForeignKey(User, related_name='user_to_bookmarks_tabs')
     
+    class Meta:
+        unique_together = ('name','user')
+    
     @property
     def links(self):
         return Link.objects.filter(tab=self)

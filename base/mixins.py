@@ -26,6 +26,11 @@ class CustomViewMethodsMixin(object):
         if 'user' in data:
             data['user'] = data['user'].profile.reference
         
+        # convert 'reference' to 'id'
+        if 'reference' in data:
+            data['id'] = data['reference']
+            del data['reference']
+        
         return data
     
     def json_response(self,data=None,force_error=False):
