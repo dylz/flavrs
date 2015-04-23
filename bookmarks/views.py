@@ -24,10 +24,10 @@ class LinkAddView(AjaxView):
     form_class = LinkForm
     success_url = ''
     
-class TabAddView(AjaxView):
+class TabView(AjaxView):
     form_class = TabForm
     
     def form_valid(self, form):
         # Save the form
         form.save()
-        return super(TabAddView,self).form_valid(form)
+        return super(TabView,self).form_valid(form)

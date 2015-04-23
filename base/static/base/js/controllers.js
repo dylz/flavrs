@@ -117,9 +117,9 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                 break;
             default:
                 //get the actual path
-                route = $scope.get_route(route,args)
+                route = $scope.get_route(route,args);
         }
-        
+
         $location.path(route).search(params);
     }
     

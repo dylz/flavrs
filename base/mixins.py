@@ -20,7 +20,10 @@ class CustomViewMethodsMixin(object):
         By default, return the cleaned form data for the front-end to use.
         """
         
-        data = self.form.cleaned_data
+        data = getattr(self.form,'cleaned_data',None)
+        
+        if not data: # if no cleaned data.. return the original
+            return self.form.data
         
         # if user in data, convert to it's reference
         if 'user' in data:
@@ -60,22 +63,21 @@ class AjaxResponseMixin(CustomViewMethodsMixin,FormView):
     """
     def form_invalid(self, form):
         response = super(AjaxResponseMixin, self).form_invalid(form)
-        if self.request.is_ajax():
-            return self.json_response(form.errors,True)
-        else:
-            return response
+        return self.json_response(form.errors,True)
 
     def form_valid(self, form):
-        # We make sure to call the parent's form_valid() method because
-        # it might do some processing (in the case of CreateView, it will
-        # call form.save() for example).
         response = super(AjaxResponseMixin, self).form_valid(form)
-        if self.request.is_ajax():
-            return self.json_response()
-        else:
-            return response
+        return self.json_response()
+        
+    def form_delete(self,form):
+        form.instance.delete()
+        return self.json_response()
             
     def post(self, request, *args, **kwargs):
+
+        if not request.is_ajax():
+            return HttpResponseBadRequest()
+        
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         # Turn the QueryDict to a normal dictionary
@@ -85,22 +87,43 @@ class AjaxResponseMixin(CustomViewMethodsMixin,FormView):
         # object..
         # fyi, user is a random set of chars (ex. dkw9fjsd) so the front-end
         # does not know anything about database ids
-        if 'user' in form.data:
+        user = form.data.get('user')
+        if user:
             try:
-                profile = Profile.objects.get(reference=form.data['user'])
+                profile = Profile.objects.get(reference=user)
             except Profile.DoesNotExist:
                 pass
             else:
                 form.data['user'] = profile.user_id
-                
-        # if 'id'.. change name to 'reference'
-        if 'id' in form.data:
-            form.data['reference'] = form.data['id']
-            del form.data['id']
+            
+                pra = getattr(self,'post_requires_authentication',False)
+                if pra and profile.reference != user:
+                    # bad request
+                    return HttpResponseBadRequest()
+        
+        # check if add or edit
+        reference = self.kwargs.get('reference')
+        id = form.data.get('id')
+        if reference and reference == id:
+            # edit
+            model = self.form_class.Meta.model
+            try:
+                form.instance = model.objects.get(reference=reference)
+            except model.DoesNotExist:
+                pass
+                    
+        elif reference:
+            # big problem
+            return HttpResponseBadRequest()
+        
+        if id:
+            # add..
+            form.data['reference'] = id
         
         self.form = form
-        if form.is_valid():
+        if self.remove:
+            return self.form_delete(form)
+        elif form.is_valid():
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
-    

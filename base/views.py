@@ -14,7 +14,8 @@ class AjaxView(AjaxResponseMixin):
     # Shortcut for views with forms without needing a template
     template_name = 'base/index.html'
     success_url = '/'
-        
+    remove = False
+    post_requires_authentication = True
 
 class SystemView(View,CustomViewMethodsMixin):
     """

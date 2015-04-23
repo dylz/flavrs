@@ -150,7 +150,7 @@ app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'book
         else{
             // id was not valid, send user to "home"
             // this really should not happen if the user is navigating properly
-            //window.location.href = $flavrs.routes.get("home");
+            $flavrs.routes.go("/");
         }
         
     }
@@ -365,30 +365,6 @@ app.controller('tabCtrl', ['$scope','$flavrs','$http', function($scope,$flavrs,$
     
     var route = $flavrs.routes.current;
     
-    $scope.actions = [
-        {
-            name: 'Save', 
-            colour: 'md-primary',
-            click: function(){
-                if($flavrs.modal.form.is_valid()){
-                    // form is valid, lets try to save it!
-                    var url = $scope.meta.root+'bookmarks/tab/add/',
-                        data = $scope.form.model,
-                        promise = $http.post(url,data);
-                    
-                    promise.success(function(data,status){
-                        // set url
-                        data.url = $flavrs.routes.get('sidenav',{'id':data.id});
-                        $scope.sidenav.push(data);
-                        // close modal
-                        $flavrs.modal.instance.dismiss('success');
-                    });
-                    
-                }
-            }
-        },
-    ];
-    
     $scope.modal = {
         title: "Manage Tabs",
         form: {
@@ -418,11 +394,12 @@ app.controller('tabCtrl', ['$scope','$flavrs','$http', function($scope,$flavrs,$
     // check if add or edit and add data if required
     switch(route.name){
         case 'sidenav_add':
-            // no data needed.. do nothing.
+            var modal_state = 'add';
         break;
         case 'sidenav_edit':
             var tabs = $flavrs.modules.current().sidenav,
-                tab = null;
+                tab = null,
+                modal_state = 'edit';
             // deepcopy - keep original data intacked
             $scope.sidenav_copy = angular.copy(tabs);
             var item = $flavrs.sidenav.get_by_id(route.args.id);
@@ -433,6 +410,86 @@ app.controller('tabCtrl', ['$scope','$flavrs','$http', function($scope,$flavrs,$
             else{
                 // invalid tab to edit
             }
+            // update modal
+            $scope.modal.form.header = 'Edit Tab';
         break;
+    }
+    
+    // Button actions
+    $scope.actions = [
+        {
+            name: 'Save', 
+            colour: 'md-primary',
+            click: function(){
+                if($flavrs.modal.form.is_valid()){
+                    // if edit mode.. add id
+                    if(modal_state == 'edit'){
+                        var url_suffix = route.args.id+'/';
+                    }
+                    else{
+                        var url_suffix = '';
+                    }
+                    // form is valid, lets try to save it!
+                    var url = $scope.meta.root+'bookmarks/tab/'+url_suffix,
+                        data = $scope.form.model,
+                        promise = $http.post(url,data);
+                    
+                    promise.success(function(data,status){
+                        // set url
+                        data.url = $flavrs.routes.get('sidenav',{'id':data.id});
+                        if(modal_state == 'edit'){
+                            for (var i = 0; i < $scope.sidenav.length; i++) {
+                                if(data.id == $scope.sidenav[i].id){
+                                    $scope.sidenav[i] = data;
+                                    break;
+                                }
+                            }
+                        }
+                        else{
+                            $scope.sidenav.push(data);
+                        }
+                        // close modal
+                        $flavrs.modal.instance.dismiss('success');
+                    });
+                    
+                }
+            }
+        },
+    ];
+    
+    // if we are in edit mode, add a delete button
+    if(modal_state == 'edit'){
+        $scope.actions.push({
+            name: 'Delete',
+            colour: 'md-warn',
+            click: function(action){
+                action.name = 'Are You Sure?';
+                action.colour = 'md-hue-2 md-accent';
+                action.click = function(){
+                    // delete item
+                    var url = $scope.meta.root+'bookmarks/tab/'+route.args.id+'/delete/',
+                        data = $scope.form.model,
+                        promise = $http.post(url,data);
+                    
+                    promise.success(function(data,status){
+                        for (var i = 0; i < $scope.sidenav.length; i++) {
+                            if(data.id == $scope.sidenav[i].id){
+                                $scope.sidenav.splice(i,1);
+                                // if this was an active tab, then click
+                                // the next one
+                                if((data.id == $scope.active_nav_id) && ($scope.sidenav.length > 0)){
+                                    var new_id = $scope.sidenav[0].id;
+                                    $scope.active_nav_id = new_id;
+                                    //$flavrs.routes.go('sidenav',{id:new_id})
+                                    $flavrs.routes.previous = {name:'sidenav',args:{id:new_id}};
+                                }    
+                                break;
+                            }
+                        }
+                        $flavrs.modal.instance.dismiss('success');
+                    });
+                }
+            }
+        });
     }
 }]);

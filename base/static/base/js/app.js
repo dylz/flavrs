@@ -248,6 +248,26 @@ app.service('$flavrs', function($http,$location,$localStorage){
                 //throw new Error(route+' does not exist.')
                 console.log(route+' does not exist.');
             }
+        },
+        go: function(route,args,params){
+            // params is optional, if not defined, set a default
+            if(!angular.isDefined(params)){
+                params = {};
+            }
+            
+            /// check internal routes
+            
+            switch (route) {
+                case '/':
+                    //if route is empty, load the 'root' path (this is the module root)
+                    route = self.modules.current().name+'/';
+                    break;
+                default:
+                    //get the actual path
+                    route = this.get(route,args);
+            }
+            
+            $location.path(route).search(params);
         }
     };
     

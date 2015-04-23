@@ -1,12 +1,14 @@
 from django.conf.urls import patterns, url, include
 
 from base.views import IndexView
-from bookmarks.views import InitView, LinkAddView, TabAddView
+from bookmarks.views import InitView, LinkAddView, TabView
 
 urlpatterns = patterns('',
     url(r'^initialize/$', InitView.as_view(), name='init'),
     url(r'^tab/', include([
-        url(r'^add/', TabAddView.as_view(), name='add'),
+        url(r'^$', TabView.as_view(), name='add'),
+        url(r'^(?P<reference>\w+)/$', TabView.as_view(), name='edit'),
+        url(r'^(?P<reference>\w+)/delete/$', TabView.as_view(remove=True), name='delete'),
     ],namespace='tab')),
     
     url(r'^link/', include([

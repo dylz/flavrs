@@ -6,7 +6,7 @@ class ModelForm(MF):
     
     def clean_reference(self):
         data = self.cleaned_data['reference']
-        
+
         if not data or data == '0':
             data = generate_reference()
         
