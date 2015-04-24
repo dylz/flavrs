@@ -14,7 +14,6 @@ class AjaxView(AjaxResponseMixin):
     # Shortcut for views with forms without needing a template
     template_name = 'base/index.html'
     success_url = '/'
-    remove = False
     post_requires_authentication = True
 
 class SystemView(View,CustomViewMethodsMixin):
@@ -103,3 +102,29 @@ class CurrentUserView(SystemView):
             'first_name': user.first_name,
             'last_name': user.last_name
         }
+        
+class OrderView(View,CustomViewMethodsMixin):
+    
+    def post(self, request, *args, **kwargs):
+        data = request.POST.dict()
+        model = self.model
+        
+        # TO DO - STILL HAS TO VALIDATE USER
+        
+        # loop over the data and update ordering
+        
+        # remove user
+        del data['user']
+        
+        # create list
+        references = {}
+        num = 0
+        
+        while num <= (len(data) - 1):
+            references[data['data[%s][id]' % num]] = num
+            num += 1
+            
+        # update database
+        for obj in model.objects.filter(reference__in=references.keys()):
+            obj.display_order = references[obj.reference]
+            obj.save()

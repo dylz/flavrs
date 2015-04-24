@@ -12,4 +12,5 @@ class FrontEndModel(models.Model):
 	class Meta:
 		abstract = True
 
-	reference = models.CharField(max_length=32,unique=True,default=lambda:generate_reference())
+	reference = models.CharField(max_length=32,unique=True)#,default=lambda:generate_reference())
+	display_order = models.IntegerField(default=0)

@@ -26,6 +26,7 @@ flavrs_modules.bookmarks = {
         },
         {"name":"sidenav_add","route":"tabs/add/","controller":"tabCtrl","view":"modal"},
         {"name":"sidenav_edit","route":"tabs/edit/:id/","controller":"tabCtrl","view":"modal"},
+        {"name":"sidenav_order","route":"tabs/order/","controller":"tabOrderCtrl","view":"modal"},
         {"name":"sidenav","route":"tabs/:id/","controller":"bookmarksCtrl"},
         {"name": "add","route": "add/", "controller": "openModalCtrl"},
         {"name": "edit","route": "edit/:id/","controller": "openModalCtrl"},
@@ -492,4 +493,51 @@ app.controller('tabCtrl', ['$scope','$flavrs','$http', function($scope,$flavrs,$
             }
         });
     }
+}]);
+
+app.controller('tabOrderCtrl', ['$scope','$flavrs','$http', function($scope,$flavrs,$http){
+    
+    $scope.sidenav_copy = angular.copy($flavrs.modules.current().sidenav);
+    
+    $scope.modal = {
+        title: "Order Tabs",
+        body: '<table class="table table-hover">' +
+                  '<tbody as-sortable="dragControlListeners" ng-model="sidenav_copy">' +
+                    '<tr ng-repeat="tab in sidenav_copy" as-sortable-item>' +
+                      '<td as-sortable-item-handle>{{ tab.name }}</td>' +
+                    '</tr>' +
+                  '</tbody>' +
+                '</table>'
+    }
+    
+    $scope.actions = [
+        {
+            name: 'Save', 
+            colour: 'md-primary',
+            click: function(){
+                var data = [];
+                // remove unused data
+                $scope.sidenav_copy.forEach(function(item){
+                    data.push({id:item.id});
+                });
+                
+                var url = $scope.meta.root+'bookmarks/tab/order/',
+                promise = $http.post(url,{data:data});
+                
+                promise.success(function(data,status){
+                    $flavrs.modules.current().sidenav = $scope.sidenav_copy;
+                    $flavrs.modal.instance.dismiss('success');
+                });
+            }
+        }  
+    ];
+    
+    $scope.dragControlListeners = {
+        accept: function (sourceItemHandleScope, destSortableScope) {
+            return true
+        },
+        itemMoved: function (event) {},
+        orderChanged: function(event) {}
+    };
+    
 }]);

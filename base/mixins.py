@@ -57,10 +57,9 @@ class CustomViewMethodsMixin(object):
         return JsonResponse(data, status=status)
 
 class AjaxResponseMixin(CustomViewMethodsMixin,FormView):
-    """
-    Mixin to add AJAX support to a form.
-    Must be used with an object-based FormView (e.g. CreateView)
-    """
+    
+    remove = False
+    
     def form_invalid(self, form):
         response = super(AjaxResponseMixin, self).form_invalid(form)
         return self.json_response(form.errors,True)

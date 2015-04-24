@@ -1,6 +1,6 @@
 from django.views.generic import FormView
 
-from base.views import AjaxView, SystemView
+from base.views import AjaxView, SystemView, OrderView
 
 from bookmarks.forms import LinkForm, TabForm
 from bookmarks.models import Tab
@@ -31,3 +31,6 @@ class TabView(AjaxView):
         # Save the form
         form.save()
         return super(TabView,self).form_valid(form)
+        
+class TabOrderView(OrderView):
+    model = Tab
