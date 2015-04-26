@@ -403,11 +403,10 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         var route_arr = $location.path().split('/'),
             route_value = route_arr.length-2,
             route_params = $location.search(),
-            found_route = null,
             routes = $flavrs.modules.current().routes;
-        
-        for (var i = 0; i < routes.length; i++){
-            var value = routes[i],
+
+        for (var k = 0; k < routes.length; k++){
+            var value = routes[k],
                 loop_route_arr = value.route.split('/');
             if(route_value == loop_route_arr.length){
                 // This *could* be the correct route. But lets double check.
@@ -506,19 +505,18 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                                 
                                 // if validation fails, stop everything!
                                 if(!$scope.carry_on){
-                                    return false;
+                                    return;
                                 }
-                                
                                 
                                 listener(); //this kills the watchGroup
                                 load_controller(value,locals);
-                                return false;
+                                return;
                             }
                         });
                     }
                     else{
                         load_controller(value,locals);
-                        return false;
+                        return;
                     }
                 }
             }
