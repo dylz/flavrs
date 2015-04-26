@@ -128,3 +128,5 @@ class OrderView(View,CustomViewMethodsMixin):
         for obj in model.objects.filter(reference__in=references.keys()):
             obj.display_order = references[obj.reference]
             obj.save()
+            
+        return self.json_response(data=data)

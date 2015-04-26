@@ -3,7 +3,8 @@ app.directive('mdForm', function($compile) {
         restrict: 'E',
         scope: {
             fields: '=mdFormFields',
-            model: '=mdFormModel'
+            model: '=mdFormModel',
+            errors: '=mdFormErrors'
         },
         controller: ['$scope',
             function($scope) {
@@ -50,6 +51,7 @@ app.directive('mdForm', function($compile) {
             // material design directives, compiling when completed..
             var fields = scope.fields,
                 model = scope.model,
+                errors = scope.errors,
                 body = '';
             
             angular.forEach(fields,function(obj,i){
@@ -62,8 +64,12 @@ app.directive('mdForm', function($compile) {
                     
                     break;
                     default:
-                        var n = obj.name;
-                        body += '<md-input-container>' +
+                        var n = obj.name,
+                            e = (angular.isDefined(errors[n])) ? errors[n] : '';
+                        body += '<md-input-container ng-class="{\'md-input-invalid\':errors[\''+n+'\']}">' +
+                                '   <div class="error" ng-repeat="err in errors[\''+n+'\']">' +
+                                '       {{ err }}' +
+                                '   </div>' +
                                 '   <label>'+obj.title+'</label>' +
                                 '   <input ' +
                                 '       type="'+obj.type+'"' +

@@ -389,7 +389,8 @@ app.controller('tabCtrl', ['$scope','$flavrs','$http', function($scope,$flavrs,$
         ],
         model: {
             'id': '0'
-        }
+        },
+        errors: {}
     };
     
     // check if add or edit and add data if required
@@ -434,7 +435,7 @@ app.controller('tabCtrl', ['$scope','$flavrs','$http', function($scope,$flavrs,$
                     var url = $scope.meta.root+'bookmarks/tab/'+url_suffix,
                         data = $scope.form.model,
                         promise = $http.post(url,data);
-                    
+
                     promise.success(function(data,status){
                         // set url
                         data.url = $flavrs.routes.get('sidenav',{'id':data.id});
@@ -453,6 +454,9 @@ app.controller('tabCtrl', ['$scope','$flavrs','$http', function($scope,$flavrs,$
                         $flavrs.modal.instance.dismiss('success');
                     });
                     
+                    promise.error(function(data,status){
+                        $scope.form.errors = data;
+                    });
                 }
             }
         },
@@ -525,7 +529,9 @@ app.controller('tabOrderCtrl', ['$scope','$flavrs','$http', function($scope,$fla
                 promise = $http.post(url,{data:data});
                 
                 promise.success(function(data,status){
-                    $flavrs.modules.current().sidenav = $scope.sidenav_copy;
+                    for (var i = 0; i < $scope.sidenav.length; i++) {
+                        $scope.sidenav[i] = $scope.sidenav_copy[i];
+                    }
                     $flavrs.modal.instance.dismiss('success');
                 });
             }
