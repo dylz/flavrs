@@ -16,9 +16,7 @@ flavrs_modules.bookmarks = {
         }
     },
     "actions": [
-        { "name": "Add Bookmark", "icon": "bookmark", "colour": "lightblue", "route": "add" },
-        { "name": "Do Things", "icon": "remove", "colour": "lightblue", "route": "add" },
-        { "name": "Make Things!", "icon": "plane", "colour": "lightblue", "route": "add" }
+        { "name": "Add Bookmark", "icon": "bookmark", "colour": "lightblue", "route": "add"}
     ],
     "routes": [
         {"name": "index", "route": "", "controller": "bookmarksCtrl",

@@ -64,8 +64,7 @@ app.directive('mdForm', function($compile) {
                     
                     break;
                     default:
-                        var n = obj.name,
-                            e = (angular.isDefined(errors[n])) ? errors[n] : '';
+                        var n = obj.name;
                         body += '<md-input-container ng-class="{\'md-input-invalid\':errors[\''+n+'\']}">' +
                                 '   <div class="error" ng-repeat="err in errors[\''+n+'\']">' +
                                 '       {{ err }}' +
@@ -93,31 +92,45 @@ app.directive('mdForm', function($compile) {
     }
 });
 
-app.directive('mdFabs', function($compile) {
+app.directive('mdFabs', function() {
     return {
         restrict: 'E',
         scope: {
             actions: '=mdActions'
         },
-        template:   '<section ng-cloak layout="column" ng-hide="actions.length==0"' +
+        template:   '<section ng-cloak layout="column"' +
+                    '   ng-hide="actions.length==0 && special_actions.length==1"' +
                     '   ng-mouseover="toggle_fabs(\'show\')"' + 
                     '   ng-mouseleave="toggle_fabs(\'hide\')">' +
                     '   <md-button ng-repeat="action in actions.slice().reverse()"' +
-                    '       title="{{action.name}}"' +
+                    '       title="{{action.name}}" ng-click="click(action)"' +
                     '       class="md-fab {{action.colour}}" ng-show="show_actions">' +
                     '       <i class="fa fa-{{action.icon}}"></i>' +
                     '   </md-button>' +
                     '   <md-button class="md-fab md-default-theme md-fab-default"' +
-                    '       title="{{primary_action.name}}">' +
+                    '       title="{{primary_action.name}}" ng-click="click(primary_action)">' +
                     '       <i class="fa fa-{{primary_action.icon}}"></i>' +
                     '   </md-button>' +
                     '</section>',
-        controller: ['$scope',
-            function($scope) {
+        controller: ['$scope', '$location','$window',
+            function($scope,$location,$window) {
                 
                 var self = this;
                 $scope.primary_action = {};
                 $scope.special_actions = [];
+                
+                $scope.click = function(action){
+                    if(angular.isDefined(action.url)){
+                        var url = action.url;
+                        if(url.indexOf('http') > -1){
+                            // external url
+                            $window.location.href = url;
+                        }
+                        else {
+                            $location.path(url);
+                        }
+                    }
+                }
                 
                 $scope.toggle_fabs = function(state){
                     if(state == 'show'){
@@ -133,9 +146,12 @@ app.directive('mdFabs', function($compile) {
                 $scope.init = function(){
                     if(angular.isDefined($scope.actions)){
                         $scope.special_actions.push({icon:'plus'});
-                        $scope.special_actions.push($scope.actions[0]);
                         
-                        $scope.actions.splice(0,1);
+                        if($scope.actions.length > 0){
+                            $scope.special_actions.push($scope.actions[0]);
+                            
+                            $scope.actions.splice(0,1);
+                        }
                         
                         // first special action is the default to show
                         $scope.primary_action = $scope.special_actions[0];

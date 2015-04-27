@@ -185,6 +185,10 @@ app.service('$flavrs', function($http,$location,$localStorage){
                 });
                 // add tabs to data
                 data.sidenav = response.sidenav;
+                // convert action routes to urls for mdFab to use
+                angular.forEach(data.actions,function(value,key){
+                    value.url = self.routes.get(value.route,undefined,name,data.routes); 
+                });
                 modules.add(data);
             });
             
