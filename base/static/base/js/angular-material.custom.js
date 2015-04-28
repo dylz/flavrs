@@ -64,8 +64,9 @@ app.directive('mdForm', function($compile) {
                     
                     break;
                     default:
-                        var n = obj.name;
-                        body += '<md-input-container ng-class="{\'md-input-invalid\':errors[\''+n+'\']}">' +
+                        var n = obj.name,
+                            c = (obj.type=='hidden') ? 'display:none;' : '';
+                        body += '<md-input-container style="'+c+'" ng-class="{\'md-input-invalid\':errors[\''+n+'\']}">' +
                                 '   <div class="error" ng-repeat="err in errors[\''+n+'\']">' +
                                 '       {{ err }}' +
                                 '   </div>' +

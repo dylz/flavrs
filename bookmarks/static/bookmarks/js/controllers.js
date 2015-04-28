@@ -26,7 +26,7 @@ flavrs_modules.bookmarks = {
         {"name":"sidenav_edit","route":"tabs/edit/:id/","controller":"tabCtrl","view":"modal"},
         {"name":"sidenav_order","route":"tabs/order/","controller":"tabOrderCtrl","view":"modal"},
         {"name":"sidenav","route":"tabs/:id/","controller":"bookmarksCtrl"},
-        {"name": "add","route": "add/", "controller": "openModalCtrl"},
+        {"name": "add","route": "add/", "controller": "bookmarksModalCtrl", "view":"modal"},
         {"name": "edit","route": "edit/:id/","controller": "openModalCtrl"},
         {"name": "search","route": "search/", "controller": "openModalCtrl"}
     ],
@@ -159,56 +159,12 @@ app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'book
 }]);
 
 //Controller for modal window
-app.controller('openModalCtrl', ['$scope','route','bookmarks', '$http', '$flavrs',
-    function($scope,route,bookmarks,$http,$flavrs) {
-    var self = this;
+app.controller('bookmarksModalCtrl', ['$scope','bookmarks', '$http', '$flavrs',
+    function($scope,bookmarks,$http,$flavrs) {
+    var route = $flavrs.routes.current;
     
-    if(route.initialized){
-        route.initialized = false;
-        var locals = {
-            route: route,
-            $scope: $scope
-        };
-        $scope.open_modal('openModalCtrl',locals);
-        return;
-    }
-    
-     if($scope.loaded_controllers.indexOf('openModalCtrl') > -1){
-        self.loaded = true;
-    }
-    else{
-        self.loaded = false;
-        $scope.loaded_controllers.push('openModalCtrl');
-    }
-    
-    $scope.buttons = [
-        {'name': 'Save', 'colour': 'md-primary','ngclick': 'save'},
-        {'name': 'Cancel', 'colour': 'md-warn','ngclick': 'close'}
-    ];
-    
-    //set modal
-    $scope.modal = {
-        title: "Add Bookmark"
-    }
-    
-    //validation
-  
-    // save bookmark
-    // make sure process goes in correct order and does not call the same thing
-    // to make times.
-    self.save_counter = 0;
-    if(!self.loaded){
-        $scope.$on('save', function(event, success) {
-            
-            if(!angular.isDefined(success) && self.save_counter == 0){
-                //try to save data
-                self.save_counter = 1;
-                $scope.$emit('validate_modal_form','save');
-            }
-            else if(success && self.save_counter == 1){
-                //save was sucessful
-                //add to tab's content
-                var data =   {
+    /*
+    var data =   {
                     "card_type": "link",
                     "card_url": "http://mail.google.com",
                     "header": {
@@ -224,139 +180,155 @@ app.controller('openModalCtrl', ['$scope','route','bookmarks', '$http', '$flavrs
                             {"name": "Share","icon":"share", "ngclick": "share"}
                         ]
                     }
-                }
-                $scope.$emit('add_to_content',data);
-                //close modal
-                $scope.$emit('close_modal');
+                }*/
     
-                // reset process
-                self.save_counter = 0;
-            }
-            else{
-                //not so successful
-                // reset process
-                self.save_counter = 0;
-            }
-           
-            //enter 'saving' state
-            //var save_button = $scope.buttons[0];
-            //save_button.disabled = true;
-            //save_button.icon = "spinner fa-spin";
-            //save_button.name = 'Saving...';
-            //attempt to save
-        });
-        
-        $scope.$on('close', function(event, args) {
-            $scope.$emit('close_modal');
-        });
-    }
-    //form schema
-    $scope.schema = {
-        "type": "object",
-        "properties": {
-            "url": {
-                "type": "string",
-                "minLength": 5,
-                "required": true,
-                "title": "URL",
-                "content": "card_url"
-            },
-            "name": {
-                "type": "string",
-                "title": 'Name',
-                "description": "If left blank, name will be determined from URL.",
-                "content": "header.text"
-            }
-        },
-        "required": ["url"]
+    //set modal
+    $scope.modal = {
+        title: "Add Bookmark"
     };
+    
     $scope.form = {
         fields: [
             {
-                type: "text",
+                type: "url",
                 minlength: 5,
                 required: true,
                 title: "URL",
-                name: "url",
-                change: function(){
-                    
-                }
+                name: "url"
             },
             {
                 type: "text",
                 title: "Name",
                 name: "name",
                 description: "If left blank, name will be determined from URL.",
+            },
+            {
+                type: 'hidden',
+                title: '',
+                name: 'id'
+            },
+            {
+                type: 'hidden',
+                title: '',
+                name: 'tab'
             }
-        ]
+        ],
+        model: {
+            'id': '0',
+            'tab': $scope.active_nav_id
+        },
+        errors: {}
     };
-    // Check if 'id' is in args. If so, then we are in an 'edit' state.
-    if(angular.isDefined(route.args.id)){
-        // edit
-        // Get the content with this id
-        
-        var content = null;
-        
-        // check if there is content loaded (from the service)
-        if(bookmarks.content.length > 0){
-        
-            angular.forEach(bookmarks.content,function(value,key){
-               if(value.id == route.args.id){
-                   content = value;
-               } 
-            });
-            
-        }
-        else{
-            // no content is loaded, lets try to get this data from server
-            var data = {
-                id: route.args.id
+    
+    
+    // check if add or edit and add data if required
+    switch(route.name){
+        case 'add':
+            var modal_state = 'add';
+        break;
+        case 'edit':
+            var modal_state = 'edit';
+            /*
+            //var tabs = $flavrs.modules.current().sidenav,
+                tab = null,
+                modal_state = 'edit';
+            // deepcopy - keep original data intacked
+            $scope.sidenav_copy = angular.copy(tabs);
+            var item = $flavrs.sidenav.get_by_id(route.args.id);
+            if(item){
+                $scope.form.model.name = item.name;
+                $scope.form.model.id = item.id;
             }
-            content = {
-                    "card_type": "link",
-                    "card_url": "http://mail.google.com",
-                    "header": {
-                        "text": "Gmail"
-                    },
-                    "body": {
-                        "img16": "http://www.google.com/s2/favicons?domain=mail.google.com",
-                        "text": "mail.google.com"
-                    },
-                    "footer": {
-                        "options": [
-                            {"name": "Edit","icon":"edit", "link": "details"},
-                            {"name": "Share","icon":"share", "ngclick": "share"}
-                        ]
-                    }
-                }
-            //$http.post('',data)
-                 //.success(function(data,status){
-                     //content = data;
-                 //})
-        }
-        
-        if(content !== null){
-            var model = {
-                "url": content.card_url,
-                "name": content.header.text
-            }    
-        }
-        else{
-            // this should never get here.. as no id is found
-            $scope.emit('close_modal');
-            return;
-        }
-    }
-    else{ 
-        var model = {}
-        // check if any url params are present and if so use them to prepopulate
-        // the fields
-        angular.forEach(route.params,function(value,key){
-            model[key] = value;
-        });
+            else{
+                // invalid tab to edit
+            }*/
+            // update modal
+            $scope.modal.form.header = 'Edit Tab';
+        break;
     }
     
-    $scope.form.model = model;
+    // Button actions
+    $scope.actions = [
+        {
+            name: 'Save', 
+            colour: 'md-primary',
+            click: function(){
+                if($flavrs.modal.form.is_valid()){
+                    // if edit mode.. add id
+                    if(modal_state == 'edit'){
+                        var url_suffix = route.args.id+'/';
+                    }
+                    else{
+                        var url_suffix = '';
+                    }
+                    // form is valid, lets try to save it!
+                    var url = $scope.meta.root+'bookmarks/link/'+url_suffix,
+                        data = $scope.form.model,
+                        promise = $http.post(url,data);
+
+                    promise.success(function(data,status){
+                        // set url
+                        /*
+                        data.url = $flavrs.routes.get('sidenav',{'id':data.id});
+                        if(modal_state == 'edit'){
+                            for (var i = 0; i < $scope.sidenav.length; i++) {
+                                if(data.id == $scope.sidenav[i].id){
+                                    $scope.sidenav[i] = data;
+                                    break;
+                                }
+                            }
+                        }
+                        else{
+                            $scope.sidenav.push(data);
+                        }*/
+                        // close modal
+                        $flavrs.modal.instance.dismiss('success');
+                    });
+                    
+                    promise.error(function(data,status){
+                        $scope.form.errors = data;
+                    });
+                }
+            }
+        },
+    ];
+    
+    // if we are in edit mode, add a delete button
+    if(modal_state == 'edit'){
+        $scope.actions.push({
+            name: 'Delete',
+            colour: 'md-warn',
+            click: function(action){
+                action.name = 'Are You Sure?';
+                action.colour = 'md-hue-2 md-accent';
+                action.click = function(){
+                    // delete item
+                    var url = $scope.meta.root+'bookmarks/tab/'+route.args.id+'/delete/',
+                        data = $scope.form.model,
+                        promise = $http.post(url,data);
+                    
+                    promise.success(function(data,status){
+                        for (var i = 0; i < $scope.sidenav.length; i++) {
+                            if(data.id == $scope.sidenav[i].id){
+                                $scope.sidenav.splice(i,1);
+                                // if this was an active tab, then click
+                                // the next one
+                                if((data.id == $scope.active_nav_id) && ($scope.sidenav.length > 0)){
+                                    var new_id = $scope.sidenav[0].id;
+                                    $scope.active_nav_id = new_id;
+                                    //$flavrs.routes.go('sidenav',{id:new_id})
+                                    $flavrs.routes.previous = {name:'sidenav',args:{id:new_id}};
+                                }    
+                                break;
+                            }
+                        }
+                        $flavrs.modal.instance.dismiss('success');
+                    });
+                }
+            }
+        });
+    }    
+    
 }]);
 
 //Tab management controller

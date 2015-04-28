@@ -20,7 +20,7 @@ class InitView(SystemView):
             'sidenav': tabs
         }
 
-class LinkAddView(AjaxView):
+class LinkView(AjaxView):
     form_class = LinkForm
     success_url = ''
     
