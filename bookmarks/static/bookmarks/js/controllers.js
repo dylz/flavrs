@@ -51,6 +51,28 @@ flavrs_modules.bookmarks = {
 
 app.service('bookmarks', function(){
     this.content = [];
+    this.loaded_id = null;
+    
+    this.create_object = function(link){
+        return {
+            "id": link.id,
+            "card_type": "link",
+            "card_url": link.url,
+            "header": {
+                "text": link.name
+            },
+            "body": {
+                "img16": link.img,
+                "text": link.domain
+            },
+            "footer": {
+                "options": [
+                    {"name": "Edit","icon":"edit", "route":"edit"},
+                    {"name": "Share","icon":"share", "route": "share"}
+                ]
+            }
+        }
+    };
 });
 
 app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'bookmarks',
@@ -102,11 +124,17 @@ app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'book
     
     function get_content(id){
         // id = tab_id
-        $http.post($scope.meta.root+'static/bookmarks/json/'+id+'.json',{})
+        $http.get($scope.meta.root+'bookmarks/tab/'+id+'/')
              .success(function(response,status){
-                $scope.tab_content = response;
+                
+                var data = [];
+                // reformat data
+                response.forEach(function(link){
+                    data.push(bookmarks.create_object(link));
+                });
+                $scope.tab_content = data;
                 // store in service for modal window
-                bookmarks.content = response;
+                bookmarks.content = data;
                 // store this result in local storage for later use
                 // BTW we will only use the data for 5 mins, after that we request new data
                 //$scope.$storage[key] = {
@@ -135,13 +163,18 @@ app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'book
                     id = route.args.id;
                 }
             break;
-        };
+        }
         
         if(id){
-            // id is valid, load the content for it
-            get_content(id);
-            // set the active tab
-            $scope.active_nav_id = id;
+            // id is valid, load the content for it if not loaded already
+            var module = $flavrs.modules.current()
+            if(module._loaded_id != id){
+                get_content(id);
+                // set the active tab
+                $scope.active_nav_id = id;
+                // set this id as loaded
+                module._loaded_id = id;
+            }
         }
         else if(sidenav.length == 0){
             // no sidenavs, what should we show the user?
@@ -159,28 +192,9 @@ app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'book
 }]);
 
 //Controller for modal window
-app.controller('bookmarksModalCtrl', ['$scope','bookmarks', '$http', '$flavrs',
-    function($scope,bookmarks,$http,$flavrs) {
+app.controller('bookmarksModalCtrl', ['$scope','bookmarks', '$http', '$flavrs', 'bookmarks',
+    function($scope,bookmarks,$http,$flavrs,bookmarks) {
     var route = $flavrs.routes.current;
-    
-    /*
-    var data =   {
-                    "card_type": "link",
-                    "card_url": "http://mail.google.com",
-                    "header": {
-                        "text": "Gmail"
-                    },
-                    "body": {
-                        "img16": "http://www.google.com/s2/favicons?domain=mail.google.com",
-                        "text": "mail.google.com"
-                    },
-                    "footer": {
-                        "options": [
-                            {"name": "Edit","icon":"edit", "link": "details"},
-                            {"name": "Share","icon":"share", "ngclick": "share"}
-                        ]
-                    }
-                }*/
     
     //set modal
     $scope.modal = {
@@ -267,9 +281,6 @@ app.controller('bookmarksModalCtrl', ['$scope','bookmarks', '$http', '$flavrs',
                         promise = $http.post(url,data);
 
                     promise.success(function(data,status){
-                        // set url
-                        /*
-                        data.url = $flavrs.routes.get('sidenav',{'id':data.id});
                         if(modal_state == 'edit'){
                             for (var i = 0; i < $scope.sidenav.length; i++) {
                                 if(data.id == $scope.sidenav[i].id){
@@ -279,8 +290,9 @@ app.controller('bookmarksModalCtrl', ['$scope','bookmarks', '$http', '$flavrs',
                             }
                         }
                         else{
-                            $scope.sidenav.push(data);
-                        }*/
+                            data = bookmarks.create_object(data);
+                            bookmarks.content.push(data);
+                        }
                         // close modal
                         $flavrs.modal.instance.dismiss('success');
                     });

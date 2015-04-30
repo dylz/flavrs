@@ -1,3 +1,5 @@
+from urlparse import urlparse
+
 from bookmarks.models import Tab
 
 def get_user_tabs(user):
@@ -10,3 +12,14 @@ def get_user_tabs(user):
         })
     
     return tabs
+    
+def create_link_dict(link):
+    # get domain from url
+    domain = '{uri.netloc}'.format(uri=urlparse(link.url))
+    return {
+        "id": link.reference,
+        "url": link.url,
+        "name": link.name,
+        "img": "https://www.google.com/s2/favicons?domain=%s" % domain,
+        "domain": domain
+    }

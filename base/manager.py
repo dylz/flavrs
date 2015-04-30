@@ -17,6 +17,9 @@ class FrontEndModel(models.Model):
 	
 	def save(self, *args, **kwargs):
 		
+		if not self.reference:
+			self.reference = generate_reference()
+		
 		if self.display_order == None:
 			self.display_order = self.__class__.objects.filter(user=self.user).count()
 		

@@ -34,6 +34,14 @@ class CustomViewMethodsMixin(object):
             data['id'] = data['reference']
             del data['reference']
         
+        # convert ids back to references
+        if hasattr(self,'references'):
+            form_data = self.form.data
+            for reference in self.references:
+                original_value = form_data.get('_%s'%reference,None)
+                if original_value:
+                    data[reference] = original_value
+        
         return data
     
     def json_response(self,data=None,force_error=False):
@@ -43,6 +51,7 @@ class CustomViewMethodsMixin(object):
             # You can pass your own data
             if not data:
                 data = self.get_json_data()
+            
         else:
             # No user logged in - this is bad as this request should only
             # happen when a user is logged in
@@ -54,7 +63,7 @@ class CustomViewMethodsMixin(object):
             status = 400
         else:
             status = 200
-        return JsonResponse(data, status=status)
+        return JsonResponse(data, status=status, safe=False)
 
 class AjaxResponseMixin(CustomViewMethodsMixin,FormView):
     
@@ -79,6 +88,8 @@ class AjaxResponseMixin(CustomViewMethodsMixin,FormView):
         
         form_class = self.get_form_class()
         form = self.get_form(form_class)
+        model = form_class.Meta.model
+        fields = model._meta.fields
         # Turn the QueryDict to a normal dictionary
         form.data = form.data.dict()
         
@@ -105,7 +116,6 @@ class AjaxResponseMixin(CustomViewMethodsMixin,FormView):
         id = form.data.get('id')
         if reference and reference == id:
             # edit
-            model = self.form_class.Meta.model
             try:
                 form.instance = model.objects.get(reference=reference)
             except model.DoesNotExist:
@@ -118,6 +128,24 @@ class AjaxResponseMixin(CustomViewMethodsMixin,FormView):
         if id:
             # add..
             form.data['reference'] = id
+            
+        # now check the references from the view and convert other 
+        # references to ids
+        if hasattr(self,'references'):
+            for reference in self.references:
+                value = form.data.get(reference,None)
+                if value:
+                    for field in fields:
+                        if field.name == reference:
+                            field_model = field.related.parent_model
+                            try:
+                                obj = field_model.objects.get(reference=value)
+                            except field_model.DoesNotExist:
+                                pass
+                            else:
+                                form.data[reference] = obj.id
+                                form.data['_%s'%reference] = value
+                            break
         
         self.form = form
         if self.remove:

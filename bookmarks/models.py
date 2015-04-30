@@ -20,6 +20,7 @@ class Tab(FrontEndModel):
 class Link(FrontEndModel):
     name = models.CharField(max_length=255)
     url = models.URLField(max_length=255)
+    
     tab = models.ForeignKey(Tab)
     
     def __unicode__(self):

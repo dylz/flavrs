@@ -1,10 +1,11 @@
 from django.views.generic import FormView
+from django.http import JsonResponse, HttpResponseBadRequest
 
 from base.views import AjaxView, SystemView, OrderView
 
 from bookmarks.forms import LinkForm, TabForm
-from bookmarks.models import Tab
-from bookmarks.utils import get_user_tabs
+from bookmarks.models import Tab, Link
+from bookmarks.utils import get_user_tabs, create_link_dict
 
 class InitView(SystemView):
     """
@@ -22,7 +23,14 @@ class InitView(SystemView):
 
 class LinkView(AjaxView):
     form_class = LinkForm
-    success_url = ''
+    references = ['tab']
+    
+    def form_valid(self, form):
+        # Save the form
+        form.save()
+        self.form.cleaned_data = create_link_dict(form.instance)
+        return super(LinkView,self).form_valid(form)
+        
     
 class TabView(AjaxView):
     form_class = TabForm
@@ -31,6 +39,19 @@ class TabView(AjaxView):
         # Save the form
         form.save()
         return super(TabView,self).form_valid(form)
+        
+    def get(self, request, *args, **kwargs):
+        reference =  kwargs.get('reference',None)
+        
+        if not reference:
+            return HttpResponseBadRequest()
+            
+        output = []
+        
+        for link in Link.objects.filter(tab__reference=reference):
+            output.append(create_link_dict(link))
+        
+        return self.json_response(output)
         
 class TabOrderView(OrderView):
     model = Tab
