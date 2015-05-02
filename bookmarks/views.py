@@ -30,7 +30,19 @@ class LinkView(AjaxView):
         form.save()
         self.form.cleaned_data = create_link_dict(form.instance)
         return super(LinkView,self).form_valid(form)
+    
+    def get(self, request, *args, **kwargs):
+        reference =  kwargs.get('reference',None)
         
+        if not reference:
+            return HttpResponseBadRequest()
+            
+        try:
+            obj = Link.objects.get(reference=reference)
+        except Link.DoesNotExist:
+            return HttpResponseBadRequest()
+        else:
+            return self.json_response(create_link_dict(obj))
     
 class TabView(AjaxView):
     form_class = TabForm

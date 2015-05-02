@@ -25,6 +25,9 @@ body{
   line-height: 1.846;
   color: #666666;
 }
+.main-controller {
+  overflow: auto;
+}
 .ready{
   height: 100%;
 }
@@ -269,6 +272,12 @@ md-fabs .md-fab-default {
   margin-top: 10px;
 }
 
+/* Content Wrapper */
+
+.content {
+  overflow: hidden;
+}
+
 /* Cards */
 
 .tab-inner-wrapper .module{
@@ -330,6 +339,10 @@ a.panel-body{
   display: block;
   text-decoration: none;
   color: #212121;
+  height: 44px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .panel-type-link .panel:hover{

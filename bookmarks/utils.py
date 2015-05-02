@@ -21,5 +21,6 @@ def create_link_dict(link):
         "url": link.url,
         "name": link.name,
         "img": "https://www.google.com/s2/favicons?domain=%s" % domain,
-        "domain": domain
+        "domain": domain,
+        "tab": link.tab.reference
     }

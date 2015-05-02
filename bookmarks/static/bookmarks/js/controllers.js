@@ -27,7 +27,7 @@ flavrs_modules.bookmarks = {
         {"name":"sidenav_order","route":"tabs/order/","controller":"tabOrderCtrl","view":"modal"},
         {"name":"sidenav","route":"tabs/:id/","controller":"bookmarksCtrl"},
         {"name": "add","route": "add/", "controller": "bookmarksModalCtrl", "view":"modal"},
-        {"name": "edit","route": "edit/:id/","controller": "openModalCtrl"},
+        {"name": "edit","route": "edit/:id/","controller": "bookmarksModalCtrl", "view":"modal"},
         {"name": "search","route": "search/", "controller": "openModalCtrl"}
     ],
     "commands": [
@@ -126,7 +126,7 @@ app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'book
         // id = tab_id
         $http.get($scope.meta.root+'bookmarks/tab/'+id+'/')
              .success(function(response,status){
-                
+                bookmarks.raw_content = response;
                 var data = [];
                 // reformat data
                 response.forEach(function(link){
@@ -196,9 +196,25 @@ app.controller('bookmarksModalCtrl', ['$scope','bookmarks', '$http', '$flavrs', 
     function($scope,bookmarks,$http,$flavrs,bookmarks) {
     var route = $flavrs.routes.current;
     
+    function load_modal_data(content){
+        // deepcopy - keep original data intacked
+        $scope.link_copy = angular.copy(content);
+        var item = $flavrs.content.get_by_id(route.args.id,content);
+        if(item){
+            $scope.form.model.name = item.name;
+            $scope.form.model.url = item.url;
+            $scope.form.model.id = item.id;
+            $scope.form.model.tab = item.tab;
+        }
+        else{
+            // invalid link to edit
+        }
+    }
+    
     //set modal
     $scope.modal = {
-        title: "Add Bookmark"
+        title: "Add Bookmark",
+        form: {}
     };
     
     $scope.form = {
@@ -241,23 +257,33 @@ app.controller('bookmarksModalCtrl', ['$scope','bookmarks', '$http', '$flavrs', 
             var modal_state = 'add';
         break;
         case 'edit':
-            var modal_state = 'edit';
-            /*
-            //var tabs = $flavrs.modules.current().sidenav,
-                tab = null,
+            
+            var content = bookmarks.raw_content;
+                link = null,
                 modal_state = 'edit';
-            // deepcopy - keep original data intacked
-            $scope.sidenav_copy = angular.copy(tabs);
-            var item = $flavrs.sidenav.get_by_id(route.args.id);
-            if(item){
-                $scope.form.model.name = item.name;
-                $scope.form.model.id = item.id;
+            
+            if(!angular.isDefined(content)){
+                // content is not loaded, this means that the user
+                // is accessing this url directly and no content has been
+                // loaded yet.
+                // lets manually load it.
+                var url = $scope.meta.root+'bookmarks/link/'+route.args.id+'/',
+                    promise = $http.get(url);
+                    promise.success(function(data,status){
+                        load_modal_data([data]);
+                    });
+                    promise.error(function(data,status){
+                        // error, go back to home
+                        
+                    });
             }
             else{
-                // invalid tab to edit
-            }*/
+                // content is already loaded
+                load_modal_data(content);
+            }
+            
             // update modal
-            $scope.modal.form.header = 'Edit Tab';
+            $scope.modal.form.header = 'Edit Link';
         break;
     }
     
@@ -282,14 +308,15 @@ app.controller('bookmarksModalCtrl', ['$scope','bookmarks', '$http', '$flavrs', 
 
                     promise.success(function(data,status){
                         if(modal_state == 'edit'){
-                            for (var i = 0; i < $scope.sidenav.length; i++) {
-                                if(data.id == $scope.sidenav[i].id){
-                                    $scope.sidenav[i] = data;
+                            for (var i = 0; i < bookmarks.content.length; i++) {
+                                if(data.id == bookmarks.content[i].id){
+                                    bookmarks.content[i] = bookmarks.create_object(data);
                                     break;
                                 }
                             }
                         }
                         else{
+                            bookmarks.raw_content.push(data);
                             data = bookmarks.create_object(data);
                             bookmarks.content.push(data);
                         }
@@ -315,22 +342,14 @@ app.controller('bookmarksModalCtrl', ['$scope','bookmarks', '$http', '$flavrs', 
                 action.colour = 'md-hue-2 md-accent';
                 action.click = function(){
                     // delete item
-                    var url = $scope.meta.root+'bookmarks/tab/'+route.args.id+'/delete/',
+                    var url = $scope.meta.root+'bookmarks/link/'+route.args.id+'/delete/',
                         data = $scope.form.model,
                         promise = $http.post(url,data);
                     
                     promise.success(function(data,status){
-                        for (var i = 0; i < $scope.sidenav.length; i++) {
-                            if(data.id == $scope.sidenav[i].id){
-                                $scope.sidenav.splice(i,1);
-                                // if this was an active tab, then click
-                                // the next one
-                                if((data.id == $scope.active_nav_id) && ($scope.sidenav.length > 0)){
-                                    var new_id = $scope.sidenav[0].id;
-                                    $scope.active_nav_id = new_id;
-                                    //$flavrs.routes.go('sidenav',{id:new_id})
-                                    $flavrs.routes.previous = {name:'sidenav',args:{id:new_id}};
-                                }    
+                        for (var i = 0; i < bookmarks.content.length; i++) {
+                            if(data.id == bookmarks.content[i].id){
+                                bookmarks.content.splice(i,1);
                                 break;
                             }
                         }

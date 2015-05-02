@@ -336,7 +336,10 @@ app.directive('card', function($compile) {
                             */
                             var replaceElement = function(klass){
                                 var ele = element.find('.'+klass),
-                                    html = "<a class='"+klass+"' href='"+content.card_url+"'>"+ele.html()+"</a>";
+                                    html = "<a class='"+klass + 
+                                            "' href='"+content.card_url+
+                                            "' title='"+ele.html()+"'>"+
+                                            ele.html()+"</a>";
                                 element.find('.'+klass).replaceWith(html);
                             }
                             //update header, and body. basically, replace the divs with a

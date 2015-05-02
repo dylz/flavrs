@@ -97,6 +97,10 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         $mdSidenav('left').toggle();
     }
     
+    $scope.is_menu_open = function(){
+        return !$('.tab-bar').hasClass('md-closed');
+    };
+    
     //generic share function
     $scope.share = function(){
         console.log('HEY')
@@ -569,6 +573,9 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                         ele.html(response.data);
                         $compile(ele)($scope);
                         load();
+                        if($scope.is_menu_open()){
+                            $scope.toggle_menu();
+                        }
                      });
         }
     }
@@ -643,7 +650,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
 
 app.controller('contentCtrl',['$scope','$location','$http','$localStorage','route',
     function($scope,$location,$http,$localStorage,route){
-    
+
     $scope.$storage = $localStorage;
     
     $scope.load_tab_content = function(id,refresh){

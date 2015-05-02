@@ -313,6 +313,19 @@ app.service('$flavrs', function($http,$location,$localStorage){
         }
     };
     
+    self.content = {
+        get_by_id: function(id,items){
+            var item = null;
+            angular.forEach(items,function(value,key){
+                if(value.id == id){
+                    item = value;
+                }
+            });
+            
+            return item;
+        }
+    }
+    
     self.modal = {
         instance: undefined,
         form: {

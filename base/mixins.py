@@ -49,7 +49,7 @@ class CustomViewMethodsMixin(object):
         # User should be authenticated
         if self.request.user.is_authenticated():
             # You can pass your own data
-            if not data:
+            if data == None:
                 data = self.get_json_data()
             
         else:
@@ -78,8 +78,9 @@ class AjaxResponseMixin(CustomViewMethodsMixin,FormView):
         return self.json_response()
         
     def form_delete(self,form):
+        id = form.instance.reference
         form.instance.delete()
-        return self.json_response()
+        return self.json_response(data={'id':id})
             
     def post(self, request, *args, **kwargs):
 
@@ -88,10 +89,13 @@ class AjaxResponseMixin(CustomViewMethodsMixin,FormView):
         
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        model = form_class.Meta.model
-        fields = model._meta.fields
         # Turn the QueryDict to a normal dictionary
         form.data = form.data.dict()
+        
+        # get model/meta info
+        if hasattr(form_class,'Meta'):
+            model = form_class.Meta.model
+            fields = model._meta.fields
         
         # check if 'user' is in data, and if it is, replace it with a user
         # object..
