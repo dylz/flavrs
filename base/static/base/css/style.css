@@ -27,6 +27,7 @@ body{
 }
 .main-controller {
   overflow: auto;
+  min-height: 100%;
 }
 .ready{
   height: 100%;

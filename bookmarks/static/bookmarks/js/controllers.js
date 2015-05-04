@@ -28,7 +28,7 @@ flavrs_modules.bookmarks = {
         {"name":"sidenav","route":"tabs/:id/","controller":"bookmarksCtrl"},
         {"name": "add","route": "add/", "controller": "bookmarksModalCtrl", "view":"modal"},
         {"name": "edit","route": "edit/:id/","controller": "bookmarksModalCtrl", "view":"modal"},
-        {"name": "search","route": "search/", "controller": "openModalCtrl"}
+        {"name": "search","route": "search/", "controller": "searchCtrl"}
     ],
     "commands": [
         {
@@ -547,4 +547,45 @@ app.controller('tabOrderCtrl', ['$scope','$flavrs','$http', function($scope,$fla
         orderChanged: function(event) {}
     };
     
+}]);
+
+app.controller('searchCtrl', ['$scope','$flavrs','$http','bookmarks', 
+            function($scope,$flavrs,$http,bookmarks){
+    
+    var route = $flavrs.routes.current;
+    
+    function init(){
+        if(angular.isDefined(route.params.q)){
+            var url = $scope.meta.root+'bookmarks/link/search/?q='+route.params.q,
+                promise = $http.get(url);
+                
+                promise.success(function(data,status){
+                    if(data.length > 0){
+                        var content = [];
+                        data.forEach(function(link){
+                            content.push(bookmarks.create_object(link));
+                        });
+                        $scope.tab_content = content;
+                        bookmarks.content = content; 
+                    }
+                    else {
+                        
+                    }
+                });
+                
+                promise.error(function(){
+                   // something went wrong, send user to home
+                   // resend the loaded id so the data can be loaded again
+                   $flavrs.modules.current()._loaded_id = null;
+                   $flavrs.routes.go('/');
+                });
+        }
+        else{
+            // search page requested but no query passed, what to do now?
+        }
+    }
+    
+    $flavrs.controller.ready(function(){
+        init();
+    });
 }]);

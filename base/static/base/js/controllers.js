@@ -1022,8 +1022,8 @@ app.controller('commandCtrl',['$scope','$timeout', function($scope,$timeout){
     });
 }]);
 
-app.controller('searchCtrl',['$scope','$http','$sce','$timeout',
-    function($scope,$http,$sce,$timeout){
+app.controller('_searchCtrl',['$scope','$http','$sce','$timeout','$flavrs',
+    function($scope,$http,$sce,$timeout,$flavrs){
     
     $scope.search = {
         shortcuts: {}, 
@@ -1117,7 +1117,7 @@ app.controller('searchCtrl',['$scope','$http','$sce','$timeout',
             delay = 0;
         }
         else{
-            delay = 100;
+            delay = 1000;
         }
         
         // reset short discovery
@@ -1149,7 +1149,7 @@ app.controller('searchCtrl',['$scope','$http','$sce','$timeout',
             delay = 0;
         }
         else{
-            delay = 100;
+            delay = 1000;
         }
         var parent_scope = $scope.$$nextSibling.$parent;
         // make sure the name of the search gets shown asap
@@ -1164,12 +1164,14 @@ app.controller('searchCtrl',['$scope','$http','$sce','$timeout',
             // that means that the endpoint is external (ie. Google)
             // these urls have to be loaded as a "trusted resource" in angular
             if(angular.isDefined(value.url)){
-                var action = $sce.trustAsResourceUrl(value.url);
+                var action = $sce.trustAsResourceUrl(value.url),
+                    internal = false;
             }
             else{
                 // if url is not provided, then use the default 'search'
                 // route for the active module
-                var action = parent_scope.get_route('search');
+                var action = $flavrs.routes.get('search'),
+                    internal = true;
             }
             
             $scope.search.action = action;
@@ -1195,7 +1197,13 @@ app.controller('searchCtrl',['$scope','$http','$sce','$timeout',
                     // enter has been clicked
                     // check if user was just trying to select an dropdown option
                     if(angular.element('#search ul .selected').length == 0){
-                        angular.element('#search').submit();
+                        if(internal) {
+                            $flavrs.routes.go('search',undefined,{'q':$scope.search.input});
+                            $scope.$apply();
+                        }
+                        else{
+                            angular.element('#search').submit();    
+                        }
                     }
                 }
                 else{

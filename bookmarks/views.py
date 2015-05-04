@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.views.generic import FormView
 from django.http import JsonResponse, HttpResponseBadRequest
 
@@ -43,6 +44,22 @@ class LinkView(AjaxView):
             return HttpResponseBadRequest()
         else:
             return self.json_response(create_link_dict(obj))
+
+class LinkSearchView(AjaxView):
+    
+    def get(self, request, *args, **kwargs):
+        q = request.GET.get('q',None)
+        
+        if q:
+            output = []
+            for link in Link.objects.filter(
+                    Q(tab__user=request.user) &
+                    (Q(name__icontains=q) | Q(url__icontains=q))):
+                output.append(create_link_dict(link))
+            
+            return self.json_response(output)
+        else:
+            return HttpResponseBadRequest()
     
 class TabView(AjaxView):
     form_class = TabForm

@@ -334,16 +334,29 @@ app.directive('card', function($compile) {
                             external URL.
                             This means that card_url is required.
                             */
-                            var replaceElement = function(klass){
+                            var replaceElement = function(klass,attrs){
+                                
+                                if(!angular.isDefined(attrs)){
+                                    attrs = {};
+                                }
+                                
                                 var ele = element.find('.'+klass),
                                     html = "<a class='"+klass + 
-                                            "' href='"+content.card_url+
-                                            "' title='"+ele.html()+"'>"+
+                                            "' href='"+content.card_url+"'>" +
                                             ele.html()+"</a>";
                                 element.find('.'+klass).replaceWith(html);
+                                
+                                $.each(attrs, function(key, value){
+                                    if(value == 'html'){
+                                        element.attr(key,ele.html());
+                                    }
+                                    else {
+                                        element.attr(key,value);
+                                    }
+                                })
                             }
                             //update header, and body. basically, replace the divs with a
-                            replaceElement('panel-heading');
+                            replaceElement('panel-heading',{'title':'html'});
                             replaceElement('panel-body');
                             //add the class to the element for CSS reasons
                             element.addClass('panel-type-link');
