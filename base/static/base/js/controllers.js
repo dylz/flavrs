@@ -408,7 +408,10 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             route_value = route_arr.length-2,
             route_params = $location.search(),
             routes = $flavrs.modules.current().routes;
-
+        
+        // reset pre content text
+        $scope.pre_content = '';
+        
         for (var k = 0; k < routes.length; k++){
             var value = routes[k],
                 loop_route_arr = value.route.split('/');
@@ -1098,7 +1101,11 @@ app.controller('_searchCtrl',['$scope','$http','$sce','$timeout','$flavrs',
             $scope.search_onselect(input);   
         }
     });
-
+    
+    $scope.$on('set_search_input', function(event,input){
+        $scope.search.input = input;
+    });
+    
     // private
     
     function load_search(search_engines,module,delay){
@@ -1164,14 +1171,12 @@ app.controller('_searchCtrl',['$scope','$http','$sce','$timeout','$flavrs',
             // that means that the endpoint is external (ie. Google)
             // these urls have to be loaded as a "trusted resource" in angular
             if(angular.isDefined(value.url)){
-                var action = $sce.trustAsResourceUrl(value.url),
-                    internal = false;
+                var action = $sce.trustAsResourceUrl(value.url);
             }
             else{
                 // if url is not provided, then use the default 'search'
                 // route for the active module
-                var action = $flavrs.routes.get('search'),
-                    internal = true;
+                var action = $flavrs.routes.get('search');
             }
             
             $scope.search.action = action;
@@ -1197,12 +1202,17 @@ app.controller('_searchCtrl',['$scope','$http','$sce','$timeout','$flavrs',
                     // enter has been clicked
                     // check if user was just trying to select an dropdown option
                     if(angular.element('#search ul .selected').length == 0){
-                        if(internal) {
+                        if(!angular.isDefined(value.url)) {
                             $flavrs.routes.go('search',undefined,{'q':$scope.search.input});
+                            $scope.$parent.active_nav_id = null;
+                            var module = $flavrs.modules.current();
+                            if(module.hasOwnProperty('_loaded_id')){
+                                module._loaded_id = null;
+                            }
                             $scope.$apply();
                         }
                         else{
-                            angular.element('#search').submit();    
+                            angular.element('#search').submit();   
                         }
                     }
                 }

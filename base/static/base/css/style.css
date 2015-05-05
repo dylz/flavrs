@@ -279,6 +279,13 @@ md-fabs .md-fab-default {
   overflow: hidden;
 }
 
+.pre-content {
+  padding-left: 20px;
+  position: relative;
+  top: 10px;
+  min-height: 27px;
+}
+
 /* Cards */
 
 .tab-inner-wrapper .module{

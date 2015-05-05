@@ -556,20 +556,30 @@ app.controller('searchCtrl', ['$scope','$flavrs','$http','bookmarks',
     
     function init(){
         if(angular.isDefined(route.params.q)){
-            var url = $scope.meta.root+'bookmarks/link/search/?q='+route.params.q,
+            var q = route.params.q,
+                previous = $flavrs.routes.previous;
+                url = $scope.meta.root+'bookmarks/link/search/?q='+q,
                 promise = $http.get(url);
                 
+                // if the search input is not set yet, set it!
+                if($('#search input').val() == ''){ //TODO replace with flavrs service
+                    $scope.$broadcast('set_search_input',q);
+                }
+                
                 promise.success(function(data,status){
-                    if(data.length > 0){
-                        var content = [];
-                        data.forEach(function(link){
-                            content.push(bookmarks.create_object(link));
-                        });
-                        $scope.tab_content = content;
-                        bookmarks.content = content; 
-                    }
-                    else {
-                        
+                    var content = [];
+                    data.forEach(function(link){
+                        content.push(bookmarks.create_object(link));
+                    });
+                    $scope.tab_content = content;
+                    bookmarks.content = content;
+                    
+                    $scope.pre_content = '<strong>'+data.length+'</strong> results found';
+
+                    if(Object.keys(previous).length > 0){
+                        console.log(previous)
+                        var p_url = $flavrs.routes.get(previous.name,previous.args);
+                        $scope.pre_content += ' <a href="'+p_url+'" class="md-button">Go Back</a>';
                     }
                 });
                 
