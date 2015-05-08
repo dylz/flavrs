@@ -28,7 +28,8 @@ flavrs_modules.bookmarks = {
         {"name":"sidenav","route":"tabs/:id/","controller":"bookmarksCtrl"},
         {"name": "add","route": "add/", "controller": "bookmarksModalCtrl", "view":"modal"},
         {"name": "edit","route": "edit/:id/","controller": "bookmarksModalCtrl", "view":"modal"},
-        {"name": "search","route": "search/", "controller": "searchCtrl"}
+        {"name": "search","route": "search/", "controller": "searchCtrl", "theme": "search", 
+            "toolbar":"search"}
     ],
     "commands": [
         {
@@ -555,6 +556,7 @@ app.controller('searchCtrl', ['$scope','$flavrs','$http','bookmarks',
     var route = $flavrs.routes.current;
     
     function init(){
+        
         if(angular.isDefined(route.params.q)){
             var q = route.params.q,
                 previous = $flavrs.routes.previous;
@@ -577,7 +579,6 @@ app.controller('searchCtrl', ['$scope','$flavrs','$http','bookmarks',
                     $scope.pre_content = '<strong>'+data.length+'</strong> results found';
 
                     if(Object.keys(previous).length > 0){
-                        console.log(previous)
                         var p_url = $flavrs.routes.get(previous.name,previous.args);
                         $scope.pre_content += ' <a href="'+p_url+'" class="md-button">Go Back</a>';
                     }

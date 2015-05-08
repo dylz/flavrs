@@ -18,14 +18,14 @@
 {% block content %}
 
 {% verbatim %}
-<div ng-controller="mainCtrl" class="main-controller">
+<div ng-controller="mainCtrl" class="main-controller" md-theme="{{ theme }}">
 <!-- Menu Bar -->
 <md-toolbar class="menu-bar" layout="row">
     <div class="md-toolbar-tools">
-        <md-button class="menu-bar-toggle" ng-click="toggle_menu();">
-            <i class="fa fa-bars"></i>
+        <md-button class="menu-bar-toggle" ng-click="toolbar.sidenav_btn.click()">
+            <i class="fa fa-{{toolbar.sidenav_btn.icon}}"></i>
         </md-button>
-        <span class="menu-bar-brand">Flavrs</span>
+        <span class="menu-bar-brand">{{ toolbar.brand }}</span>
         <!-- fill up the space between left and right area -->
         <span flex="20"></span>
         <span flex="45">

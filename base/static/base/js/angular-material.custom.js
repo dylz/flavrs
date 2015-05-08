@@ -128,7 +128,7 @@ app.directive('mdFabs', function() {
                             $window.location.href = url;
                         }
                         else {
-                            $location.path(url);
+                            $location.path(url).search({});
                         }
                     }
                 }

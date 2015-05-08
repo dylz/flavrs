@@ -22,6 +22,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     $scope.broadcast_monitor = {};
     $scope.loaded_controllers = [];
     $scope.tabs_ui = {};
+    $scope.theme = 'default';
 
     //modules.. this won't be hardcoded in the future.. so fix this kay!?
     $scope.modules = ['base','bookmarks','events','twitter','login'];
@@ -44,54 +45,6 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         window.location.href = $scope.api+'logout/';
     }
     
-    //Load module requirements in background
-    $scope.load_module = function(module,callback){
-        //only try to load the module if it is in the list of approved
-        //modules..
-        //This will also help prevent client errors when trying to load
-        //modules that do not exist
-        if($scope.modules.indexOf(module) > -1){
-            $.getScript("/static/"+module+"/js/controllers.js",function(){
-                callback;
-            });
-        }
-    }
-    
-    //get all registered modules. This is done in a function so we can do special
-    //logic like sorting and such
-    $scope.get_modules = function(){
-        return $scope.modules.sort();
-    }
-    
-    //register a modules "init". Basically just save time by making sure all
-    //required scopes are updated so data is not crosedd between modules
-    $scope.register_init = function(response){
-        
-        //add any special routes (ie. tabs)
-        response.routes.push({"name":"sidenav","route":"tab/:id","controller":"contentCtrl"});
-        
-        $scope.meta = response.meta;
-        $scope.actions = response.actions;
-        $scope.routes = response.routes;
-        $scope.commands = response.commands;
-        
-        // add urls to tabs object
-        angular.forEach(response.tabs,function(value,key){
-            value.url = $scope.get_route('sidenav',{'id':value.id});
-        });
-        
-        $scope.tabs = response.tabs;
-        
-        //tell the app that this module is loaded so it does not try to load it again.
-        $scope.module_is_loaded = true;
-        
-        // update the command bar logic by broadcasting to the command controller
-        $scope.$broadcast('update_commands',response.commands);
-        
-        // add to service
-        $flavrs.modules.add(response);
-    }
-    
     // toggle the menu
     $scope.toggle_menu = function(){
         $mdSidenav('left').toggle();
@@ -105,26 +58,9 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     $scope.share = function(){
         console.log('HEY')
     }
-
+    
     $scope.location = function(route,params,args){
-        // params is optional, if not defined, set a default
-        if(!angular.isDefined(params)){
-            params = {};
-        }
-        
-        /// check internal routes
-        
-        switch (route) {
-            case '/':
-                //if route is empty, load the 'root' path (this is the module root)
-                route = $scope.module+'/';
-                break;
-            default:
-                //get the actual path
-                route = $scope.get_route(route,args);
-        }
-
-        $location.path(route).search(params);
+        return $flavrs.routes.go(route,args,params);
     }
     
     //wrapper for ngclicks outside of this scope
@@ -180,10 +116,10 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             var previous = $flavrs.routes.previous;
             // if there is no previous, send user to module root
             if(angular.isDefined(previous.name)){
-                $scope.location(previous.name,undefined,previous.args);
+                $flavrs.routes.go(previous.name,previous.args,previous.params);
             }
             else{
-                $scope.location('/');
+                $flavrs.go('/');
             }
         });
         
@@ -194,77 +130,6 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     $scope.close_modal = function(){
         $scope.modalInstance.dismiss('cancel');
     }
-    
-    //generic edit - open modal and pass content. let the modules' controller
-    // do the rest of the work
-    $scope.edit = function(content,controller){
-        $scope.open_modal(controller,{content:content});
-    }
-    
-    // tabs are generic, which means the functionality does not belong to any one
-    // module.
-    $scope.open_tab_management = function(){
-        $scope.open_modal('tabCtrl');
-    }
-    
-    //validate modal form
-    $scope.validate_modal = function(form,callback){
-        $scope.$broadcast(callback,form.hasClass('ng-valid'));
-    }
-    
-    //listen to validate the form on request
-    $scope.$on('validate_modal_form', function(event, callback) {
-        return $scope.validate_modal($("form[name=modal_form]"),callback);
-    });
-    
-    //API usage to close a modal
-    $scope.$on('close_modal', function(){
-        $scope.modalInstance.dismiss('cancel');
-    });
-    
-    //API usage to append content
-    $scope.$on('add_to_content',function(event,data){
-        $scope.tab_content.push(data);
-    });
-    
-    // Get the route based off of object.route name
-    $scope.get_route = function(route,params,module){
-        var output = null;
-        if(!angular.isDefined(params)){
-            params = {}
-        }
-        
-        if(!angular.isDefined(module)){
-            module = $scope.module;
-        }
-        
-        // switch case so we can have special cases for routing
-        switch(route){
-            case 'home':
-                output = "";
-            break;
-            default:
-                angular.forEach($scope.routes,function(value,key){
-                    if(value.name == route){
-                        output = value.route;
-                    }
-                });
-        }
-        
-        if(output !== null){
-            // route is found. 
-            // next, add the params
-            angular.forEach(params,function(value,key){
-                output = output.replace(':'+key,value);
-            });
-            // We need to remember to append the current module
-            // the user is in to prevent routing conflicts.
-            return module+'/'+output;
-        }
-        else{
-            //throw new Error(route+' does not exist.')   
-        }
-    };
     
     $rootScope.$on("$locationChangeStart", function(event, current) {
         //Get the path, and use it to determine the module
@@ -316,14 +181,6 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         }
     });
     
-    //update the view after the module is registered
-    $scope.$watch("module_is_loaded", function(){
-        // check if content will be rendered right from view or do we need
-        // to load the default stuff
-        if($scope.module_is_loaded){
-            //update_view();
-        }
-    });
     
     //Private functions
     
@@ -539,6 +396,8 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             ctrl = route_obj.controller,
             template = route_obj.template,
             view = route_obj.view,
+            theme = route_obj.theme,
+            toolbar = route_obj.toolbar,
             load = function(){
                 $controller(ctrl,locals);
             };
@@ -564,6 +423,8 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             case 'modal':
                 // open up a modal window and bind the given controller
                 $scope.open_modal(ctrl);
+                // don't change the page theme
+                theme = $scope.theme;
             break;
             default: 
                 if(!angular.isDefined(template)){
@@ -572,14 +433,32 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                 
                 $http.get(check_template(template),{cache: true})
                      .then(function(response){
-                        var ele = angular.element('#tab-content');
+                        var ele = angular.element('#tab-content'),
+                            previous = $flavrs.routes.previous;
                         ele.html(response.data);
                         $compile(ele)($scope);
                         load();
-                        if($scope.is_menu_open()){
+                        // if not sidenav url, hide the menu
+                        if(($scope.is_menu_open()) && (previous != undefined) && 
+                            (previous.name.indexOf('sidenav_') == -1)){
                             $scope.toggle_menu();
                         }
                      });
+        }
+        
+        // if route requests it, change the page theme
+        if(!angular.isDefined(theme)){
+            theme = 'default';
+        }
+        $scope.theme = theme;
+        
+        // check what toolbar to load
+        if(!angular.isDefined(toolbar)){
+            toolbar = 'default';
+        }
+        
+        if($flavrs.toolbars.hasOwnProperty(toolbar)){
+            $scope.toolbar = $flavrs.toolbars[toolbar];
         }
     }
     
@@ -597,31 +476,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         return template;
     }
     
-    function fix_height(){
-        var new_height = $(document).height()-$('.menu-bar').height()-$('material-tabs').height();
-        $('#tab-content,.button-bar').height(new_height);
-        var windowH = $(window).height(),
-            documentH = $(document).height();
-        if(windowH == documentH){
-            var height = documentH
-        }
-        else{
-            var height = documentH;
-        }
-        $('body').height(height);
-    }
-    
-    //Init functions
-    //Fix height of tab content to match document size
-    //fix_height();
-    //Bind this to a scroll event so the height gets fixed whenever the user scrolls
-    window.onresize = function(event) {
-        //fix_height();
-    };
-    
-    window.onscroll = function(event){
-        //fix_height();
-    };
+    /*
     // Check when user clicks '/' on their keyboard, then show the command bar
     $(document).keyup(function(e){
         //only trigger then if user is not typing in an input
@@ -634,12 +489,11 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             $scope.$broadcast('manage_command_bar','reset');
         }
     });
-    
+    */
     // check localstorage every min to take care of any garbage cleanup
     $interval(function(){
         angular.forEach($scope.$storage,function(value,key){
-            // TAB DATA CLEAN UP
-            if(key.indexOf('tab_') > -1){
+            if(value.hasOwnProperty('expires')){
                 if(new Date().getTime() >= value.expires){
                     delete $scope.$storage[key];
                 }
@@ -1049,6 +903,7 @@ app.controller('_searchCtrl',['$scope','$http','$sce','$timeout','$flavrs',
     
     
     $scope.search_change = function(input){
+        
         // compare user input to search-changing-keybinds
         // ... oh ya only do this if the input starts with an @ symbol
         if(input.indexOf('@') === 0){
@@ -1069,7 +924,7 @@ app.controller('_searchCtrl',['$scope','$http','$sce','$timeout','$flavrs',
         // check if the typeahead shortcuts should be shown in this search
         angular.forEach($scope.search.shortcuts_typeahead,function(value,key){
             if(value.toLowerCase().indexOf(input) > -1){
-                output.push(value);
+                //output.push(value);
             }
         });
         // we need to return the typeahead options based on user input
@@ -1196,6 +1051,7 @@ app.controller('_searchCtrl',['$scope','$http','$sce','$timeout','$flavrs',
             // can be submitted properly.
             // add 'name' to input
             angular.element('#search input').attr({'autocomplete':'off'})
+            .unbind('keyup')
             .keyup(function(e){
                 // bind the 'enter' key pressed event
                 if(e.keyCode == 13){

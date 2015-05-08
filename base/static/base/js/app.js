@@ -3,7 +3,7 @@
 var flavrs_modules = {},
 
 // APP is defined!
-    app = angular.module('flavrs', ['ngRoute','ngCookies','ngStorage',
+app = angular.module('flavrs', ['ngRoute','ngCookies','ngStorage',
     'ngSanitize','ngAnimate','ngMaterial','schemaForm','ui.bootstrap','ui.sortable']);
 
 //factory
@@ -95,6 +95,17 @@ app.config(function($locationProvider) {
   $locationProvider.html5Mode(true).hashPrefix('!');
 });
 
+// Themes
+app.config(function($mdThemingProvider) {
+    $mdThemingProvider.alwaysWatchTheme(true);
+    $mdThemingProvider.theme('search')
+    .primaryPalette('purple');
+    
+    $mdThemingProvider.theme('organize')
+    .primaryPalette('orange');
+});
+
+
 //filters
 app.filter('module', function() {
     return function(input) {
@@ -106,7 +117,7 @@ app.filter('module', function() {
 });
 
 // Main Flavrs service
-app.service('$flavrs', function($http,$location,$localStorage){
+app.service('$flavrs', function($http,$location,$localStorage,$rootScope){
     
     var self = this;
     
@@ -208,6 +219,7 @@ app.service('$flavrs', function($http,$location,$localStorage){
             scope.commands = current.commands;
             scope.sidenav = current.sidenav;
             scope.sidenav_title = current.meta.glossary.sidenav_plural;
+            scope.toolbar = self.toolbar;
             
             return scope;
         },
@@ -272,6 +284,15 @@ app.service('$flavrs', function($http,$location,$localStorage){
                     route = this.get(route,args);
             }
             $location.path(route).search(params);
+        },
+        back: function(){
+            var previous = this.previous;
+            if(previous.hasOwnProperty('name')){
+                this.go(previous.name,previous.args,previous.params);
+            }
+            else{
+                this.go('/')
+            }
         }
     };
     
@@ -340,6 +361,43 @@ app.service('$flavrs', function($http,$location,$localStorage){
             if(angular.isDefined(self.routes.current.name)){
                 fn();
             }
+        }
+    }
+    
+    self.toolbars = {
+        'default': {
+            sidenav_btn: {
+                icon: 'bars',
+                click: function(){
+                    self.scope.toggle_menu();
+                }
+            },
+            brand: 'Flavrs',
+            search: {
+                enabled: true,
+                autocomplete: true
+            }
+        },
+        'search': {
+            sidenav_btn: {
+                icon: 'arrow-left',
+                click: function(){
+                    self.routes.back();
+                }
+            },
+            brand: 'Back',
+            search: {
+                enabled: true,
+                autocomplete: true
+            }
+        }
+    }
+    
+    self.toolbar = self.toolbars['default'];
+    
+    self.theme = {
+        set: function(name){
+            self.scope.theme = name;
         }
     }
     
