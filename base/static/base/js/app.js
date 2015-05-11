@@ -401,6 +401,10 @@ app.service('$flavrs', function($http,$location,$localStorage,$rootScope){
         },
         set: function(name){
             self.scope.toolbar = self._toolbars[name];
+        },
+        register: function(key,values){
+            this[key] = values;
+            self._toolbars[key] = angular.copy(values);
         }
     }
     

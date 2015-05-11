@@ -81,15 +81,21 @@ app.service('bookmarks', function($flavrs){
     
     this.manage = function(){
         $flavrs.theme.set('green');
-        var default_toolbar = angular.copy($flavrs.toolbar);
-        $flavrs.toolbar.sidenav_btn = {
-            icon: 'arrow-left',
-            click: function(){
-                $flavrs.theme.set('default');
-                $flavrs.toolbars.set('default');
+        $flavrs.toolbars.register('manage',{
+            sidenav_btn: {
+                icon: 'arrow-left',
+                click: function(){
+                    $flavrs.theme.set('default');
+                    $flavrs.toolbars.set('default');
+                }
+            },
+            brand: 'Back',
+            search: {
+                enabled: true,
+                autocomplete: true
             }
-        }
-        $flavrs.toolbar.brand = 'Back';
+        })
+        $flavrs.toolbars.set('manage')
     }
 });
 
