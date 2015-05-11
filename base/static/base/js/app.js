@@ -101,8 +101,15 @@ app.config(function($mdThemingProvider) {
     $mdThemingProvider.theme('search')
     .primaryPalette('purple');
     
-    $mdThemingProvider.theme('organize')
+    $mdThemingProvider.theme('green')
+    .primaryPalette('green');
+    
+    $mdThemingProvider.theme('red')
+    .primaryPalette('red');
+    
+    $mdThemingProvider.theme('orange')
     .primaryPalette('orange');
+
 });
 
 
@@ -196,7 +203,7 @@ app.service('$flavrs', function($http,$location,$localStorage,$rootScope){
                 });
                 // add tabs to data
                 data.sidenav = response.sidenav;
-                // convert action routes to urls for mdFab to use
+                // convert fab routes to urls for mdFab to use
                 angular.forEach(data.fabs,function(value,key){
                     value.url = self.routes.get(value.route,undefined,name,data.routes); 
                 });
@@ -215,6 +222,7 @@ app.service('$flavrs', function($http,$location,$localStorage,$rootScope){
             var current = this.current();
             scope.meta = current.meta;
             scope.fabs = current.fabs;
+            scope.actions = current.actions;
             scope.routes = current.routes;
             scope.commands = current.commands;
             scope.sidenav = current.sidenav;
@@ -390,10 +398,16 @@ app.service('$flavrs', function($http,$location,$localStorage,$rootScope){
                 enabled: true,
                 autocomplete: true
             }
+        },
+        set: function(name){
+            self.scope.toolbar = self._toolbars[name];
         }
     }
     
+    self._toolbars = angular.copy(self.toolbars);
+    
     self.toolbar = self.toolbars['default'];
+    
     
     self.theme = {
         set: function(name){

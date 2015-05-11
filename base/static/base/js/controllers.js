@@ -63,6 +63,29 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         return $flavrs.routes.go(route,args,params);
     }
     
+    $scope.get_route = function(route){
+        if(route === undefined) {
+            return '#';
+        }
+        return $flavrs.routes.get(route);
+    }
+    
+    $scope.fn = function(fn){
+        if(fn !== undefined){
+            $scope[fn]();
+        }
+    }
+    
+    $scope.valid_action_route = function(action){
+        var current = $flavrs.routes.current.name;
+        if(angular.isDefined(action.routes) && action.routes.indexOf(current) == -1){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+    
     //wrapper for ngclicks outside of this scope
     
     $scope.broadcast = function(ngclick,arg){
@@ -458,7 +481,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         }
         
         if($flavrs.toolbars.hasOwnProperty(toolbar)){
-            $scope.toolbar = $flavrs.toolbars[toolbar];
+            $flavrs.toolbars.set(toolbar);
         }
     }
     

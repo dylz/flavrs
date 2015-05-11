@@ -114,8 +114,20 @@
 
 <!-- Content -->
 <div class="content">
-    <div class="actions">
-        <i class="fa fa-ellipsis-v"></i>
+    <div class="actions dropdown">
+        <button class="btn btn-default dropdown-toggle" type="button" id="actionDropDown" data-toggle="dropdown" aria-expanded="true">
+            <i class="fa fa-ellipsis-v"></i>
+        </button>
+        <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="actionDropDown">
+            <li role="presentation" ng-repeat="action in actions" 
+                ng-hide="action.selected || !valid_action_route(action)">
+                <a role="menuitem" tabindex="-1" ng-href="{{get_route(action.route)}}"
+                    ng-click="fn(action.fn)">
+                    <i ng-if="action.icon" class="fa fa-{{ action.icon }}"></i>
+                    {{ action.name }}
+                </a>
+            </li>
+        </ul>
     </div>
     <div compile="pre_content" class="pre-content"></div>
     <div id="tab-content">

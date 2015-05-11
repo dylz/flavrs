@@ -277,6 +277,7 @@ md-fabs .md-fab-default {
 
 .content {
   overflow: hidden;
+  min-height: 300px;
 }
 
 .pre-content {
@@ -295,6 +296,14 @@ md-fabs .md-fab-default {
   float: right;
   font-size: 22px;
   margin-right: 10px;
+  z-index: 2;
+}
+
+.content .actions > button {
+  background:none!important;
+  border:none; 
+  padding:0!important;
+  color: inherit;
 }
 
 /* Cards */

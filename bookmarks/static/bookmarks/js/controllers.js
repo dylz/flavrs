@@ -18,6 +18,10 @@ flavrs_modules.bookmarks = {
     "fabs": [
         { "name": "Add Bookmark", "icon": "bookmark", "colour": "lightblue", "route": "add"}
     ],
+    "actions": [
+        { "name": "Add Bookmark", "icon": "bookmark", "route": "add"},
+        { "name": "Manage Bookmarks", "fn": "manage", 'routes': ['index','sidenav','search']},
+    ],
     "routes": [
         {"name": "index", "route": "", "controller": "bookmarksCtrl",
             "template": "base/card.html"
@@ -50,7 +54,7 @@ flavrs_modules.bookmarks = {
     ]
 };
 
-app.service('bookmarks', function(){
+app.service('bookmarks', function($flavrs){
     this.content = [];
     this.loaded_id = null;
     
@@ -74,6 +78,19 @@ app.service('bookmarks', function(){
             }
         }
     };
+    
+    this.manage = function(){
+        $flavrs.theme.set('green');
+        var default_toolbar = angular.copy($flavrs.toolbar);
+        $flavrs.toolbar.sidenav_btn = {
+            icon: 'arrow-left',
+            click: function(){
+                $flavrs.theme.set('default');
+                $flavrs.toolbars.set('default');
+            }
+        }
+        $flavrs.toolbar.brand = 'Back';
+    }
 });
 
 app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'bookmarks',
@@ -104,6 +121,8 @@ app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'book
             }
         }
     }
+    
+    $scope.manage = bookmarks.manage;
     
     //handle the command emit
     $scope.$on('command_emit',function(event,command){
@@ -554,6 +573,8 @@ app.controller('searchCtrl', ['$scope','$flavrs','$http','bookmarks',
             function($scope,$flavrs,$http,bookmarks){
     
     var route = $flavrs.routes.current;
+    
+    $scope.manage = bookmarks.manage;
     
     function init(){
         
