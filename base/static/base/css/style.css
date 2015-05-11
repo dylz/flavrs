@@ -286,6 +286,17 @@ md-fabs .md-fab-default {
   min-height: 27px;
 }
 
+.pre-content .center {
+  text-align: center;
+  margin-left: -20px;
+}
+
+.content .actions {
+  float: right;
+  font-size: 22px;
+  margin-right: 10px;
+}
+
 /* Cards */
 
 .tab-inner-wrapper .module{

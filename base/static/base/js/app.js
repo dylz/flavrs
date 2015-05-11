@@ -197,7 +197,7 @@ app.service('$flavrs', function($http,$location,$localStorage,$rootScope){
                 // add tabs to data
                 data.sidenav = response.sidenav;
                 // convert action routes to urls for mdFab to use
-                angular.forEach(data.actions,function(value,key){
+                angular.forEach(data.fabs,function(value,key){
                     value.url = self.routes.get(value.route,undefined,name,data.routes); 
                 });
                 modules.add(data);
@@ -214,7 +214,7 @@ app.service('$flavrs', function($http,$location,$localStorage,$rootScope){
             
             var current = this.current();
             scope.meta = current.meta;
-            scope.actions = current.actions;
+            scope.fabs = current.fabs;
             scope.routes = current.routes;
             scope.commands = current.commands;
             scope.sidenav = current.sidenav;

@@ -15,7 +15,7 @@ flavrs_modules.bookmarks = {
             'sidenav_plural': 'Tabs'
         }
     },
-    "actions": [
+    "fabs": [
         { "name": "Add Bookmark", "icon": "bookmark", "colour": "lightblue", "route": "add"}
     ],
     "routes": [
@@ -576,12 +576,8 @@ app.controller('searchCtrl', ['$scope','$flavrs','$http','bookmarks',
                     $scope.tab_content = content;
                     bookmarks.content = content;
                     
-                    $scope.pre_content = '<strong>'+data.length+'</strong> results found';
-
-                    if(Object.keys(previous).length > 0){
-                        var p_url = $flavrs.routes.get(previous.name,previous.args);
-                        $scope.pre_content += ' <a href="'+p_url+'" class="md-button">Go Back</a>';
-                    }
+                    $scope.pre_content = '<div class="center"><strong>'+
+                                        data.length+'</strong> results found</div>';
                 });
                 
                 promise.error(function(){
