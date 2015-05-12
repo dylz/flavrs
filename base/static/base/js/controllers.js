@@ -483,6 +483,12 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         if($flavrs.toolbars.hasOwnProperty(toolbar)){
             $flavrs.toolbars.set(toolbar);
         }
+        
+        // SPECIAL PARAM TO REDIRECT
+        // check if redirect is happening (special case)
+        if(route.params.hasOwnProperty('_redirect')){
+            return $flavrs.routes.go(route.params._redirect);
+        }
     }
     
     function check_template(template){
@@ -988,9 +994,9 @@ app.controller('_searchCtrl',['$scope','$http','$sce','$timeout','$flavrs',
     
     function load_search(search_engines,module,delay){
         // if module is undefined, use the currently active module
-        var parent_scope = $scope.$$nextSibling.$parent;
+        
         if(!angular.isDefined(module)){
-            module = parent_scope.module;
+            module = $flavrs.modules.current().name;
         }
         
         // sometimes we want to delay binding of background data
@@ -1036,7 +1042,7 @@ app.controller('_searchCtrl',['$scope','$http','$sce','$timeout','$flavrs',
         else{
             delay = 1000;
         }
-        var parent_scope = $scope.$$nextSibling.$parent;
+        
         // make sure the name of the search gets shown asap
         $scope.search.name = value.name;
         

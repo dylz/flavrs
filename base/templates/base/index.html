@@ -29,7 +29,9 @@
         <!-- fill up the space between left and right area -->
         <span flex="20"></span>
         <span flex="45">
-            <form ng-controller="_searchCtrl" class="search" id="search" method="get" action="{{search.action}}">
+            <form ng-controller="_searchCtrl" class="search" id="search" 
+                method="get" action="{{search.action}}" 
+                ng-if="toolbar.search.enabled && toolbar.search.autocomplete">
                 <md-autocomplete 
                     class="autocomplete"
                     md-selected-item="search.selected_item"

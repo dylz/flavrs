@@ -20,7 +20,8 @@ flavrs_modules.bookmarks = {
     ],
     "actions": [
         { "name": "Add Bookmark", "icon": "bookmark", "route": "add"},
-        { "name": "Manage Bookmarks", "fn": "manage", 'routes': ['index','sidenav','search']},
+        //{ "name": "Manage Bookmarks", "fn": "manage", 'routes': ['index','sidenav','search']},
+        { "name": "Manage Bookmarks", "route": "manage_redirect"},
     ],
     "routes": [
         {"name": "index", "route": "", "controller": "bookmarksCtrl",
@@ -33,7 +34,9 @@ flavrs_modules.bookmarks = {
         {"name": "add","route": "add/", "controller": "bookmarksModalCtrl", "view":"modal"},
         {"name": "edit","route": "edit/:id/","controller": "bookmarksModalCtrl", "view":"modal"},
         {"name": "search","route": "search/", "controller": "searchCtrl", "theme": "search", 
-            "toolbar":"search"}
+            "toolbar":"search"},
+        {"name": "manage","route": "tabs/manage/:id/", "controller": "manageCtrl", "theme": "green"},
+        {"name": "manage_redirect","route": "tabs/manage/redirect/", "controller": "manageCtrl"}
     ],
     "commands": [
         {
@@ -91,8 +94,12 @@ app.service('bookmarks', function($flavrs){
             },
             brand: 'Back',
             search: {
-                enabled: true,
-                autocomplete: true
+                autocomplete: false,
+                route: '',
+                submit: function(input){
+                    console.log('hey');
+                },
+                placeholder: 'Search This Tab'
             }
         })
         $flavrs.toolbars.set('manage')
@@ -616,6 +623,31 @@ app.controller('searchCtrl', ['$scope','$flavrs','$http','bookmarks',
         }
         else{
             // search page requested but no query passed, what to do now?
+        }
+    }
+    
+    $flavrs.controller.ready(function(){
+        init();
+    });
+}]);
+
+app.controller('manageCtrl', ['$scope','$flavrs','$http','bookmarks', 
+            function($scope,$flavrs,$http,bookmarks){
+    
+    var route = $flavrs.routes.current;    
+    
+    function init(){
+        if(angular.isDefined(route.args.id) && angular.isDefined($scope.active_nav_id)){
+            var id = route.args.id;
+            
+            // if id is the keyword 'redirect', get the current tab and redirect
+            // to it
+            if(id == 'redirect'){
+                return $flavrs.routes.go('manage',{'id':$scope.active_nav_id});
+            }
+        }
+        else{
+            return $flavrs.routes.go('/',{},{'_redirect':'manage_redirect'});
         }
     }
     

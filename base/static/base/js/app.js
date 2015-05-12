@@ -291,6 +291,7 @@ app.service('$flavrs', function($http,$location,$localStorage,$rootScope){
                     //get the actual path
                     route = this.get(route,args);
             }
+            
             $location.path(route).search(params);
         },
         back: function(){
@@ -404,6 +405,13 @@ app.service('$flavrs', function($http,$location,$localStorage,$rootScope){
         },
         register: function(key,values){
             this[key] = values;
+            // fill in the missing values using default
+            var dft = angular.copy(this.default);
+            angular.forEach(dft,function(value,k){
+                if(!values.hasOwnProperty(k)){
+                    values[k] = value;
+                }
+            });
             self._toolbars[key] = angular.copy(values);
         }
     }
