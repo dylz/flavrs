@@ -48,6 +48,10 @@ body{
   color: rgb(255,255,255);
 }
 
+.search.noautocomplete md-progress-linear {
+  display: none !important;
+}
+
 /*
 Navbar For Lightgrey mode
 */

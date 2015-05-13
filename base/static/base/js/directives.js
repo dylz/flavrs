@@ -208,6 +208,7 @@ app.directive('card', function($compile) {
                             }
                             return html;
                         }
+                        
                     //Header
                     if (findKey(content, 'header')) {
                         var parent = content.header,

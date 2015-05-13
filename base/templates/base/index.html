@@ -47,6 +47,15 @@
                 </md-autocomplete>
                 <input type="hidden" name="{{search.param}}" value="{{search.input}}" >
             </form>
+            <form class="search noautocomplete" id="search" 
+                ng-submit="toolbar.search.submit(toolbar.search.input)"
+                ng-if="toolbar.search.enabled && !toolbar.search.autocomplete">
+                <input type="text" 
+                    class="autocomplete"
+                    placeholder="Search {{search.name}}"
+                    ng-model="toolbar.search.input"
+                >
+            </form>
         </span>
         <span flex="20"></span>
         <md-container ng-show="user" class="user">

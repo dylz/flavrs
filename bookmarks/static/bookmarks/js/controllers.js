@@ -83,26 +83,7 @@ app.service('bookmarks', function($flavrs){
     };
     
     this.manage = function(){
-        $flavrs.theme.set('green');
-        $flavrs.toolbars.register('manage',{
-            sidenav_btn: {
-                icon: 'arrow-left',
-                click: function(){
-                    $flavrs.theme.set('default');
-                    $flavrs.toolbars.set('default');
-                }
-            },
-            brand: 'Back',
-            search: {
-                autocomplete: false,
-                route: '',
-                submit: function(input){
-                    console.log('hey');
-                },
-                placeholder: 'Search This Tab'
-            }
-        })
-        $flavrs.toolbars.set('manage')
+
     }
 });
 
@@ -645,9 +626,40 @@ app.controller('manageCtrl', ['$scope','$flavrs','$http','bookmarks',
             if(id == 'redirect'){
                 return $flavrs.routes.go('manage',{'id':$scope.active_nav_id});
             }
+            
+            // register and set toolbar
+            $flavrs.toolbars.register('manage',{
+                sidenav_btn: {
+                    icon: 'arrow-left',
+                    click: function(){
+                        $flavrs.theme.set('default');
+                        $flavrs.toolbars.set('default');
+                    }
+                },
+                brand: 'Back',
+                search: {
+                    autocomplete: false,
+                    submit: function(input){
+                        for (var i = bookmarks.raw_content.length - 1; i >= 0; i--) {
+                            var bookmark = bookmarks.raw_content[i];
+                            if((bookmark.name.toLowerCase().indexOf(input) == -1) &&
+                                (bookmark.url.toLowerCase().indexOf(input) == -1)){
+                                bookmarks.content[i].hidden = true;
+                            }
+                            else{
+                                bookmarks.content[i].hidden = false;
+                            }
+                        }
+                    },
+                    placeholder: 'Search This Tab',
+                    enabled: true
+                }
+            })
+            $flavrs.toolbars.set('manage')
         }
         else{
-            return $flavrs.routes.go('/',{},{'_redirect':'manage_redirect'});
+            //return $flavrs.routes.go('/',{},{'_redirect':'manage_redirect'}); // this is buggy
+            return $flavrs.routes.go('/');
         }
     }
     
