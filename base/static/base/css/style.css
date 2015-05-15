@@ -377,6 +377,7 @@ a.panel-body{
   white-space: nowrap;
 }
 
+.panel.selected,
 .panel-type-link .panel:hover{
   box-shadow: 0 0px 6px #08c;
   cursor: pointer;

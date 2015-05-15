@@ -655,7 +655,9 @@ app.controller('manageCtrl', ['$scope','$flavrs','$http','bookmarks',
                     enabled: true
                 }
             })
-            $flavrs.toolbars.set('manage')
+            $flavrs.toolbars.set('manage');
+            // enter management mode
+            $scope.mode = 'management';
         }
         else{
             //return $flavrs.routes.go('/',{},{'_redirect':'manage_redirect'}); // this is buggy

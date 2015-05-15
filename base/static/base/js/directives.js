@@ -141,6 +141,7 @@ app.directive('card', function($compile) {
                 },
                 post: function(scope, element, attributes, controller, transcludeFn) {
                     var content = scope.content,
+                        mode = scope.mode,
                         findKey = function(parent, key) {
                             if (parent.hasOwnProperty(key)) {
                                 if ((parent[key]) && (parent[key] !== "")) {
@@ -207,6 +208,27 @@ app.directive('card', function($compile) {
                                 html += obj.name+'</a></'+node+'>';
                             }
                             return html;
+                        },
+                        replaceElement = function(klass,attrs){
+                            
+                            if(!angular.isDefined(attrs)){
+                                attrs = {};
+                            }
+                            
+                            var ele = element.find('.'+klass),
+                                html = "<a class='"+klass + 
+                                        "' href='"+content.card_url+"'>" +
+                                        ele.html()+"</a>";
+                            element.find('.'+klass).replaceWith(html);
+                            
+                            $.each(attrs, function(key, value){
+                                if(value == 'html'){
+                                    element.attr(key,ele.html());
+                                }
+                                else {
+                                    element.attr(key,value);
+                                }
+                            })
                         }
                         
                     //Header
@@ -327,6 +349,14 @@ app.directive('card', function($compile) {
                         //care of the rest.
                         content.card_type = "";
                     }
+                    
+                    // check mode and see if it changes card type at all
+                    switch(mode){
+                        case 'management':
+                            content.card_type = 'select';
+                        break;
+                    }
+                    
                     switch (content.card_type) {
                         case 'link':
                             /*
@@ -335,33 +365,50 @@ app.directive('card', function($compile) {
                             external URL.
                             This means that card_url is required.
                             */
-                            var replaceElement = function(klass,attrs){
-                                
-                                if(!angular.isDefined(attrs)){
-                                    attrs = {};
-                                }
-                                
-                                var ele = element.find('.'+klass),
-                                    html = "<a class='"+klass + 
-                                            "' href='"+content.card_url+"'>" +
-                                            ele.html()+"</a>";
-                                element.find('.'+klass).replaceWith(html);
-                                
-                                $.each(attrs, function(key, value){
-                                    if(value == 'html'){
-                                        element.attr(key,ele.html());
-                                    }
-                                    else {
-                                        element.attr(key,value);
-                                    }
-                                })
-                            }
+                            
                             //update header, and body. basically, replace the divs with a
                             replaceElement('panel-heading',{'title':'html'});
                             replaceElement('panel-body');
                             //add the class to the element for CSS reasons
                             element.addClass('panel-type-link');
-                            break;
+                        break;
+                        case 'select':
+                            /*
+                            card is selectable. Highlight card if user selects it.
+                            Toggle property in object.
+                            */
+                            
+                            // remove url
+                            content.card_url = '#';
+                            
+                            // use same styling as link
+                            replaceElement('panel-heading',{'title':'html'});
+                            replaceElement('panel-body');
+                            element.addClass('panel-type-link');
+                            // remove footer content
+                            element.find('.panel-footer').remove();
+                            
+                            // add click event
+                            element.find('.panel')
+                                   .attr('ng-click','select()')
+                                   .attr('ng-class','{selected:content.selected}');
+                            
+                            // functions
+                            scope.select = function(){
+                                if(!angular.isDefined(content.selected)){
+                                    content.selected = false;
+                                }
+                                if(content.selected){
+                                    content.selected = false;
+                                }
+                                else{
+                                    content.selected = true;
+                                }
+                            };
+                            
+                            // compile
+                            $compile(element.contents())(scope);
+                        break;
                         
                         default:
                             //by default, nothing needs to be done.
