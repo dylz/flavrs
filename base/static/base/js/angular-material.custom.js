@@ -56,16 +56,26 @@ app.directive('mdForm', function($compile) {
             
             angular.forEach(fields,function(obj,i){
                 // different mark up depending on the type of field
+                var n = obj.name,
+                    c = (obj.type=='hidden') ? 'display:none;' : '';
                 switch(obj.type){
                     case 'select':
                         
+                        body += '<select class="form-control" style="'+c+'"' +
+                                '   ng-required="prop(\''+n+'\',\'required\')" ' +
+                                '   ng-model="model.'+n+'">';
+                        
+                        for (var i = 0; i < obj.options.length; i++) {
+                            var opt = obj.options[i];
+                            body += '<option value="'+opt.id+'">'+opt.name+'</option>';
+                        }
+                        
+                        body += '</select>';
                     break;
                     case 'checkbox':
                     
                     break;
                     default:
-                        var n = obj.name,
-                            c = (obj.type=='hidden') ? 'display:none;' : '';
                         body += '<md-input-container style="'+c+'" ng-class="{\'md-input-invalid\':errors[\''+n+'\']}">' +
                                 '   <div class="error" ng-repeat="err in errors[\''+n+'\']">' +
                                 '       {{ err }}' +
@@ -117,8 +127,6 @@ app.directive('mdFabs', function() {
             function($scope,$location,$window) {
                 
                 var self = this;
-                $scope.primary_action = {};
-                $scope.special_actions = [];
                 
                 $scope.click = function(action){
                     if(angular.isDefined(action.url)){
@@ -130,6 +138,9 @@ app.directive('mdFabs', function() {
                         else {
                             $location.path(url).search({});
                         }
+                    }
+                    else if(angular.isDefined(action.emit)){
+                        $scope.$emit(action.emit);
                     }
                 }
                 
@@ -145,6 +156,9 @@ app.directive('mdFabs', function() {
                 };
                 
                 $scope.init = function(){
+                    $scope.primary_action = {};
+                    $scope.special_actions = [];
+                    
                     if(angular.isDefined($scope.actions)){
                         $scope.special_actions.push({icon:'plus'});
                         

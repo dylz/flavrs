@@ -55,6 +55,9 @@
                     placeholder="Search {{search.name}}"
                     ng-model="toolbar.search.input"
                 >
+                <md-button ng-repeat="button in toolbar.search.buttons">
+                    <span compile="button.text"></span>
+                </md-button>
             </form>
         </span>
         <span flex="20"></span>
@@ -71,7 +74,7 @@
 </md-toolbar>
 <!-- Menu Bar : End -->
 
-<!-- Side Nav -->
+<!-- Side Nav Left -->
 
 <md-sidenav md-component-id="left" 
     class="md-sidenav-left md-whiteframe-z2 tab-bar">
@@ -121,7 +124,30 @@
         </md-list>
     </md-content>
 </md-sidenav>
-<!-- Side Nav : End -->
+<!-- Side Nav Left : End -->
+
+<!-- Side Nav Right -->
+
+<md-sidenav md-component-id="right" 
+    class="md-sidenav-right md-whiteframe-z2 tab-bar">
+    <md-toolbar class="md-theme-indigo" layout="row">
+        <h1 flex="60" class="md-toolbar-tools">Hey</h1>
+        <md-button flex>
+            <i class="fa fa-bars"></i>
+        </md-button>
+    </md-toolbar>
+    <md-content>
+        <md-list>
+            <md-item>
+                <md-item-content>
+                    
+                </md-item-content>
+                <!--<md-divider ng-if="!$last"></md-divider>-->
+            </md-item>
+        </md-list>
+    </md-content>
+</md-sidenav>
+<!-- Side Nav Right : End -->
 
 <!-- Content -->
 <div class="content">

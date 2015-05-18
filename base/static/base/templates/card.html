@@ -1,1 +1,3 @@
-<card ng-repeat="content in tab_content" content="content" ng-hide="content.hidden" mode="mode"></card>
+<div ui-sortable="sortableOptions" ng-model="tab_content">
+    <card ng-repeat="content in tab_content" content="content" ng-hide="content.hidden" mode="mode"></card>
+</div>

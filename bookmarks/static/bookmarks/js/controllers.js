@@ -16,13 +16,19 @@ flavrs_modules.bookmarks = {
         }
     },
     "fabs": [
-        { "name": "Add Bookmark", "icon": "bookmark", "colour": "lightblue", "route": "add"}
+        { "name": "Add Bookmark", "icon": "bookmark", "colour": "lightblue", "route": "add"},
     ],
     "actions": [
         { "name": "Add Bookmark", "icon": "bookmark", "route": "add"},
         //{ "name": "Manage Bookmarks", "fn": "manage", 'routes': ['index','sidenav','search']},
         { "name": "Manage Bookmarks", "route": "manage_redirect"},
     ],
+    "fab_groups": {
+        'manage': [
+            { "name": "Move Items", "icon": "arrow-right", "emit": "move"},
+            { "name": "Delete Items", "icon": "remove", "emit": "delete", "colour": "md-warn"},
+        ]
+    },
     "routes": [
         {"name": "index", "route": "", "controller": "bookmarksCtrl",
             "template": "base/card.html"
@@ -35,8 +41,8 @@ flavrs_modules.bookmarks = {
         {"name": "edit","route": "edit/:id/","controller": "bookmarksModalCtrl", "view":"modal"},
         {"name": "search","route": "search/", "controller": "searchCtrl", "theme": "search", 
             "toolbar":"search"},
-        {"name": "manage","route": "tabs/manage/:id/", "controller": "manageCtrl", "theme": "green"},
-        {"name": "manage_redirect","route": "tabs/manage/redirect/", "controller": "manageCtrl"}
+        {"name": "manage","route": "tabs/manage/:id/", "controller": "manageCtrl", "theme": "green", "actions": "manage"},
+        {"name": "manage_redirect","route": "tabs/manage/redirect/"}
     ],
     "commands": [
         {
@@ -87,8 +93,8 @@ app.service('bookmarks', function($flavrs){
     }
 });
 
-app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'bookmarks',
-    function($scope,$http,$flavrs, $controller,bookmarks) {
+app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'bookmarks','$compile',
+    function($scope,$http,$flavrs, $controller,bookmarks,$compile) {
     
     $scope.open_link_modal = function(){
         $scope.open_modal('openModalCtrl');   
@@ -155,6 +161,7 @@ app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'book
                 //    expires: new Date().getTime()+300000,
                 //    data: response
                 //};
+                //$compile($('#tab-content div:first'))($scope)
              });
     }
     
@@ -521,9 +528,9 @@ app.controller('tabOrderCtrl', ['$scope','$flavrs','$http', function($scope,$fla
     $scope.modal = {
         title: "Order Tabs",
         body: '<table class="table table-hover">' +
-                  '<tbody as-sortable="dragControlListeners" ng-model="sidenav_copy">' +
-                    '<tr ng-repeat="tab in sidenav_copy" as-sortable-item>' +
-                      '<td as-sortable-item-handle>{{ tab.name }}</td>' +
+                  '<tbody ng-model="sidenav_copy" ui-sortable>' +
+                    '<tr ng-repeat="tab in sidenav_copy" \>' +
+                      '<td>{{ tab.name }}</td>' +
                     '</tr>' +
                   '</tbody>' +
                 '</table>'
@@ -552,14 +559,6 @@ app.controller('tabOrderCtrl', ['$scope','$flavrs','$http', function($scope,$fla
             }
         }  
     ];
-    
-    $scope.dragControlListeners = {
-        accept: function (sourceItemHandleScope, destSortableScope) {
-            return true
-        },
-        itemMoved: function (event) {},
-        orderChanged: function(event) {}
-    };
     
 }]);
 
@@ -615,7 +614,9 @@ app.controller('searchCtrl', ['$scope','$flavrs','$http','bookmarks',
 app.controller('manageCtrl', ['$scope','$flavrs','$http','bookmarks', 
             function($scope,$flavrs,$http,bookmarks){
     
-    var route = $flavrs.routes.current;    
+    var route = $flavrs.routes.current;
+    
+    $scope.queue = [];
     
     function init(){
         if(angular.isDefined(route.args.id) && angular.isDefined($scope.active_nav_id)){
@@ -652,12 +653,51 @@ app.controller('manageCtrl', ['$scope','$flavrs','$http','bookmarks',
                         }
                     },
                     placeholder: 'Search This Tab',
-                    enabled: true
+                    enabled: true,
+                    buttons: [
+                        {'text': '{{queue.length}}'}
+                    ]
                 }
             })
             $flavrs.toolbars.set('manage');
             // enter management mode
             $scope.mode = 'management';
+            // enable sortable
+            $scope.sortableOptions.disabled = false;
+            
+            // watchers
+            $scope.$on('move', function(){
+               // open modal
+               $scope.open_modal('manageModalCtrl',{},function(){
+                   $scope.close_modal();
+               });
+            });
+            
+            $scope.$on('delete', function(){
+                var delete_these = [];
+                angular.forEach(bookmarks.content,function(value,key){
+                    if(value.selected){
+                        delete_these.push(value.id);
+                        value.hidden = true;
+                    }
+                });
+                $scope.queue.push({
+                    'action': 'delete',
+                    'items': delete_these
+                });
+            });
+            
+            $scope.$on('sort', function(event,args){
+                var moved_id = args.ui.item.context.children[0].id;
+                $scope.queue.push({
+                    'action': 'sort',
+                    'items': [moved_id],
+                    'attrs': {
+                        'old_position': ,
+                        'new_position': ,
+                    }
+                })
+            });
         }
         else{
             //return $flavrs.routes.go('/',{},{'_redirect':'manage_redirect'}); // this is buggy
@@ -668,4 +708,55 @@ app.controller('manageCtrl', ['$scope','$flavrs','$http','bookmarks',
     $flavrs.controller.ready(function(){
         init();
     });
+}]);
+
+app.controller('manageModalCtrl', ['$scope','$flavrs','$http','bookmarks', 
+            function($scope,$flavrs,$http,bookmarks){
+    
+    $scope.modal = {
+        title: "Select a Tab"
+    }
+    
+    $scope.form = {
+        fields: [
+            {
+                type: 'select',
+                title: 'Tab',
+                name: 'tab',
+                required: true,
+                options: $flavrs.modules.current().sidenav
+            }
+        ],
+        model: {},
+        errors: {}
+    };
+    
+    $scope.form.model['tab'] = $scope.active_nav_id;
+    
+    $scope.actions = [
+        {
+            name: "Save",
+            colour: "md-primary",
+            click: function(){
+                var new_tab_id = $scope.form.model['tab'],
+                    move_these = [];
+                angular.forEach(bookmarks.content,function(value,key){
+                    if(value.selected){
+                        move_these.push(value.id);
+                        value.hidden = true;
+                    }
+                });
+                $scope.queue.push({
+                    'action': 'move',
+                    'items': [move_these],
+                    'attrs': {
+                        'old': $scope.active_nav_id,
+                        'new': new_tab_id
+                    }
+                });
+                $flavrs.modal.instance.dismiss('success');
+            }
+        }
+    ];
+    
 }]);

@@ -50,8 +50,12 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         $mdSidenav('left').toggle();
     }
     
+    $scope.toggle_right_menu = function(){
+        $mdSidenav('right').toggle();
+    }
+    
     $scope.is_menu_open = function(){
-        return !$('.tab-bar').hasClass('md-closed');
+        return !$('.tab-bar:first').hasClass('md-closed');
     };
     
     //generic share function
@@ -103,7 +107,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     }
 
     //generic 'open modal window' function
-    $scope.open_modal = function(controller,locals){
+    $scope.open_modal = function(controller,locals,closeFn){
         
         var resolve_locals = {};
         
@@ -135,14 +139,19 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         $scope.modalInstance.result.then(function () {
 
         },function(){
-            //modal is closed.. update route to the old route
-            var previous = $flavrs.routes.previous;
-            // if there is no previous, send user to module root
-            if(angular.isDefined(previous.name)){
-                $flavrs.routes.go(previous.name,previous.args,previous.params);
+            if(!angular.isDefined(closeFn)){
+                //modal is closed.. update route to the old route
+                var previous = $flavrs.routes.previous;
+                // if there is no previous, send user to module root
+                if(angular.isDefined(previous.name)){
+                    $flavrs.routes.go(previous.name,previous.args,previous.params);
+                }
+                else{
+                    $flavrs.go('/');
+                }
             }
             else{
-                $flavrs.go('/');
+                closeFn();
             }
         });
         
@@ -153,6 +162,13 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     $scope.close_modal = function(){
         $scope.modalInstance.dismiss('cancel');
     }
+    
+    $scope.sortableOptions = {
+        disabled: true,
+        update: function(event, ui) {
+            $scope.$emit('sort', {event:event,ui:ui})
+        }
+    };
     
     $rootScope.$on("$locationChangeStart", function(event, current) {
         //Get the path, and use it to determine the module
@@ -421,6 +437,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             view = route_obj.view,
             theme = route_obj.theme,
             toolbar = route_obj.toolbar,
+            fabs = route_obj.actions,
             load = function(){
                 $controller(ctrl,locals);
             };
@@ -435,6 +452,12 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
                 });
             }
         });
+        
+        // SPECIAL PARAM TO REDIRECT
+        // check if redirect is happening (special case)
+        if(route.params.hasOwnProperty('_redirect')){
+            return $flavrs.routes.go(route.params._redirect);
+        }
         
         // update the flavrs service for previous and (new) current route
         $flavrs.routes.previous = angular.copy($flavrs.routes.current);
@@ -484,10 +507,10 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
             $flavrs.toolbars.set(toolbar);
         }
         
-        // SPECIAL PARAM TO REDIRECT
-        // check if redirect is happening (special case)
-        if(route.params.hasOwnProperty('_redirect')){
-            return $flavrs.routes.go(route.params._redirect);
+        // fabs
+        var fab_groups = $flavrs.modules.current().fab_groups;
+        if(angular.isDefined(fabs) && angular.isDefined(fab_groups) && fab_groups.hasOwnProperty(fabs)){
+            $scope.fabs = fab_groups[fabs];
         }
     }
     

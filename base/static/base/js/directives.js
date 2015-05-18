@@ -114,7 +114,7 @@ app.directive('card', function($compile) {
         restrict: 'E',
         scope: true,
         transclude: true,
-        template: '<div class="tab-inner-wrapper">' +
+        template: '<div class="tab-inner-wrapper" id="{{content.id}}">' +
                     '<div class="panel panel-default">' +
                     '<div class="panel-heading">' +
                     '</div>' +
@@ -230,7 +230,16 @@ app.directive('card', function($compile) {
                                 }
                             })
                         }
-                        
+                    
+                    // make sure content is the original content
+                    // some 'modes' can change the content
+                    
+                    //if(content.hasOwnProperty('_content')){
+                    //    content = content['_content'];
+                    //}
+                    
+                    //content['_content'] = content;
+                    
                     //Header
                     if (findKey(content, 'header')) {
                         var parent = content.header,

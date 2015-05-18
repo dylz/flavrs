@@ -135,7 +135,7 @@ Navbar For Lightgrey mode
 
 /* Tab Content */
 
-.tab-inner-wrapper{
+card{
   width: 300px;
   float: left;
   padding-left: 20px;
