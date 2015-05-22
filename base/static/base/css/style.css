@@ -115,7 +115,7 @@ Navbar For Lightgrey mode
 }
 
 .tab-bar md-item-content .selected,
-.tab-bar md-item-content:hover{
+.tab-bar md-item-content.hover:hover{
   background: rgb(238,238,238);
 }
 
@@ -143,7 +143,6 @@ card{
 }
 
 .tab-inner-wrapper .panel-body{
-  min-height: 40px;
   max-height: 450px;
 }
 
@@ -339,7 +338,6 @@ md-fabs .md-fab-default {
   position: relative;
   background-color: white;
   border-top: 1px solid #eee;
-  min-height: 44px;
 }
 
 .panel-footer > div{
@@ -367,11 +365,9 @@ md-fabs .md-fab-default {
 
 a.panel-heading,
 a.panel-body{
-  width: 100%;
   display: block;
   text-decoration: none;
   color: #212121;
-  height: 44px;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;

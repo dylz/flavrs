@@ -171,6 +171,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     };
     
     $rootScope.$on("$locationChangeStart", function(event, current) {
+        return;
         //Get the path, and use it to determine the module
         var path_split = $location.path().split('/');
         if(path_split[1] != $scope.module){
@@ -220,6 +221,19 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         }
     });
     
+    
+    $scope.$on('$routeChangeSuccess', function(scope, next, current){
+        // every route change, make sure the user is still logged in
+        get_user_info().then(function(){
+            var ui = new $flavrs.UI($route.current.$$route);
+            // set scope
+            for(var key in ui){
+                if(key.substr(0) != '_'){
+                    $scope[key] = ui[key];
+                }
+            }
+        });
+    });
     
     //Private functions
     

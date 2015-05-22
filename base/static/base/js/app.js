@@ -124,7 +124,7 @@ app.filter('module', function() {
 });
 
 // Main Flavrs service
-app.service('$flavrs', function($http,$location,$localStorage,$rootScope){
+app.service('$flavrs', function($http,$location,$localStorage,$rootScope,$route,$mdSidenav){
     
     var self = this;
     
@@ -147,7 +147,7 @@ app.service('$flavrs', function($http,$location,$localStorage,$rootScope){
     self.modules = {
         all: [],
         current: function(){
-            var module = $location.path().split('/')[1];
+            var module = $('base').attr('href').split('/')[1];
             
             if((module == "") || (module == "home")){
                 module = 'base';
@@ -239,6 +239,7 @@ app.service('$flavrs', function($http,$location,$localStorage,$rootScope){
         previous: {},
         current: {},
         get: function(route,params,module,routes){
+            return;
             var output = null;
             if(!angular.isDefined(params)){
                 params = {}
@@ -304,7 +305,7 @@ app.service('$flavrs', function($http,$location,$localStorage,$rootScope){
             }
         }
     };
-    
+
     self.validators = {
         is_valid: function(propery_name,property_value,data){
             // check if id is fail
@@ -427,4 +428,108 @@ app.service('$flavrs', function($http,$location,$localStorage,$rootScope){
         }
     }
     
+    
+    /* UI elements */
+    self.UI = function(props){
+        // put original values in here
+        this._ = {
+            
+            search: {
+                enabled: true,
+                action: '',
+                autocomplete: false
+            },
+            
+            theme: 'default',
+            fabs: [],
+            actions: {},
+            toolbar: {
+                left_btns: {},
+                right_btns: {},
+                brand: 'Flavrs',
+                sidenav_btn: {
+                    icon: 'bars',
+                    click: function(){
+                        $mdSidenav('left').toggle();
+                    }
+                }
+            },
+            sidenav: {
+                left: {
+                    enabled: true
+                },
+                right: {
+                    enabled: false
+                }
+            }
+        }
+        
+        this.configuration = props;
+    };
+    
+   
+    Object.defineProperties(self.UI.prototype, {
+        'configuration': {
+        	get : function () {
+        		return this._.configuration;
+        	},
+        	set : function (obj) {
+        		this._.configuration = obj;
+        		for(var key in obj){
+        		    if(this._.hasOwnProperty(key)){
+        		        this[key] = obj[key];
+        		    }
+        		}
+        	}
+        },
+        'theme': {
+            get : function () {
+    		    return this._.theme;
+        	},
+        	set : function (name) {
+        		this._.theme = name;
+        	},
+        	enumerable: true
+        },
+        'search': {
+            get : function () {
+    		    return this._.search;
+        	},
+        	set : function (obj) {
+        		this._.search = obj;
+        	},
+        	enumerable: true
+        },
+        'fabs': {
+            get : function () {
+    		    return this._.fabs;
+        	},
+        	set : function (obj) {
+        		this._.fabs = obj;
+        	},
+        	enumerable: true
+        },
+        'toolbar': {
+            get : function () {
+    		    return this._.toolbar;
+        	},
+        	set : function (obj) {
+        	    obj = $.extend(true,this._.toolbar,obj);
+        		this._.toolbar = obj;
+        	},
+        	enumerable: true
+        },
+        'sidenav': {
+            get : function () {
+    		    return this._.sidenav;
+        	},
+        	set : function (obj) {
+        	    obj = $.extend(true,this._.sidenav,obj);
+        		this._.sidenav = obj;
+        	},
+        	enumerable: true
+        }
+    });
+
+
 });

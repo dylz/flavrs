@@ -24,6 +24,9 @@ flavrs_modules.bookmarks = {
         { "name": "Manage Bookmarks", "route": "manage_redirect"},
     ],
     "fab_groups": {
+        'default': [
+            { "name": "Add Bookmark", "icon": "bookmark", "colour": "lightblue", "route": "add"}
+        ],
         'manage': [
             { "name": "Move Items", "icon": "arrow-right", "emit": "move"},
             { "name": "Delete Items", "icon": "remove", "emit": "delete", "colour": "md-warn"},
@@ -63,11 +66,30 @@ flavrs_modules.bookmarks = {
     ]
 };
 
-app.service('bookmarks', function($flavrs){
-    this.content = [];
-    this.loaded_id = null;
+app.config(['$routeProvider',
+    function($routeProvider) {
+        $routeProvider.
+            when('/', {
+            templateUrl: '/static/base/templates/card.html',
+            controller: 'bookmarksCtrl',
+            name: 'index',
+            theme: 'default',
+            //fabs: [],
+            sidenav: {
+                left: {
+                    title: 'Tabs'
+                }
+            }
+    })
+ }]);
+
+app.service('bookmarks', function($flavrs,$route,$http){
+    var self = this;
+    self.content = [];
+    self.loaded_id = null;
+    self.initialized = false;
     
-    this.create_object = function(link){
+    self.create_object = function(link){
         return {
             "id": link.id,
             "card_type": "link",
@@ -88,13 +110,20 @@ app.service('bookmarks', function($flavrs){
         }
     };
     
-    this.manage = function(){
-
+    self.initialize = function(){
+        var promise = $http.post('/bookmarks/initialize/',{});
+        
+        promise.success(function(response,status){
+            self.initialized = true;
+            self.sidenav = response.sidenav;
+        });
+        
+        return promise;
     }
 });
 
-app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'bookmarks','$compile',
-    function($scope,$http,$flavrs, $controller,bookmarks,$compile) {
+app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'bookmarks','$compile','$route',
+    function($scope,$http,$flavrs, $controller,bookmarks,$compile,$route) {
     
     $scope.open_link_modal = function(){
         $scope.open_modal('openModalCtrl');   
@@ -121,8 +150,7 @@ app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'book
             }
         }
     }
-    
-    $scope.manage = bookmarks.manage;
+
     
     //handle the command emit
     $scope.$on('command_emit',function(event,command){
@@ -144,7 +172,7 @@ app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'book
     
     function get_content(id){
         // id = tab_id
-        $http.get($scope.meta.root+'bookmarks/tab/'+id+'/')
+        $http.get('/bookmarks/tab/'+id+'/')
              .success(function(response,status){
                 bookmarks.raw_content = response;
                 var data = [];
@@ -166,10 +194,10 @@ app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'book
     }
     
     function init(){
-        var route = $flavrs.routes.current,
-            sidenav = $flavrs.modules.current().sidenav,
+        var route = $route.current.$$route,
+            sidenav = bookmarks.sidenav,
             id = null;
-        
+            
         switch(route.name){
             case 'index':
                 // "home" of bookmarks, for now just load the first sidenav
@@ -178,7 +206,7 @@ app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'book
                     id = sidenav[0].id;
                 }
             break;
-            case 'sidenav':
+            case 'tab':
                 // check if id is valid
                 if($flavrs.validators.is_valid('id',route.args.id,sidenav)){
                     id = route.args.id;
@@ -188,13 +216,12 @@ app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'book
         
         if(id){
             // id is valid, load the content for it if not loaded already
-            var module = $flavrs.modules.current()
-            if(module._loaded_id != id){
+            if(bookmarks._loaded_id != id){
                 get_content(id);
                 // set the active tab
                 $scope.active_nav_id = id;
                 // set this id as loaded
-                module._loaded_id = id;
+                bookmarks._loaded_id = id;
             }
         }
         else if(sidenav.length == 0){
@@ -203,18 +230,24 @@ app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'book
         else{
             // id was not valid, send user to "home"
             // this really should not happen if the user is navigating properly
-            $flavrs.routes.go("/");
+            //$flavrs.routes.go("/");
         }
         
     }
     
-    init();
+    
+    if(bookmarks.initialized){
+        init();
+    }
+    else{
+        bookmarks.initialize().success(init);
+    }
 
 }]);
 
 //Controller for modal window
-app.controller('bookmarksModalCtrl', ['$scope','bookmarks', '$http', '$flavrs', 'bookmarks',
-    function($scope,bookmarks,$http,$flavrs,bookmarks) {
+app.controller('bookmarksModalCtrl', ['$scope','bookmarks', '$http', '$flavrs',
+    function($scope,bookmarks,$http,$flavrs) {
     var route = $flavrs.routes.current;
     
     function load_modal_data(content){
@@ -618,6 +651,16 @@ app.controller('manageCtrl', ['$scope','$flavrs','$http','bookmarks',
     
     $scope.queue = [];
     
+    function get_position(id,data){
+        for (var i = 0; i < data.length; i++) {
+            if(data[i].id == id){
+                break;
+            }
+        }
+        
+        return i;
+    }
+    
     function init(){
         if(angular.isDefined(route.args.id) && angular.isDefined($scope.active_nav_id)){
             var id = route.args.id;
@@ -655,7 +698,12 @@ app.controller('manageCtrl', ['$scope','$flavrs','$http','bookmarks',
                     placeholder: 'Search This Tab',
                     enabled: true,
                     buttons: [
-                        {'text': '{{queue.length}}'}
+                        {
+                            'text': '{{queue.length}}', 
+                            'click': function(){
+                                $scope.toggle_right_menu();
+                            }
+                        }
                     ]
                 }
             })
@@ -664,6 +712,8 @@ app.controller('manageCtrl', ['$scope','$flavrs','$http','bookmarks',
             $scope.mode = 'management';
             // enable sortable
             $scope.sortableOptions.disabled = false;
+            // enable right sidenav
+            $scope.right_menu = true;
             
             // watchers
             $scope.$on('move', function(){
@@ -693,8 +743,8 @@ app.controller('manageCtrl', ['$scope','$flavrs','$http','bookmarks',
                     'action': 'sort',
                     'items': [moved_id],
                     'attrs': {
-                        'old_position': ,
-                        'new_position': ,
+                        'old_position': get_position(moved_id,bookmarks.raw_content),
+                        'new_position': get_position(moved_id,bookmarks.content),
                     }
                 })
             });

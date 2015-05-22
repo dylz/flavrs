@@ -29,24 +29,6 @@
         <!-- fill up the space between left and right area -->
         <span flex="20"></span>
         <span flex="45">
-            <form ng-controller="_searchCtrl" class="search" id="search" 
-                method="get" action="{{search.action}}" 
-                ng-if="toolbar.search.enabled && toolbar.search.autocomplete">
-                <md-autocomplete 
-                    class="autocomplete"
-                    md-selected-item="search.selected_item"
-                    md-search-text="search.input" 
-                    md-items="item in search_get_options(search.input)" 
-                    md-item-text="display" 
-                    placeholder="Search {{search.name}}"
-                    ng-model="search.input" 
-                    ng-change="search_change(search.input)">
-                    <span md-highlight-text="search.input" ng-click="search_onselect(item)">
-                      {{item}}
-                    </span>
-                </md-autocomplete>
-                <input type="hidden" name="{{search.param}}" value="{{search.input}}" >
-            </form>
             <form class="search noautocomplete" id="search" 
                 ng-submit="toolbar.search.submit(toolbar.search.input)"
                 ng-if="toolbar.search.enabled && !toolbar.search.autocomplete">
@@ -55,7 +37,7 @@
                     placeholder="Search {{search.name}}"
                     ng-model="toolbar.search.input"
                 >
-                <md-button ng-repeat="button in toolbar.search.buttons">
+                <md-button ng-repeat="button in toolbar.search.buttons" href="#" ng-click="button.click()">
                     <span compile="button.text"></span>
                 </md-button>
             </form>
@@ -76,24 +58,21 @@
 
 <!-- Side Nav Left -->
 
-<md-sidenav md-component-id="left" 
+<md-sidenav md-component-id="left" ng-show="sidenav.left.enabled"
     class="md-sidenav-left md-whiteframe-z2 tab-bar">
     <md-toolbar class="md-theme-indigo" layout="row">
-        <h1 flex="60" class="md-toolbar-tools">{{ sidenav_title }}</h1>
-        <md-button flex ng-click="location('sidenav_order')">
-            <i class="fa fa-bars"></i>
-        </md-button>
-        <md-button flex ng-click="location('sidenav_add')">
+        <h1 class="md-toolbar-tools">{{ sidenav.left.title }}</h1>
+        <md-button ng-click="location('sidenav_add')">
             <i class="fa fa-plus"></i>
         </md-button>
-        <md-button flex ng-click="toggle_menu();">
+        <md-button ng-click="toggle_menu();">
             <i class="fa fa-remove"></i>
         </md-button>
     </md-toolbar>
     <md-content>
         <md-list>
             <md-item ng-repeat="nav in sidenav">
-                <md-item-content>
+                <md-item-content class="hover">
                     <a href="{{nav.url}}" class="md-tile-content link"
                         ng-if="active_nav_id!=nav.id" 
                         ng-mouseenter="tabs_ui[$index]=true"
@@ -128,7 +107,8 @@
 
 <!-- Side Nav Right -->
 
-<md-sidenav md-component-id="right" 
+<md-sidenav md-component-id="right"
+    ng-if="right_menu"
     class="md-sidenav-right md-whiteframe-z2 tab-bar">
     <md-toolbar class="md-theme-indigo" layout="row">
         <h1 flex="60" class="md-toolbar-tools">Hey</h1>
@@ -138,11 +118,19 @@
     </md-toolbar>
     <md-content>
         <md-list>
-            <md-item>
+            <md-item ng-repeat="item in queue">
                 <md-item-content>
-                    
+                    <div class="md-tile-content">
+                        <div flex="50">
+                            <span class="label label-danger">Deleted</span>
+                            3 items
+                        </div>
+                        <md-button href="#" flex>
+                            <i class="fa fa-arrow-down"></i>
+                        </md-button>
+                    </div>
                 </md-item-content>
-                <!--<md-divider ng-if="!$last"></md-divider>-->
+                <md-divider ng-if="!$last"></md-divider>
             </md-item>
         </md-list>
     </md-content>
@@ -167,7 +155,7 @@
         </ul>
     </div>
     <div compile="pre_content" class="pre-content"></div>
-    <div id="tab-content">
+    <div id="tab-content" ng-view>
         
     </div>
 </div>
