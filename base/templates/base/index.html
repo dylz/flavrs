@@ -30,12 +30,12 @@
         <span flex="20"></span>
         <span flex="45">
             <form class="search noautocomplete" id="search" 
-                ng-submit="toolbar.search.submit(toolbar.search.input)"
-                ng-if="toolbar.search.enabled && !toolbar.search.autocomplete">
+                ng-submit="search.submit(search.input)"
+                ng-if="search.enabled && !search.autocomplete">
                 <input type="text" 
                     class="autocomplete"
                     placeholder="Search {{search.name}}"
-                    ng-model="toolbar.search.input"
+                    ng-model="search.input"
                 >
                 <md-button ng-repeat="button in toolbar.search.buttons" href="#" ng-click="button.click()">
                     <span compile="button.text"></span>

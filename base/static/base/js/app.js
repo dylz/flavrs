@@ -431,6 +431,7 @@ app.service('$flavrs', function($http,$location,$localStorage,$rootScope,$route,
     
     /* UI elements */
     self.UI = function(props){
+        var ui = this;
         // put original values in here
         this._ = {
             
@@ -464,7 +465,55 @@ app.service('$flavrs', function($http,$location,$localStorage,$rootScope,$route,
             }
         }
         
+        if(props.hasOwnProperty('scope')){
+            this.scope = props.scope;
+        }    
+        
+        this.check_special_keys = function(obj){
+            if(!this.hasOwnProperty('scope')){
+                return obj;
+            }
+            
+            if( typeof obj == "object" ) {
+                for (var key in obj) {
+                    var value = obj[key],
+                        kase_index = key.indexOf('__');
+                    if(kase_index > -1){
+                        var kase = key.substr(kase_index+2);
+                        key = key.substr(0,kase_index);
+                        switch(kase){
+                            case 'fn':
+                                obj[key] = function(){
+                                    return ui.scope[value]()
+                                }
+                            break;
+                        }
+                    }
+                    ui.check_special_keys(value);
+                };
+            }
+
+            return obj;
+        }
+        
+        this.update = function(key,value){
+            if(angular.isDefined(this.scope)){
+                this.scope[key] = value;
+            }
+            return value;
+        }
+        
         this.configuration = props;
+        
+        if(props.hasOwnProperty('scope')){
+            for(var key in this){
+                if(key.substr(0) != '_' && !this.scope.hasOwnProperty(key)){
+                    this.scope[key] = this[key];
+                }
+            }
+        }
+        
+        self.ui = this;
     };
     
    
@@ -487,7 +536,7 @@ app.service('$flavrs', function($http,$location,$localStorage,$rootScope,$route,
     		    return this._.theme;
         	},
         	set : function (name) {
-        		this._.theme = name;
+        		this._.theme = this.update('theme',name);
         	},
         	enumerable: true
         },
@@ -496,7 +545,7 @@ app.service('$flavrs', function($http,$location,$localStorage,$rootScope,$route,
     		    return this._.search;
         	},
         	set : function (obj) {
-        		this._.search = obj;
+        		this._.search = this.update('search',obj);
         	},
         	enumerable: true
         },
@@ -505,7 +554,7 @@ app.service('$flavrs', function($http,$location,$localStorage,$rootScope,$route,
     		    return this._.fabs;
         	},
         	set : function (obj) {
-        		this._.fabs = obj;
+        		this._.fabs = this.update('fabs',obj);
         	},
         	enumerable: true
         },
@@ -514,8 +563,9 @@ app.service('$flavrs', function($http,$location,$localStorage,$rootScope,$route,
     		    return this._.toolbar;
         	},
         	set : function (obj) {
+        	    obj = this.check_special_keys(obj);
         	    obj = $.extend(true,this._.toolbar,obj);
-        		this._.toolbar = obj;
+        		this._.toolbar = this.update('toolbar',obj);
         	},
         	enumerable: true
         },
@@ -524,12 +574,12 @@ app.service('$flavrs', function($http,$location,$localStorage,$rootScope,$route,
     		    return this._.sidenav;
         	},
         	set : function (obj) {
+        	    obj = this.check_special_keys(obj);
         	    obj = $.extend(true,this._.sidenav,obj);
-        		this._.sidenav = obj;
+        		this._.sidenav = this.update('sidenav',obj);
         	},
         	enumerable: true
         }
     });
-
-
+    
 });

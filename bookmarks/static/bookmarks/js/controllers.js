@@ -116,6 +116,7 @@ app.service('bookmarks', function($flavrs,$route,$http){
         promise.success(function(response,status){
             self.initialized = true;
             self.sidenav = response.sidenav;
+            $flavrs.ui.sidenav = response.sidenav;
         });
         
         return promise;

@@ -222,16 +222,18 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
     });
     
     
-    $scope.$on('$routeChangeSuccess', function(scope, next, current){
+    $scope.$on('$routeChangeStart', function(scope, next, current){
         // every route change, make sure the user is still logged in
         get_user_info().then(function(){
-            var ui = new $flavrs.UI($route.current.$$route);
+            var obj = $route.current.$$route;
+            obj.scope = $scope;
+            var ui = new $flavrs.UI(obj);
             // set scope
-            for(var key in ui){
+            /*for(var key in ui){
                 if(key.substr(0) != '_'){
                     $scope[key] = ui[key];
                 }
-            }
+            }*/
         });
     });
     
