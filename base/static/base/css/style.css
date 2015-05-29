@@ -35,21 +35,23 @@ body{
 /* Menu Bar */
 
 .menu-bar-brand{
-  margin-left: 10px;
-  font-size: 20px;
+  
 }
 
 /* Search */
-.search .autocomplete {
+.search .search-input {
+  width: 100%;
+  box-sizing: border-box;
+  border: none;
+  padding: 0 15px;
+  font-size: 14px;
+  line-height: 40px;
+  height: 40px;
+  outline: 0;
+  box-shadow: 0 3px 1px -2px rgba(0,0,0,.14),0 2px 2px 0 rgba(0,0,0,.098),0 1px 5px 0 rgba(0,0,0,.084);
   background: rgba(255,255,255,.15);
-}
-
-.search .autocomplete input{
-  color: rgb(255,255,255);
-}
-
-.search.noautocomplete md-progress-linear {
-  display: none !important;
+  border-radius: 2px;
+  color: #fff;
 }
 
 /*
@@ -109,13 +111,21 @@ Navbar For Lightgrey mode
 }
 
 /* Tabs */
+.tab-bar .md-list-item-text {
+  width: 100%;
+}
+
 .tab-bar .md-tile-content.link {
   color: rgba(0, 0, 0, 0.87);
   text-decoration: none;
+  float: left;
+  width: 80%;
+  height: 55px;
+  line-height: 4em;
 }
 
-.tab-bar md-item-content .selected,
-.tab-bar md-item-content.hover:hover{
+.tab-bar md-list-item .selected,
+.tab-bar md-list-item.hover:hover{
   background: rgb(238,238,238);
 }
 
@@ -514,6 +524,12 @@ body .command-bar {
 
 /* User (top right in nav) */
 
-.user > img {
+.user img {
   border-radius: 50%;
+}
+
+.user .dropdown-menu {
+  left: auto;
+  right: 0;
+  top: 90%;
 }

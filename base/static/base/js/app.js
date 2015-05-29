@@ -4,7 +4,7 @@ var flavrs_modules = {},
 
 // APP is defined!
 app = angular.module('flavrs', ['ngRoute','ngCookies','ngStorage',
-    'ngSanitize','ngAnimate','ngMaterial','schemaForm','ui.bootstrap','ui.sortable']);
+    'ngSanitize','ngAnimate','ngMaterial','ui.bootstrap','ui.sortable']);
 
 //factory
 app.factory('httpRequestInterceptor', function ($cookies,$localStorage,$q,$location) {
@@ -457,10 +457,12 @@ app.service('$flavrs', function($http,$location,$localStorage,$rootScope,$route,
             },
             sidenav: {
                 left: {
-                    enabled: true
+                    enabled: true,
+                    content: []
                 },
                 right: {
-                    enabled: false
+                    enabled: false,
+                    content: []
                 }
             }
         }

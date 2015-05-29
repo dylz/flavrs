@@ -163,6 +163,7 @@ app.controller('mainCtrl', ['$scope','$http','$localStorage','$sessionStorage',
         $scope.modalInstance.dismiss('cancel');
     }
     
+    
     $scope.sortableOptions = {
         disabled: true,
         update: function(event, ui) {

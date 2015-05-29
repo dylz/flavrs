@@ -116,7 +116,7 @@ app.service('bookmarks', function($flavrs,$route,$http){
         promise.success(function(response,status){
             self.initialized = true;
             self.sidenav = response.sidenav;
-            $flavrs.ui.sidenav = response.sidenav;
+            $flavrs.ui.sidenav.left.content = response.sidenav;
         });
         
         return promise;
@@ -220,7 +220,7 @@ app.controller('bookmarksCtrl', ['$scope','$http','$flavrs','$controller', 'book
             if(bookmarks._loaded_id != id){
                 get_content(id);
                 // set the active tab
-                $scope.active_nav_id = id;
+                $flavrs.ui.sidenav.active_id = id;
                 // set this id as loaded
                 bookmarks._loaded_id = id;
             }
