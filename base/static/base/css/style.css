@@ -115,7 +115,7 @@ Navbar For Lightgrey mode
   width: 100%;
 }
 
-.tab-bar .md-tile-content.link {
+.tab-bar .md-tile-content {
   color: rgba(0, 0, 0, 0.87);
   text-decoration: none;
   float: left;
@@ -124,7 +124,7 @@ Navbar For Lightgrey mode
   line-height: 4em;
 }
 
-.tab-bar md-list-item .selected,
+.tab-bar md-list-item.selected,
 .tab-bar md-list-item.hover:hover{
   background: rgb(238,238,238);
 }

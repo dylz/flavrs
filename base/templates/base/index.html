@@ -112,7 +112,8 @@
         <md-list>
             <md-list-item class="md-1-line hover" ng-repeat="nav in sidenav.left.content"
                 ng-mouseenter="tabs_ui[$index]=true"
-                ng-mouseleave="tabs_ui[$index]=false">
+                ng-mouseleave="tabs_ui[$index]=false"
+                ng-class="{selected:(sidenav.active_id==nav.id)}">
                 
                 <div class="md-list-item-text">
                     
